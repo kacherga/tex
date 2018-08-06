@@ -1,10 +1,10 @@
 package com.example.literalnon.autoreequipment
 
 import android.os.Bundle
-import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
-import android.view.MenuItem
-import android.widget.TextView
+import com.bumptech.glide.annotation.GlideModule
+import com.bumptech.glide.module.AppGlideModule
+import com.example.literalnon.autoreequipment.utils.NavigationMainItems
 import services.mobiledev.ru.cheap.navigation.AddBackStackStrategy
 import services.mobiledev.ru.cheap.navigation.INavigationParent
 import services.mobiledev.ru.cheap.navigation.Navigator
@@ -23,6 +23,8 @@ class MainActivity : AppCompatActivity(), INavigationParent {
                 .strategy(AddBackStackStrategy(supportFragmentManager, R.id.container))
                 .build()
 
+        navigator?.openFirstFragment()
+
     }
 
     override fun onBackPressed() {
@@ -32,3 +34,6 @@ class MainActivity : AppCompatActivity(), INavigationParent {
     }
 
 }
+
+@GlideModule
+class SomeAppGlideModule : AppGlideModule() {}

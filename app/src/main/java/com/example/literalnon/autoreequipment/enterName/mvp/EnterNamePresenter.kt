@@ -1,7 +1,7 @@
 package services.mobiledev.ru.cheap.ui.main.comments.mvp
 
 import com.example.bloold.hackage.mvp.IPresenter
-import com.example.literalnon.autoreequipment.NavigationMainItems
+import com.example.literalnon.autoreequipment.utils.NavigationMainItems
 import services.mobiledev.ru.cheap.navigation.Navigator
 
 /**

@@ -1,8 +1,9 @@
-package com.example.literalnon.autoreequipment
+package com.example.literalnon.autoreequipment.utils
 
 import services.mobiledev.ru.cheap.navigation.IBaseItem
 import services.mobiledev.ru.cheap.ui.main.comments.AddEntryFragment
 import services.mobiledev.ru.cheap.ui.main.comments.EnterNameFragment
+import services.mobiledev.ru.cheap.ui.main.comments.FillDataFragment
 
 /**
  * Created by dmitry on 04.05.18.
@@ -51,6 +52,6 @@ enum class NavigationMainItems : IBaseItem {
 
         override fun getPreviousEnumObject() = ENTER_NAME_SCREEN
 
-        override fun getFragment() = AddEntryFragment.newInstance()
+        override fun getFragment() = FillDataFragment.newInstance()
     }
 }

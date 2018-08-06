@@ -1,5 +1,6 @@
 package services.mobiledev.ru.cheap.ui.main.comments
 
+import android.app.Activity
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
 import android.text.SpannableStringBuilder
@@ -16,6 +17,7 @@ import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Color
 import android.os.Handler
+import android.speech.RecognizerIntent
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.text.method.LinkMovementMethod
@@ -37,6 +39,8 @@ import java.io.File
 class EnterNameFragment : Fragment(), IEnterNameView {
 
     companion object {
+        private val REQUEST_VOICE_SEARCH = 7823
+
         fun newInstance() = EnterNameFragment()
     }
 
@@ -49,11 +53,35 @@ class EnterNameFragment : Fragment(), IEnterNameView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        presenter.attachView(this)
+
         btnNext.setOnClickListener {
             if (etName.text.toString().isNotEmpty()) {
                 presenter.next()
             }
         }
+
+        ivVoiceSearch.setOnClickListener {
+            displaySpeechRecognizer()
+        }
+    }
+
+    private fun displaySpeechRecognizer() {
+        val intentS = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intentS.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        startActivityForResult(intentS, REQUEST_VOICE_SEARCH)
+    }
+
+    override fun onActivityResult(requestCode: Int, resCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_VOICE_SEARCH && resCode == Activity.RESULT_OK) {
+            val result = data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            val fio = result[0].toString().split(" ")
+            etName.setText(fio.fold("", { acc, s ->
+                "$acc${s.first().toUpperCase()}${s.substring(1, s.length)}\n"
+            }))
+
+        }
+        super.onActivityResult(requestCode, resCode, data)
     }
 
     override fun getNavigationParent(): INavigationParent {

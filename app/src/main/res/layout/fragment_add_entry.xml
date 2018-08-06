@@ -3,20 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
 
     <CheckBox
         android:id="@+id/chbInstallGbo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="64dp"
         android:layout_marginTop="8dp"
         android:text="CheckBox"
         app:layout_constraintBottom_toTopOf="@+id/chbInstallFarcop"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="spread" />
@@ -28,9 +25,7 @@
         android:layout_marginTop="8dp"
         android:text="CheckBox"
         app:layout_constraintBottom_toTopOf="@+id/chbInstallDvig"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/chbInstallGbo"
         app:layout_constraintTop_toBottomOf="@+id/chbInstallGbo" />
 
     <CheckBox
@@ -40,9 +35,7 @@
         android:layout_marginTop="8dp"
         android:text="CheckBox"
         app:layout_constraintBottom_toTopOf="@+id/chbInstallRefresh"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/chbInstallFarcop"
         app:layout_constraintTop_toBottomOf="@+id/chbInstallFarcop" />
 
     <CheckBox
@@ -52,9 +45,7 @@
         android:layout_marginTop="8dp"
         android:text="CheckBox"
         app:layout_constraintBottom_toTopOf="@+id/chbInstallStrongBamp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/chbInstallDvig"
         app:layout_constraintTop_toBottomOf="@+id/chbInstallDvig" />
 
     <CheckBox
@@ -64,9 +55,7 @@
         android:layout_marginTop="8dp"
         android:text="CheckBox"
         app:layout_constraintBottom_toTopOf="@+id/chbOther"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/chbInstallRefresh"
         app:layout_constraintTop_toBottomOf="@+id/chbInstallRefresh" />
 
     <CheckBox
@@ -76,9 +65,7 @@
         android:layout_marginTop="8dp"
         android:text="CheckBox"
         app:layout_constraintBottom_toTopOf="@+id/btnNext"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/chbInstallStrongBamp"
         app:layout_constraintTop_toBottomOf="@+id/chbInstallStrongBamp" />
 
     <Button

@@ -15,20 +15,20 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/bottom_navigation_height">
+        android:layout_height="@dimen/bottom_navigation_height"
+        android:layout_gravity="bottom">
 
         <android.support.v7.widget.AppCompatImageView
             style="@style/BottomNavigationImageStyle"
-            app:srcCompat="@drawable/ic_bottom_navigation_list_active_entry"
-            />
+            app:srcCompat="@drawable/ic_bottom_navigation_list_active_entry" />
 
         <android.support.v7.widget.AppCompatImageView
             style="@style/BottomNavigationImageStyle"
-            app:srcCompat="@drawable/ic_bottom_navigation_partners_settings"/>
+            app:srcCompat="@drawable/ic_bottom_navigation_partners_settings" />
 
         <android.support.v7.widget.AppCompatImageView
             style="@style/BottomNavigationImageStyle"
-            app:srcCompat="@drawable/ic_bottom_navigation_add_entry"/>
+            app:srcCompat="@drawable/ic_bottom_navigation_add_entry" />
 
     </LinearLayout>
 

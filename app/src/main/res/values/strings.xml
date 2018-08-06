@@ -3,4 +3,17 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+
+    <!-- Fill data -->
+    <string name="fragment_fill_data_extra_title">Дополнительно</string>
+    <string name="fragment_request_description_hint">Опишите задачу в свободной форме</string>
+    <string name="fragment_request_add_photo_hint">Добавить фото\n Макс. 20 штук</string>
+    <string name="profile.edit.dialog_title_profile_pick_photo">Ваше фото</string>
+
+    <string-array name="choose_image_dialog">
+        <item>Выбрать из галереи</item>
+        <item>Сделать фото</item>
+    </string-array>
+
+
 </resources>

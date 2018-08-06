@@ -38,7 +38,8 @@ class AddEntryFragment : Fragment(), IAddEntryView {
 
     companion object {
         fun newInstance() = AddEntryFragment()
-        private val choiceTypes = arrayListOf<EntryType>()
+
+        val choiceTypes = arrayListOf<EntryType>()
     }
 
     override var presenter: IAddEntryPresenter = AddEntryPresenter()
@@ -50,12 +51,21 @@ class AddEntryFragment : Fragment(), IAddEntryView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        presenter.attachView(this)
+
         chbInstallGbo.isChecked = choiceTypes.contains(MainEntryType.TYPE_1)
         chbInstallFarcop.isChecked = choiceTypes.contains(MainEntryType.TYPE_2)
         chbInstallDvig.isChecked = choiceTypes.contains(MainEntryType.TYPE_3)
         chbInstallRefresh.isChecked = choiceTypes.contains(MainEntryType.TYPE_4)
         chbInstallStrongBamp.isChecked = choiceTypes.contains(MainEntryType.TYPE_5)
         chbOther.isChecked = choiceTypes.contains(MainEntryType.TYPE_6)
+
+        chbInstallGbo.text = MainEntryType.TYPE_1.title
+        chbInstallFarcop.text = MainEntryType.TYPE_2.title
+        chbInstallDvig.text = MainEntryType.TYPE_3.title
+        chbInstallRefresh.text = MainEntryType.TYPE_4.title
+        chbInstallStrongBamp.text = MainEntryType.TYPE_5.title
+        chbOther.text = MainEntryType.TYPE_6.title
 
         chbInstallGbo.setOnClickListener {
             choiceTypes.add(MainEntryType.TYPE_1)

@@ -1,26 +1,33 @@
 package com.example.literalnon.autoreequipment
 
 interface EntryType {
+    val title: String
     val photosId: ArrayList<Int>
 }
 
 enum class MainEntryType : EntryType {
     TYPE_1 {
+        override val title = "Установка ГБО"
         override val photosId = arrayListOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24)
     },
     TYPE_2 {
+        override val title = "Установка силового бампера"
         override val photosId = arrayListOf(1, 2, 3, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27)
     },
     TYPE_3 {
+        override val title = "Установка Фаркопа (ТСУ)"
         override val photosId = arrayListOf(1, 2, 3, 17, 18, 19, 20, 21, 22, 23, 24, 28, 29, 30)
     },
     TYPE_4 {
+        override val title = "Установка Рефрижератора"
         override val photosId = arrayListOf(1, 2, 3, 4, 17, 18, 19, 20, 21, 22, 23, 24, 31, 32, 33, 34, 35, 36, 37)
     },
     TYPE_5 {
+        override val title = "Установка Двигателя"
         override val photosId = arrayListOf(1, 2, 3, 4, 17, 18, 19, 20, 21, 22, 23, 24, 38, 39)
     },
     TYPE_6 {
+        override val title = "Прочее переоборудование"
         override val photosId = arrayListOf(1, 2, 3, 17, 18, 19, 20, 21, 22, 23, 24)
     }
 }
@@ -56,6 +63,7 @@ class Photo(
 )
 
 val photos = arrayListOf<Photo>(
+        Photo(0, "Хуйня на постном масле", PHOTO_TYPE.PHOTO_TYPE_1),
         Photo(1, "Общий вид автомобиля спереди с Гос. Знаком", PHOTO_TYPE.PHOTO_TYPE_2),
         Photo(2, "Общий вид сбоку", PHOTO_TYPE.PHOTO_TYPE_2),
         Photo(3, "Общий вид автомобиля сзади с Гос. знаком", PHOTO_TYPE.PHOTO_TYPE_2),
