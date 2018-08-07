@@ -247,7 +247,7 @@ public class MediaFilePicker {
 		//create dirs if not exist
 		storageDir.mkdirs();
 		final File imageFile = File.createTempFile(generateFileName(), extension, storageDir);
-		// Save a file: path for use with ACTION_VIEW intents
+		// Save a file: photo for use with ACTION_VIEW intents
 		mCurrentFilePath = imageFile.getAbsolutePath();
 		return imageFile;
 	}
@@ -261,8 +261,8 @@ public class MediaFilePicker {
 		/*MediaScannerConnection.scanFile(activity.process(),
 	            new String[]{mCurrentFilePath}, null,
                 new MediaScannerConnection.OnScanCompletedListener() {
-                    public void onScanCompleted(String path, Uri uri) {
-                        Log.i("ExternalStorage", "Scanned " + path + ":");
+                    public void onScanCompleted(String photo, Uri uri) {
+                        Log.i("ExternalStorage", "Scanned " + photo + ":");
                         Log.i("ExternalRfStorage", "-> uri=" + uri);
                     }
                 });*/

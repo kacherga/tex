@@ -59,7 +59,9 @@ enum class PHOTO_TYPE : PhotoType {
 class Photo(
         val id: Int,
         val name: String,
-        val type: PhotoType
+        val type: PhotoType,
+        var workType: EntryType? = null,
+        var photo: String? = null
 )
 
 val photos = arrayListOf<Photo>(

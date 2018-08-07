@@ -27,68 +27,59 @@ import android.util.Log
 import com.example.literalnon.autoreequipment.EntryType
 import com.example.literalnon.autoreequipment.MainEntryType
 import com.example.literalnon.autoreequipment.R
+import com.example.literalnon.autoreequipment.activeEntry.ActiveEntryDelegate
+import com.example.literalnon.autoreequipment.adapters.DelegationAdapter
+import com.example.literalnon.autoreequipment.data.Entry
+import com.example.literalnon.autoreequipment.fillData.MainEntryTypeDelegate
+import io.realm.Realm
+import kotlinx.android.synthetic.main.fragment_active_entry.*
 import kotlinx.android.synthetic.main.fragment_enter_name.*
 import services.mobiledev.ru.cheap.data.LoginController
 import services.mobiledev.ru.cheap.navigation.INavigationParent
-import services.mobiledev.ru.cheap.ui.main.comments.mvp.EnterNamePresenter
-import services.mobiledev.ru.cheap.ui.main.comments.mvp.IEnterNamePresenter
-import services.mobiledev.ru.cheap.ui.main.comments.mvp.IEnterNameView
+import services.mobiledev.ru.cheap.ui.main.comments.mvp.ActiveEntryPresenter
+import services.mobiledev.ru.cheap.ui.main.comments.mvp.IActiveEntryPresenter
+import services.mobiledev.ru.cheap.ui.main.comments.mvp.IActiveEntryView
 import java.io.File
 
 
-class EnterNameFragment : Fragment(), IEnterNameView {
+class ActiveEntryFragment : Fragment(), IActiveEntryView {
 
     companion object {
-        private val REQUEST_VOICE_SEARCH = 7823
-
-        var name = ""
-
-        fun newInstance() = EnterNameFragment()
+        fun newInstance() = ActiveEntryFragment()
     }
 
-    override var presenter: IEnterNamePresenter = EnterNamePresenter()
+    override var presenter: IActiveEntryPresenter = ActiveEntryPresenter()
+    private val adapter = DelegationAdapter<Any>()
+
+    private var realm: Realm? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.fragment_enter_name, container, false)
+            inflater.inflate(R.layout.fragment_active_entry, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         presenter.attachView(this)
 
-        btnNext.setOnClickListener {
-            if (etName.text.toString().isNotEmpty()) {
-                name = etName.text.toString()
-                presenter.next()
-            }
-        }
+        adapter.manager?.addDelegate(ActiveEntryDelegate())
+        rvActiveEntry.layoutManager = LinearLayoutManager(context)
+        rvActiveEntry.adapter = adapter
 
-        ivVoiceSearch.setOnClickListener {
-            displaySpeechRecognizer()
-        }
-    }
+        realm = Realm.getDefaultInstance()
+        realm?.beginTransaction()
 
-    private fun displaySpeechRecognizer() {
-        val intentS = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-        intentS.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-        startActivityForResult(intentS, REQUEST_VOICE_SEARCH)
-    }
-
-    override fun onActivityResult(requestCode: Int, resCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_VOICE_SEARCH && resCode == Activity.RESULT_OK) {
-            val result = data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-            val fio = result[0].toString().split(" ")
-            etName.setText(fio.fold("", { acc, s ->
-                "$acc${s.first().toUpperCase()}${s.substring(1, s.length)}\n"
-            }))
-
-        }
-        super.onActivityResult(requestCode, resCode, data)
+        val entries = realm?.where(Entry::class.java)?.findAll()
+        adapter.addAll(entries?.toList())
     }
 
     override fun getNavigationParent(): INavigationParent {
         return activity as INavigationParent
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        realm?.close()
     }
 }
 

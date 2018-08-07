@@ -13,13 +13,19 @@ import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import com.example.literalnon.autoreequipment.*
 import com.example.literalnon.autoreequipment.adapters.DelegationAdapter
+import com.example.literalnon.autoreequipment.data.Entry
+import com.example.literalnon.autoreequipment.data.RealmPhoto
+import com.example.literalnon.autoreequipment.data.WorkType
 import com.example.literalnon.autoreequipment.fillData.MainEntryTaskDelegate
 import com.example.literalnon.autoreequipment.fillData.MainEntryTypeDelegate
 import com.example.literalnon.autoreequipment.fillData.PhotoDelegate
 import com.example.literalnon.autoreequipment.fillData.PhotoTypeDelegate
 import com.example.literalnon.autoreequipment.utils.PermissionUtil
+import io.realm.Realm
+import io.realm.RealmList
 import kotlinx.android.synthetic.main.fragment_fill_data.*
 import services.mobiledev.ru.cheap.navigation.INavigationParent
 import services.mobiledev.ru.cheap.ui.main.comments.AddEntryFragment.Companion.choiceTypes
@@ -44,6 +50,8 @@ class FillDataFragment : Fragment(), IFillDataView,
 
     override var presenter: IFillDataPresenter = FillDataPresenter()
 
+    private var currentPhoto: Pair<Int, Photo>? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.fragment_fill_data, container, false)
@@ -55,7 +63,7 @@ class FillDataFragment : Fragment(), IFillDataView,
     private lateinit var filePicker: MediaFilePicker
     private val photoAdapter = DelegationAdapter<Any>()
     private val extraPhotos = ArrayList<File>()
-    private val photoTpes = arrayListOf<PHOTO_TYPE>(PHOTO_TYPE.PHOTO_TYPE_1, PHOTO_TYPE.PHOTO_TYPE_2, PHOTO_TYPE.PHOTO_TYPE_3, PHOTO_TYPE.PHOTO_TYPE_4)
+    private val photoTypes = arrayListOf<PHOTO_TYPE>(PHOTO_TYPE.PHOTO_TYPE_1, PHOTO_TYPE.PHOTO_TYPE_2, PHOTO_TYPE.PHOTO_TYPE_3, PHOTO_TYPE.PHOTO_TYPE_4)
 
     private val mainEntryTypeAdapter = DelegationAdapter<Any>()
 
@@ -76,6 +84,7 @@ class FillDataFragment : Fragment(), IFillDataView,
         presenter.attachView(this)
 
         ivAddPhoto.setOnClickListener {
+            currentPhoto = null
             dialogFilePicker()
         }
 
@@ -92,7 +101,9 @@ class FillDataFragment : Fragment(), IFillDataView,
             }
         }))
 
-        mainEntryTypeAdapter.manager?.addDelegate(MainEntryTaskDelegate({
+        mainEntryTypeAdapter.manager?.addDelegate(MainEntryTaskDelegate({ photo, pos ->
+            currentPhoto = Pair(pos, photo)
+
             dialogFilePicker()
         }))
 
@@ -109,11 +120,15 @@ class FillDataFragment : Fragment(), IFillDataView,
         choiceTypes.forEach { entryType ->
             list.add(entryType)
 
-            photoTpes.forEach { photoType ->
+            photoTypes.forEach { photoType ->
                 entryType.photosId.filter { photos[it].type == photoType }.let {
                     if (it.isNotEmpty()) {
                         list.add(photoType)
-                        list.addAll(it.map { photos[it] })
+                        list.addAll(it.map {
+                            photos[it].apply {
+                                workType = entryType
+                            }
+                        })
                     }
                 }
             }
@@ -121,20 +136,31 @@ class FillDataFragment : Fragment(), IFillDataView,
 
         mainEntryTypeAdapter.addAll(list)
         rvTasks.isNestedScrollingEnabled = false
+
+        tvName.text = EnterNameFragment.name
     }
 
     override fun onFilePicked(file: File?) {
-        if (file != null) {
-            extraPhotos.add(file)
-            photoAdapter.add(file)
-            etFillPhotoHint.visibility = View.GONE
-            Toast.makeText(context, "loaded", Toast.LENGTH_LONG).show()
+        if (currentPhoto != null) {
+            if (file != null) {
+                currentPhoto?.second?.photo = file.path
+                mainEntryTypeAdapter.notifyItemChanged(currentPhoto!!.first)
+            } else {
+                Toast.makeText(context, "file empty", Toast.LENGTH_LONG).show()
+            }
         } else {
-            Toast.makeText(context, "file empty", Toast.LENGTH_LONG).show()
-        }
+            if (file != null) {
+                extraPhotos.add(file)
+                photoAdapter.add(file)
+                etFillPhotoHint.visibility = View.GONE
+                Toast.makeText(context, "loaded", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(context, "file empty", Toast.LENGTH_LONG).show()
+            }
 
-        if (extraPhotos.size >= 20) {
-            ivAddPhoto.visibility = View.GONE
+            if (extraPhotos.size >= 20) {
+                ivAddPhoto.visibility = View.GONE
+            }
         }
     }
 
@@ -189,6 +215,60 @@ class FillDataFragment : Fragment(), IFillDataView,
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         filePicker.onActivityResult(requestCode, resultCode, data)
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    override fun onDestroyView() {
+        val realm = Realm.getDefaultInstance()
+        realm.beginTransaction()
+
+        val currentEntry = realm.createObject(Entry::class.java)
+
+        currentEntry.name = EnterNameFragment.name
+
+        choiceTypes.forEach { entryType ->
+            val workType = realm.createObject(WorkType::class.java)
+
+            workType.name = entryType.title
+
+            entryType.photosId.forEach {
+
+
+                val mPhoto = RealmPhoto().apply {
+                    name = photos[it].name
+                    photo = photos[it].photo
+                    type = photos[it].type.title
+                }
+
+                workType.photos?.add(realm.copyToRealm(mPhoto))
+            }
+
+            currentEntry.workTypes?.add(workType)
+        }
+
+        val workType = realm.createObject(WorkType::class.java)
+        workType.name = etDescriptionTask.text.toString()
+
+        extraPhotos.forEach {
+            val mPhoto = RealmPhoto().apply {
+                name = "Доп. фото"
+                photo = it.path
+                type = PHOTO_TYPE.PHOTO_TYPE_4.title
+            }
+
+            workType.photos?.add(realm.copyToRealm(mPhoto))
+        }
+
+        currentEntry.workTypes?.add(workType)
+
+        realm.commitTransaction()
+
+        realm.executeTransaction({ bgRealm ->
+
+        })
+
+        realm.close()
+
+        super.onDestroyView()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

@@ -18,6 +18,14 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/tvName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="8dp"
+                android:textSize="18sp" />
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rvTasks"
                 android:layout_width="match_parent"

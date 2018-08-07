@@ -1,4 +1,4 @@
-package com.example.literalnon.autoreequipment.fillData
+package com.example.literalnon.autoreequipment.activeEntry
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -12,6 +12,8 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.literalnon.autoreequipment.Photo
 import com.example.literalnon.autoreequipment.R
 import com.example.literalnon.autoreequipment.adapters.AbstractAdapterDelegate
+import com.example.literalnon.autoreequipment.data.Entry
+import kotlinx.android.synthetic.main.item_active_entry.view.*
 import kotlinx.android.synthetic.main.item_create_photo.view.*
 import java.io.File
 import javax.security.auth.callback.Callback
@@ -19,42 +21,25 @@ import javax.security.auth.callback.Callback
 /**
  * Created by bloold on 16.12.17.
  */
-typealias AddPhotoCallback = (Photo, Int) -> Unit
-
-class MainEntryTaskDelegate(private val callback: AddPhotoCallback) : AbstractAdapterDelegate<Any, Any, MainEntryTaskDelegate.Holder>() {
+class ActiveEntryDelegate : AbstractAdapterDelegate<Any, Any, ActiveEntryDelegate.Holder>() {
 
     override fun isForViewType(item: Any, items: MutableList<Any>, position: Int): Boolean {
-        return item is Photo
+        return item is Entry
     }
 
     override fun onCreateViewHolder(parent: ViewGroup): Holder {
-        return Holder(LayoutInflater.from(parent.context).inflate(R.layout.item_create_photo, parent, false))
+        return Holder(LayoutInflater.from(parent.context).inflate(R.layout.item_active_entry, parent, false))
     }
 
     override fun onBindViewHolder(holder: Holder, item: Any) {
-        item as Photo
+        item as Entry
 
         with(holder) {
-            if (item.photo != null) {
-                Glide.with(ivPhoto)
-                        .load(item.photo)
-                        .into(ivPhoto)
-            }
-
-            mainLayout.setOnClickListener {
-                callback(item, position)
-            }
-
-            tvTitle.text = item.name
-
-            typeView.setBackgroundResource(item.type.typeColor)
+            chbEntry.text = item.name
         }
     }
 
     class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val mainLayout = itemView.mainLayout
-        val tvTitle = itemView.tvTitle
-        val typeView = itemView.typeView
-        val ivPhoto = itemView.ivPhoto
+        val chbEntry = itemView.chbEntry
     }
 }

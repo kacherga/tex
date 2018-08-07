@@ -1,6 +1,7 @@
 package com.example.literalnon.autoreequipment.utils
 
 import services.mobiledev.ru.cheap.navigation.IBaseItem
+import services.mobiledev.ru.cheap.ui.main.comments.ActiveEntryFragment
 import services.mobiledev.ru.cheap.ui.main.comments.AddEntryFragment
 import services.mobiledev.ru.cheap.ui.main.comments.EnterNameFragment
 import services.mobiledev.ru.cheap.ui.main.comments.FillDataFragment
@@ -16,7 +17,7 @@ enum class NavigationMainItems : IBaseItem {
 
         override fun getPreviousEnumObject() = null
 
-        override fun getFragment() = AddEntryFragment.newInstance()
+        override fun getFragment() = ActiveEntryFragment.newInstance()
     },
     PARTNER_SETTINGS_SCREEN {
         override var data: Any? = null
