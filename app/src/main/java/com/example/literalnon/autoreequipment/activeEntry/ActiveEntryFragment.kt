@@ -33,13 +33,15 @@ import com.example.literalnon.autoreequipment.data.Entry
 import com.example.literalnon.autoreequipment.fillData.MainEntryTypeDelegate
 import io.realm.Realm
 import kotlinx.android.synthetic.main.fragment_active_entry.*
-import kotlinx.android.synthetic.main.fragment_enter_name.*
+import org.apache.commons.net.ftp.FTP
+import org.apache.commons.net.ftp.FTPClient
 import services.mobiledev.ru.cheap.data.LoginController
 import services.mobiledev.ru.cheap.navigation.INavigationParent
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.ActiveEntryPresenter
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.IActiveEntryPresenter
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.IActiveEntryView
 import java.io.File
+import java.io.FileInputStream
 
 
 class ActiveEntryFragment : Fragment(), IActiveEntryView {
@@ -71,6 +73,28 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
 
         val entries = realm?.where(Entry::class.java)?.findAll()
         adapter.addAll(entries?.toList())
+
+        btnNext.setOnClickListener {
+            var ftpClient: FTPClient? = null
+
+            try {
+                ftpClient = FTPClient()
+                ftpClient.connect("ftp://tex-expert.ru")
+
+                if (ftpClient.login("admin_android", "mWg2zP27NT")) {
+                    ftpClient.enterLocalPassiveMode()
+                    ftpClient.setFileType(FTP.BINARY_FILE_TYPE)
+
+                    ftpClient?.
+
+                    ftpClient.logout()
+                    ftpClient.disconnect()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
     }
 
     override fun getNavigationParent(): INavigationParent {
