@@ -18,3 +18,19 @@ open class RealmPhoto : RealmObject() {
     var photo: String? = null
     var type: String? = null
 }
+
+open class EntryObject(
+    var name: String? = null,
+    var workTypes: List<WorkTypeObject>? = null
+)
+
+open class WorkTypeObject(
+    var name: String? = null,
+    var photos: List<PhotoObject>? = null
+)
+
+open class PhotoObject(
+    var name: String? = null,
+    var photo: String? = null,
+    var type: String? = null
+)

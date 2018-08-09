@@ -2,6 +2,7 @@ package com.example.literalnon.autoreequipment.activeEntry
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.BitmapFactory
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -14,32 +15,57 @@ import com.example.literalnon.autoreequipment.R
 import com.example.literalnon.autoreequipment.adapters.AbstractAdapterDelegate
 import com.example.literalnon.autoreequipment.data.Entry
 import kotlinx.android.synthetic.main.item_active_entry.view.*
-import kotlinx.android.synthetic.main.item_create_photo.view.*
 import java.io.File
 import javax.security.auth.callback.Callback
 
 /**
  * Created by bloold on 16.12.17.
  */
-class ActiveEntryDelegate : AbstractAdapterDelegate<Any, Any, ActiveEntryDelegate.Holder>() {
+typealias CheckCallback = HashMap<Int, Entry>
+
+class ActiveEntryDelegate(private val checkCallback: CheckCallback) : AbstractAdapterDelegate<Any, Any, ActiveEntryDelegate.Holder>() {
 
     override fun isForViewType(item: Any, items: MutableList<Any>, position: Int): Boolean {
         return item is Entry
     }
 
     override fun onCreateViewHolder(parent: ViewGroup): Holder {
-        return Holder(LayoutInflater.from(parent.context).inflate(R.layout.item_active_entry, parent, false))
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_active_entry, parent, false)
+        view.layoutParams.height = (Resources.getSystem().displayMetrics.widthPixels - SpaceItemDecoration.distance * 4) / 3
+        view.layoutParams.width = (Resources.getSystem().displayMetrics.widthPixels - SpaceItemDecoration.distance * 4) / 3
+        return Holder(view)
     }
 
     override fun onBindViewHolder(holder: Holder, item: Any) {
         item as Entry
 
         with(holder) {
-            chbEntry.text = item.name
+            tvTitle.text = item.name
+
+            setChecked(holder, item, position, true)
+
+            mainLayout.setOnClickListener {
+                setChecked(holder, item, position)
+            }
+        }
+    }
+
+    fun setChecked(holder: Holder, item: Entry, position: Int, isContains: Boolean = false) {
+        if (checkCallback.containsKey(position) == isContains) {
+            checkCallback[position] = item
+            holder.ivCheck.visibility = View.VISIBLE
+            holder.checkView.visibility = View.VISIBLE
+        } else {
+            checkCallback.remove(position)
+            holder.ivCheck.visibility = View.GONE
+            holder.checkView.visibility = View.GONE
         }
     }
 
     class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val chbEntry = itemView.chbEntry
+        val tvTitle = itemView.tvTitle
+        val mainLayout = itemView.mainLayout
+        val checkView = itemView.checkView
+        val ivCheck = itemView.ivCheck
     }
 }

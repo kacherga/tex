@@ -62,7 +62,9 @@ dependencies {
     // https://mvnrepository.com/artifact/commons-net/commons-net
     implementation group: 'commons-net', name: 'commons-net', version: '2.0'
 
-
+    //Reactivex
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.0'
 }
 repositories {
     mavenCentral()

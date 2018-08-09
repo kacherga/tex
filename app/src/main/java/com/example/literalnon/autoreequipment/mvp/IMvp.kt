@@ -13,6 +13,9 @@ interface IView<Presenter> {
     var presenter: Presenter
 
     fun getNavigationParent(): INavigationParent
+
+    fun showLoading() {}
+    fun dismissLoading() {}
 }
 
 interface IPresenter<View, Model> {

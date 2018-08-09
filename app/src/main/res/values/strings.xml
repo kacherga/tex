@@ -16,4 +16,6 @@
     </string-array>
 
 
+    <!-- login -->
+    <string name="fragment_login_title">Введите свои данные</string>
 </resources>

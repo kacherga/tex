@@ -1,10 +1,7 @@
 package com.example.literalnon.autoreequipment.utils
 
 import services.mobiledev.ru.cheap.navigation.IBaseItem
-import services.mobiledev.ru.cheap.ui.main.comments.ActiveEntryFragment
-import services.mobiledev.ru.cheap.ui.main.comments.AddEntryFragment
-import services.mobiledev.ru.cheap.ui.main.comments.EnterNameFragment
-import services.mobiledev.ru.cheap.ui.main.comments.FillDataFragment
+import services.mobiledev.ru.cheap.ui.main.comments.*
 
 /**
  * Created by dmitry on 04.05.18.
@@ -26,7 +23,7 @@ enum class NavigationMainItems : IBaseItem {
 
         override fun getPreviousEnumObject() = null
 
-        override fun getFragment() = AddEntryFragment.newInstance()
+        override fun getFragment() = AddPartnerFragment.newInstance()
     },
     ADD_ENTRY_SCREEN {
         override var data: Any? = null

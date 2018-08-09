@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity(), INavigationParent {
         }
 
         ivLogin.setOnClickListener {
-            navigator?.pushFragment(NavigationMainItems.ENTER_NAME_SCREEN)
+            navigator?.pushFragment(NavigationMainItems.PARTNER_SETTINGS_SCREEN)
         }
 
         ivAddEntry.setOnClickListener {
