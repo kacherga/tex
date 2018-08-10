@@ -232,7 +232,6 @@ class FillDataFragment : Fragment(), IFillDataView,
 
             entryType.photosId.forEach {
 
-
                 val mPhoto = RealmPhoto().apply {
                     name = photos[it].name
                     photo = photos[it].photo
@@ -250,7 +249,7 @@ class FillDataFragment : Fragment(), IFillDataView,
 
         extraPhotos.forEach {
             val mPhoto = RealmPhoto().apply {
-                name = "Доп. фото"
+                name = "Доп. фото ${extraPhotos.indexOf(it)}"
                 photo = it.path
                 type = PHOTO_TYPE.PHOTO_TYPE_4.title
             }

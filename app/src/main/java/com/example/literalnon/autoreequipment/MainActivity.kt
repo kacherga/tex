@@ -10,6 +10,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import services.mobiledev.ru.cheap.navigation.AddBackStackStrategy
 import services.mobiledev.ru.cheap.navigation.INavigationParent
 import services.mobiledev.ru.cheap.navigation.Navigator
+import services.mobiledev.ru.cheap.navigation.ReplaceStrategy
 
 class MainActivity : AppCompatActivity(), INavigationParent {
 
@@ -23,7 +24,7 @@ class MainActivity : AppCompatActivity(), INavigationParent {
 
         navigator = Navigator.Builder()
                 .firstFragment(NavigationMainItems.ADD_ENTRY_SCREEN)
-                .strategy(AddBackStackStrategy(supportFragmentManager, R.id.container))
+                .strategy(ReplaceStrategy(supportFragmentManager, R.id.container))
                 .build()
 
         navigator?.openFirstFragment()
