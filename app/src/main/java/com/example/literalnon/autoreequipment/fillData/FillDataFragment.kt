@@ -41,12 +41,23 @@ class FillDataFragment : Fragment(), IFillDataView,
     companion object {
         private val TAG = "TAG_REQUEST_FRAGMENT_SERVICES"
 
+        private const val EXTRA_IS_EDIT = "isEdit"
+
         private const val REQUEST_STORAGE_PERMISSION = 11
         private const val REQUEST_CAMERA_PERMISSION = 22
 
 
-        fun newInstance() = FillDataFragment()
+        fun newInstance(isEdit: Boolean = false): FillDataFragment {
+            return FillDataFragment().apply {
+                arguments = Bundle().apply {
+                    putBoolean(EXTRA_IS_EDIT, isEdit)
+                }
+            }
+        }
     }
+
+    private var isNotSave = true
+    private var isEdit = false
 
     override var presenter: IFillDataPresenter = FillDataPresenter()
 
@@ -63,7 +74,7 @@ class FillDataFragment : Fragment(), IFillDataView,
     private lateinit var filePicker: MediaFilePicker
     private val photoAdapter = DelegationAdapter<Any>()
     private val extraPhotos = ArrayList<File>()
-    private val photoTypes = arrayListOf<PHOTO_TYPE>(PHOTO_TYPE.PHOTO_TYPE_1, PHOTO_TYPE.PHOTO_TYPE_2, PHOTO_TYPE.PHOTO_TYPE_3, PHOTO_TYPE.PHOTO_TYPE_4)
+    private val photoTypes = arrayListOf(PHOTO_TYPE.PHOTO_TYPE_1, PHOTO_TYPE.PHOTO_TYPE_2, PHOTO_TYPE.PHOTO_TYPE_3, PHOTO_TYPE.PHOTO_TYPE_4)
 
     private val mainEntryTypeAdapter = DelegationAdapter<Any>()
 
@@ -76,6 +87,10 @@ class FillDataFragment : Fragment(), IFillDataView,
                 .activity(activity)
                 .savedState(savedInstanceState)
                 .build()
+
+        if (arguments?.containsKey(EXTRA_IS_EDIT) == true) {
+            isEdit = arguments!!.getBoolean(EXTRA_IS_EDIT)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -88,7 +103,7 @@ class FillDataFragment : Fragment(), IFillDataView,
             dialogFilePicker()
         }
 
-        photoAdapter.manager?.addDelegate(PhotoDelegate({ photo ->
+        photoAdapter.manager?.addDelegate(PhotoDelegate { photo ->
             photoAdapter.remove(photoAdapter.items.indexOf(photo))
             extraPhotos.remove(photo)
 
@@ -99,13 +114,13 @@ class FillDataFragment : Fragment(), IFillDataView,
             if (extraPhotos.size < 20) {
                 ivAddPhoto.visibility = View.VISIBLE
             }
-        }))
+        })
 
-        mainEntryTypeAdapter.manager?.addDelegate(MainEntryTaskDelegate({ photo, pos ->
+        mainEntryTypeAdapter.manager?.addDelegate(MainEntryTaskDelegate { photo, pos ->
             currentPhoto = Pair(pos, photo)
 
             dialogFilePicker()
-        }))
+        })
 
         mainEntryTypeAdapter.manager?.addDelegate(MainEntryTypeDelegate())
         mainEntryTypeAdapter.manager?.addDelegate(PhotoTypeDelegate())
@@ -117,27 +132,63 @@ class FillDataFragment : Fragment(), IFillDataView,
         rvTasks.adapter = mainEntryTypeAdapter
 
         val list = arrayListOf<Any>()
-        choiceTypes.forEach { entryType ->
-            list.add(entryType)
+        list.addAll(choiceTypes)
 
-            photoTypes.forEach { photoType ->
-                entryType.photosId.filter { photos[it].type == photoType }.let {
-                    if (it.isNotEmpty()) {
-                        list.add(photoType)
-                        list.addAll(it.map {
-                            photos[it].apply {
-                                workType = entryType
+        val photoIds = choiceTypes.fold(HashMap<Int, ArrayList<EntryType>>()) { arr: HashMap<Int, ArrayList<EntryType>>, entryType: EntryType ->
+            entryType.photosId.forEach {
+                if (arr.containsKey(it)) {
+                    arr[it]?.add(entryType)
+                } else {
+                    arr[it] = arrayListOf(entryType)
+                }
+            }
+
+            arr
+        }
+
+        photoTypes.forEach { photoType ->
+            photoIds.filter { photos[it.key].type == photoType }.let {
+                if (it.isNotEmpty()) {
+                    list.add(photoType)
+                    list.addAll(it.map {
+                        photos[it.key].apply {
+                            if (!isEdit) {
+                                photo = null
+                                workType = it.value
                             }
-                        })
-                    }
+                        }
+                    })
                 }
             }
         }
 
-        mainEntryTypeAdapter.addAll(list)
+        mainEntryTypeAdapter.replaceAll(list)
         rvTasks.isNestedScrollingEnabled = false
 
         tvName.text = EnterNameFragment.name
+
+        btnNext.setOnClickListener {
+            sendData()
+            isNotSave = false
+        }
+
+        Log.d("tag", "isEdit : ${isEdit} : ${AddEntryFragment.extras != null}")
+
+        if (isEdit && AddEntryFragment.extras != null) {
+            etDescriptionTask.setText(AddEntryFragment.extras!!.name)
+
+            try {
+
+                val photos = AddEntryFragment.extras!!.photos?.map {
+                    File(it)
+                }
+                extraPhotos.addAll(photos ?: ArrayList())
+                photoAdapter.addAll(photos)
+                etFillPhotoHint.visibility = View.GONE
+            } catch (e: Exception) {
+
+            }
+        }
     }
 
     override fun onFilePicked(file: File?) {
@@ -218,8 +269,20 @@ class FillDataFragment : Fragment(), IFillDataView,
     }
 
     override fun onDestroyView() {
+        if (isNotSave) {
+            sendData()
+        }
+
+        super.onDestroyView()
+    }
+
+    private fun sendData() {
         val realm = Realm.getDefaultInstance()
         realm.beginTransaction()
+
+        if (isEdit) {
+            realm?.where(Entry::class.java)?.`in`("name", arrayOf(EnterNameFragment.name))?.findAll()?.deleteAllFromRealm()
+        }
 
         val currentEntry = realm.createObject(Entry::class.java)
 
@@ -236,6 +299,7 @@ class FillDataFragment : Fragment(), IFillDataView,
                     name = photos[it].name
                     photo = photos[it].photo
                     type = photos[it].type.title
+                    id = it
                 }
 
                 workType.photos?.add(realm.copyToRealm(mPhoto))
@@ -245,13 +309,14 @@ class FillDataFragment : Fragment(), IFillDataView,
         }
 
         val workType = realm.createObject(WorkType::class.java)
-        workType.name = etDescriptionTask.text.toString()
+        workType.name = PHOTO_TYPE.PHOTO_TYPE_4.title
 
         extraPhotos.forEach {
             val mPhoto = RealmPhoto().apply {
                 name = "Доп. фото ${extraPhotos.indexOf(it)}"
                 photo = it.path
-                type = PHOTO_TYPE.PHOTO_TYPE_4.title
+                type = etDescriptionTask.text.toString()
+                id = 0
             }
 
             workType.photos?.add(realm.copyToRealm(mPhoto))
@@ -267,7 +332,7 @@ class FillDataFragment : Fragment(), IFillDataView,
 
         realm.close()
 
-        super.onDestroyView()
+        Toast.makeText(context, "Созранено", Toast.LENGTH_LONG).show()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

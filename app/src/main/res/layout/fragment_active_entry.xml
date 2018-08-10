@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="56dp" />
+        android:layout_marginBottom="72dp" />
 
     <Button
         android:id="@+id/btnNext"
@@ -19,7 +19,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="16dp"
-        android:text="Next"
+        android:text="@string/send_photos"
+        android:padding="16dp"
+        android:background="@drawable/background_gray_stroke"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

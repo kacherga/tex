@@ -2,13 +2,15 @@
     <string name="app_name">AutoReEquipment</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_settings">Settings</string>
 
     <!-- Fill data -->
     <string name="fragment_fill_data_extra_title">Дополнительно</string>
     <string name="fragment_request_description_hint">Опишите задачу в свободной форме</string>
     <string name="fragment_request_add_photo_hint">Добавить фото\n Макс. 20 штук</string>
     <string name="profile.edit.dialog_title_profile_pick_photo">Ваше фото</string>
+    <string name="send_photos">Отправить на сервер</string>
+    <string name="next">Продолжить</string>
 
     <string-array name="choose_image_dialog">
         <item>Выбрать из галереи</item>
@@ -18,4 +20,7 @@
 
     <!-- login -->
     <string name="fragment_login_title">Введите свои данные</string>
+    <string name="fragment_login_town">Введите город</string>
+    <string name="fragment_login_save">Сохранить</string>
+    <string name="fragment_login_edit">Редактировать</string>
 </resources>

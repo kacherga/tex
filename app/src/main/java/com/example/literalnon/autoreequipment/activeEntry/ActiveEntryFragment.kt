@@ -1,6 +1,8 @@
 package services.mobiledev.ru.cheap.ui.main.comments
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
 import android.view.LayoutInflater
@@ -21,17 +23,12 @@ import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.util.Log
-import com.example.literalnon.autoreequipment.EntryType
-import com.example.literalnon.autoreequipment.MainEntryType
-import com.example.literalnon.autoreequipment.R
+import com.example.literalnon.autoreequipment.*
 import com.example.literalnon.autoreequipment.activeEntry.ActiveEntryDelegate
 import com.example.literalnon.autoreequipment.activeEntry.CheckCallback
 import com.example.literalnon.autoreequipment.activeEntry.SpaceItemDecoration
 import com.example.literalnon.autoreequipment.adapters.DelegationAdapter
-import com.example.literalnon.autoreequipment.data.Entry
-import com.example.literalnon.autoreequipment.data.EntryObject
-import com.example.literalnon.autoreequipment.data.PhotoObject
-import com.example.literalnon.autoreequipment.data.WorkTypeObject
+import com.example.literalnon.autoreequipment.data.*
 import com.example.literalnon.autoreequipment.fillData.MainEntryTypeDelegate
 import io.reactivex.Observable
 import io.reactivex.Scheduler
@@ -72,9 +69,31 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
 
         presenter.attachView(this)
 
-        adapter.manager?.addDelegate(ActiveEntryDelegate(checkedEntries))
+        adapter.manager?.addDelegate(ActiveEntryDelegate(checkedEntries) { entry ->
+            EnterNameFragment.name = entry.name ?: ""
 
-        rvActiveEntry.layoutManager = GridLayoutManager(context, 3)
+            AddEntryFragment.choiceTypes = ArrayList<EntryType>().apply {
+                addAll(allEntryType.filter {
+                    entry.workTypes?.find { workType -> TextUtils.equals(workType.name, it.title) } != null
+                })
+
+                entry.workTypes?.forEach {
+                    it?.photos?.forEach {
+                        photos[it.id!!].photo = it.photo
+                    }
+                }
+                val extras = entry.workTypes?.find { TextUtils.equals(it.name, PHOTO_TYPE.PHOTO_TYPE_4.title) }
+                if (extras != null) {
+                    AddEntryFragment.extras = Extras(
+                            extras.photos?.first()?.type ?: "",
+                            extras.photos?.map { it.photo ?: "" }
+                    )
+                }
+            }
+            presenter.openEdit()
+        })
+
+        rvActiveEntry.layoutManager = LinearLayoutManager(context)
         rvActiveEntry.addItemDecoration(SpaceItemDecoration(context))
 
         rvActiveEntry.adapter = adapter
@@ -128,8 +147,6 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                         dismissLoading()
                     }
                     .subscribe({
-                        Toast.makeText(context, "все ок", Toast.LENGTH_LONG).show()
-
                         realm?.beginTransaction()
 
                         realm?.where(Entry::class.java)?.`in`("name", listEntry.map {
@@ -146,11 +163,12 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
 
                         entries = realm?.where(Entry::class.java)?.findAll()
                         adapter.replaceAll(entries?.toList())
+
+                        Toast.makeText(context, "все ок", Toast.LENGTH_LONG).show()
                     }, {
                         Toast.makeText(context, "пизда пришла", Toast.LENGTH_LONG).show()
                         it.printStackTrace()
                     })
-
         }
 
     }
@@ -168,7 +186,12 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
             ftpClient.enterLocalPassiveMode()
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE)
 
-            val companyName = LoginController.user ?: "Тестовая компания"
+            val companyName = (LoginController.user?.name ?: "Тестовая компания") +
+                    if (!LoginController.user?.town.isNullOrEmpty()) {
+                        "(${LoginController.user!!.town})"
+                    } else {
+                        ""
+                    }
 
             Log.e("makeDirectory", companyName + " : " + ftpClient.controlEncoding)
 
@@ -206,12 +229,16 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
         return activity as INavigationParent
     }
 
+    var progressDialog: ProgressDialog? = null
+
     override fun showLoading() {
-        progressBar?.visibility = View.VISIBLE
+        progressDialog = ProgressDialog.show(context, "Загрузка...", "Пожалуйста подождите!")
+        //progressBar?.visibility = View.VISIBLE
     }
 
     override fun dismissLoading() {
-        progressBar?.visibility = View.GONE
+        progressDialog?.dismiss()
+        //progressBar?.visibility = View.GONE
     }
 
     override fun onDestroyView() {

@@ -3,13 +3,14 @@ package services.mobiledev.ru.cheap.ui.main.comments.mvp
 import com.example.bloold.hackage.mvp.IPresenter
 import com.example.literalnon.autoreequipment.utils.NavigationMainItems
 import services.mobiledev.ru.cheap.data.LoginController
+import services.mobiledev.ru.cheap.data.User
 import services.mobiledev.ru.cheap.navigation.Navigator
 
 /**
  * Created by dmitry on 04.05.18.
  */
 interface IAddPartnerPresenter : IPresenter<IAddPartnerView, IAddPartnerModel> {
-    fun next(user: String)
+    fun next(user: User)
 }
 
 class AddPartnerPresenter : IAddPartnerPresenter {
@@ -18,7 +19,7 @@ class AddPartnerPresenter : IAddPartnerPresenter {
 
     override var model: IAddPartnerModel = AddPartnerModel()
 
-    override fun next(user: String) {
+    override fun next(user: User) {
         LoginController.user = user
     }
 

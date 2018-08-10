@@ -60,7 +60,7 @@ class Photo(
         val id: Int,
         val name: String,
         val type: PhotoType,
-        var workType: EntryType? = null,
+        var workType: ArrayList<EntryType>? = null,
         var photo: String? = null
 )
 
@@ -107,3 +107,11 @@ val photos = arrayListOf<Photo>(
         Photo(39, "Крупный план заводского номера Двигателя", PHOTO_TYPE.PHOTO_TYPE_2)
 )
 
+val allEntryType = arrayListOf<EntryType>(
+        MainEntryType.TYPE_1,
+        MainEntryType.TYPE_2,
+        MainEntryType.TYPE_3,
+        MainEntryType.TYPE_4,
+        MainEntryType.TYPE_5,
+        MainEntryType.TYPE_6
+)

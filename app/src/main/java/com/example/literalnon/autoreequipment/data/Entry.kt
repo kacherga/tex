@@ -14,6 +14,7 @@ open class WorkType : RealmObject() {
 }
 
 open class RealmPhoto : RealmObject() {
+    var id: Int? = null
     var name: String? = null
     var photo: String? = null
     var type: String? = null
@@ -33,4 +34,9 @@ open class PhotoObject(
     var name: String? = null,
     var photo: String? = null,
     var type: String? = null
+)
+
+data class Extras(
+        val name: String,
+        val photos: List<String>?
 )

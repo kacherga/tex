@@ -25,11 +25,6 @@
 
         <android.support.v7.widget.AppCompatImageView
             style="@style/BottomNavigationImageStyle"
-            android:id="@+id/ivLogin"
-            app:srcCompat="@drawable/ic_bottom_navigation_partners_settings" />
-
-        <android.support.v7.widget.AppCompatImageView
-            style="@style/BottomNavigationImageStyle"
             android:id="@+id/ivAddEntry"
             app:srcCompat="@drawable/ic_bottom_navigation_add_entry" />
 

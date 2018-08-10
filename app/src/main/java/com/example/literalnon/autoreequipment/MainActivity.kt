@@ -2,6 +2,8 @@ package com.example.literalnon.autoreequipment
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
+import android.view.MenuItem
 import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.module.AppGlideModule
 import com.example.literalnon.autoreequipment.utils.NavigationMainItems
@@ -33,9 +35,6 @@ class MainActivity : AppCompatActivity(), INavigationParent {
             navigator?.pushFragment(NavigationMainItems.LIST_ACTIVE_ENTRY_SCREEN)
         }
 
-        ivLogin.setOnClickListener {
-            navigator?.pushFragment(NavigationMainItems.PARTNER_SETTINGS_SCREEN)
-        }
 
         ivAddEntry.setOnClickListener {
             navigator?.pushFragment(NavigationMainItems.ADD_ENTRY_SCREEN)
@@ -46,6 +45,19 @@ class MainActivity : AppCompatActivity(), INavigationParent {
         if (navigator?.backNavigation() != true) {
             super.onBackPressed()
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.navigation, menu);
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if (item?.itemId == R.id.navigation_settings) {
+            navigator?.pushFragment(NavigationMainItems.PARTNER_SETTINGS_SCREEN)
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
 }

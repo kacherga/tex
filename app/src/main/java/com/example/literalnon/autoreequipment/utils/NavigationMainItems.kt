@@ -51,5 +51,14 @@ enum class NavigationMainItems : IBaseItem {
         override fun getPreviousEnumObject() = ENTER_NAME_SCREEN
 
         override fun getFragment() = FillDataFragment.newInstance()
+    },
+    EDIT_ENTRY_SCREEN {
+        override var data: Any? = null
+
+        override fun getTag() = "EDIT_ENTRY_SCREEN"
+
+        override fun getPreviousEnumObject() = LIST_ACTIVE_ENTRY_SCREEN
+
+        override fun getFragment() = FillDataFragment.newInstance(true)
     }
 }

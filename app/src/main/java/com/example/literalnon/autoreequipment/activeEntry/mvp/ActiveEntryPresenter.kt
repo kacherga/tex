@@ -9,6 +9,7 @@ import services.mobiledev.ru.cheap.navigation.Navigator
  */
 interface IActiveEntryPresenter : IPresenter<IActiveEntryView, IActiveEntryModel> {
     fun next()
+    fun openEdit()
 }
 
 class ActiveEntryPresenter : IActiveEntryPresenter {
@@ -19,6 +20,10 @@ class ActiveEntryPresenter : IActiveEntryPresenter {
 
     override fun next() {
         getNavigator()?.pushFragment(NavigationMainItems.FILL_ENTRY_SCREEN)
+    }
+
+    override fun openEdit() {
+        getNavigator()?.pushFragment(NavigationMainItems.EDIT_ENTRY_SCREEN)
     }
 
     override fun attachView(view: IActiveEntryView) {

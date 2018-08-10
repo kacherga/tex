@@ -3,14 +3,19 @@ package services.mobiledev.ru.cheap.data
 /**
  * Created by dmitry on 07.05.18.
  */
+data class User(
+        val name: String,
+        val town: String
+)
+
 object LoginController {
 
     private val USER = ""
 
-    var user: String? = ""
+    var user: User? = null
         get() {
-            if (field == null || field?.isEmpty() == true) {
-                field = Prefs.load(USER, String::class.java) ?: ""
+            if (field == null) {
+                field = Prefs.load(USER, User::class.java)
             }
 
             return field

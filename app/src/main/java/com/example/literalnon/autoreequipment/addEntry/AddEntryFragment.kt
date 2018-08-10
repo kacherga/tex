@@ -25,6 +25,7 @@ import android.util.Log
 import com.example.literalnon.autoreequipment.EntryType
 import com.example.literalnon.autoreequipment.MainEntryType
 import com.example.literalnon.autoreequipment.R
+import com.example.literalnon.autoreequipment.data.Extras
 import kotlinx.android.synthetic.main.fragment_add_entry.*
 import services.mobiledev.ru.cheap.data.LoginController
 import services.mobiledev.ru.cheap.navigation.INavigationParent
@@ -39,7 +40,8 @@ class AddEntryFragment : Fragment(), IAddEntryView {
     companion object {
         fun newInstance() = AddEntryFragment()
 
-        val choiceTypes = arrayListOf<EntryType>()
+        var choiceTypes = arrayListOf<EntryType>()
+        var extras: Extras? = null
     }
 
     override var presenter: IAddEntryPresenter = AddEntryPresenter()
@@ -52,6 +54,8 @@ class AddEntryFragment : Fragment(), IAddEntryView {
         super.onViewCreated(view, savedInstanceState)
 
         presenter.attachView(this)
+
+        choiceTypes.clear()
 
         chbInstallGbo.isChecked = choiceTypes.contains(MainEntryType.TYPE_1)
         chbInstallFarcop.isChecked = choiceTypes.contains(MainEntryType.TYPE_2)
@@ -68,27 +72,39 @@ class AddEntryFragment : Fragment(), IAddEntryView {
         chbOther.text = MainEntryType.TYPE_6.title
 
         chbInstallGbo.setOnClickListener {
-            choiceTypes.add(MainEntryType.TYPE_1)
+            if (!choiceTypes.contains(MainEntryType.TYPE_1)) {
+                choiceTypes.add(MainEntryType.TYPE_1)
+            }
         }
 
         chbInstallFarcop.setOnClickListener {
-            choiceTypes.add(MainEntryType.TYPE_2)
+            if (!choiceTypes.contains(MainEntryType.TYPE_2)) {
+                choiceTypes.add(MainEntryType.TYPE_2)
+            }
         }
 
         chbInstallDvig.setOnClickListener {
-            choiceTypes.add(MainEntryType.TYPE_3)
+            if (!choiceTypes.contains(MainEntryType.TYPE_3)) {
+                choiceTypes.add(MainEntryType.TYPE_3)
+            }
         }
 
         chbInstallRefresh.setOnClickListener {
-            choiceTypes.add(MainEntryType.TYPE_4)
+            if (!choiceTypes.contains(MainEntryType.TYPE_4)) {
+                choiceTypes.add(MainEntryType.TYPE_4)
+            }
         }
 
         chbInstallStrongBamp.setOnClickListener {
-            choiceTypes.add(MainEntryType.TYPE_5)
+            if (!choiceTypes.contains(MainEntryType.TYPE_5)) {
+                choiceTypes.add(MainEntryType.TYPE_5)
+            }
         }
 
         chbOther.setOnClickListener {
-            choiceTypes.add(MainEntryType.TYPE_6)
+            if (!choiceTypes.contains(MainEntryType.TYPE_6)) {
+                choiceTypes.add(MainEntryType.TYPE_6)
+            }
         }
 
         btnNext.setOnClickListener {

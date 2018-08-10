@@ -56,7 +56,7 @@ public class AdapterManager<T> {
             }
         }
         throw new NullPointerException("No AdapterDelegate added that matches position=" + position
-                + " in data source");
+                + " in data source" + items.get(position));
     }
 
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

@@ -10,7 +10,7 @@ class SpaceItemDecoration(private val context: Context?) : RecyclerView.ItemDeco
 
     companion object {
         val spanCount = 3
-        val DISTANCE = 8f
+        val DISTANCE = 16f
         val distance: Int = pxFromDp(DISTANCE).toInt()
 
         fun pxFromDp(dp: Float): Float {
@@ -26,10 +26,10 @@ class SpaceItemDecoration(private val context: Context?) : RecyclerView.ItemDeco
         if (count != 0) {
             val verticalDelimiterCount = count + 1
 
-            val row = parent.getChildAdapterPosition(view) % spanCount
+            //val row = parent.getChildAdapterPosition(view) % spanCount
             val collumn = parent.getChildAdapterPosition(view) / spanCount
 
-            when {
+            /*when {
                 row == 1 -> {
                     outRect.left = distance * 2 / 3
                     outRect.right = distance * 2 / 3
@@ -42,8 +42,10 @@ class SpaceItemDecoration(private val context: Context?) : RecyclerView.ItemDeco
                     outRect.right = distance
                     outRect.left = distance / 3
                 }
-            }
+            }*/
 
+            outRect.right = distance
+            outRect.left = distance
             outRect.top = distance * (verticalDelimiterCount - collumn) / count
             outRect.bottom = distance * collumn / count
         }

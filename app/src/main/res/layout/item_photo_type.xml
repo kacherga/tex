@@ -8,14 +8,18 @@
 
     <android.support.v7.widget.AppCompatTextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:id="@+id/tvTitle"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginStart="16dp"
         android:gravity="center_vertical"
         android:textColor="@android:color/black"
-        android:textSize="16sp" />
+        android:textSize="20sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="16dp"
+        android:background="@android:color/darker_gray" />
+
 
 </LinearLayout>
