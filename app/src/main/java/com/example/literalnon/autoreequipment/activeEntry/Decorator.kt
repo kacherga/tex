@@ -9,7 +9,7 @@ import android.view.View
 class SpaceItemDecoration(private val context: Context?) : RecyclerView.ItemDecoration() {
 
     companion object {
-        val spanCount = 3
+        val spanCount = 1
         val DISTANCE = 16f
         val distance: Int = pxFromDp(DISTANCE).toInt()
 

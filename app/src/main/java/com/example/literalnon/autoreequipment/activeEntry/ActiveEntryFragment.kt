@@ -85,7 +85,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                 val extras = entry.workTypes?.find { TextUtils.equals(it.name, PHOTO_TYPE.PHOTO_TYPE_4.title) }
                 if (extras != null) {
                     AddEntryFragment.extras = Extras(
-                            extras.photos?.first()?.type ?: "",
+                            extras.photos?.firstOrNull()?.type ?: "",
                             extras.photos?.map { it.photo ?: "" }
                     )
                 }

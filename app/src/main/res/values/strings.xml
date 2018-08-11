@@ -13,7 +13,7 @@
     <string name="next">Продолжить</string>
 
     <string-array name="choose_image_dialog">
-        <item>Выбрать из галереи</item>
+        <!--<item>Выбрать из галереи</item>-->
         <item>Сделать фото</item>
     </string-array>
 
@@ -23,4 +23,6 @@
     <string name="fragment_login_town">Введите город</string>
     <string name="fragment_login_save">Сохранить</string>
     <string name="fragment_login_edit">Редактировать</string>
+    <string name="fragment_login_toast">Ваши данные сохранены</string>
+
 </resources>

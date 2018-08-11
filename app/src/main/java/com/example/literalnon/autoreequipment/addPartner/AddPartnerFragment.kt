@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.support.v4.app.Fragment
+import android.widget.Toast
 import com.example.literalnon.autoreequipment.R
 import kotlinx.android.synthetic.main.fragment_add_partner.*
 import services.mobiledev.ru.cheap.data.LoginController
@@ -34,6 +35,11 @@ class AddPartnerFragment : Fragment(), IAddPartnerView {
 
         btnNext.setOnClickListener {
             presenter.next(User(etName.text.toString(), etTown.text.toString()))
+            Toast.makeText(context, getString(R.string.fragment_login_toast), Toast.LENGTH_SHORT).show()
+
+            tvName.text = LoginController.user?.name ?: ""
+            tvTown.text = LoginController.user?.town ?: ""
+
         }
 
         tvName.text = LoginController.user?.name ?: ""
