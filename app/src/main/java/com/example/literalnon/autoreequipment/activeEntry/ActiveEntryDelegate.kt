@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.BitmapFactory
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -24,9 +25,11 @@ import javax.security.auth.callback.Callback
  */
 typealias CheckCallback = HashMap<Int, Entry>
 typealias EditCallback = (Entry) -> Unit
+typealias RemoveCallback = (Entry, Int) -> Unit
 
 class ActiveEntryDelegate(private val checkCallback: CheckCallback,
-                          private val editCallback: EditCallback) : AbstractAdapterDelegate<Any, Any, ActiveEntryDelegate.Holder>() {
+                          private val editCallback: EditCallback,
+                          private val removeCallback: RemoveCallback) : AbstractAdapterDelegate<Any, Any, ActiveEntryDelegate.Holder>() {
 
     override fun isForViewType(item: Any, items: MutableList<Any>, position: Int): Boolean {
         return item is Entry
@@ -56,6 +59,21 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
             btnEdit.setOnClickListener {
                 editCallback(item)
             }
+
+            btnDelete.setOnClickListener {
+                AlertDialog.Builder(tvTitle.context)
+                        .setTitle("Удаление записи")
+                        .setMessage("Вы действительно хотите удалить запись?")
+                        .setPositiveButton("Да") { dialog, which ->
+                            removeCallback(item, position)
+                            dialog.dismiss()
+                        }
+                        .setNegativeButton("Нет") { dialog, which ->
+                            dialog.dismiss()
+                        }
+                        .show()
+            }
+
         }
     }
 
@@ -77,5 +95,6 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
         val checkView = itemView.checkView
         val ivCheck = itemView.ivCheck
         val btnEdit = itemView.btnEdit
+        val btnDelete = itemView.btnDelete
     }
 }

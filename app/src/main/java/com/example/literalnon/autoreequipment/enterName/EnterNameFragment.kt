@@ -60,7 +60,7 @@ class EnterNameFragment : Fragment(), IEnterNameView {
             val result = data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
             val fio = result[0].toString().split(" ")
             etTown.setText(fio.fold("", { acc, s ->
-                "$acc${s.first().toUpperCase()}${s.substring(1, s.length)}\n"
+                "$acc${s.first().toUpperCase()}${s.substring(1, s.length)} "
             }))
 
         }

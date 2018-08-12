@@ -23,6 +23,13 @@
     <string name="fragment_login_town">Введите город</string>
     <string name="fragment_login_save">Сохранить</string>
     <string name="fragment_login_edit">Редактировать</string>
+    <string name="fragment_login_remove">Удалить</string>
     <string name="fragment_login_toast">Ваши данные сохранены</string>
+
+    <string name="ftp_client">app.tex-expert.ru</string>
+    <string name="ftp_login">admin_android</string>
+    <string name="ftp_password">mWg2zP27NT</string>
+
+
 
 </resources>

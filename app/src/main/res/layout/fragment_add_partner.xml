@@ -71,18 +71,6 @@
 
         </android.support.design.widget.TextInputLayout>
 
-        <ImageView
-            android:id="@+id/ivVoiceSearch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintBottom_toBottomOf="@+id/textInputLayout"
-            app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
-            app:layout_constraintTop_toTopOf="@+id/textInputLayout"
-            app:srcCompat="@drawable/ic_voice_search" />
-
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"

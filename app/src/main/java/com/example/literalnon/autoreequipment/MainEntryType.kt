@@ -95,7 +95,7 @@ val photos = arrayListOf<Photo>(
         Photo(27, "Приложение к сертификату с указанием конкретной модели авто.", PHOTO_TYPE.PHOTO_TYPE_1),
         Photo(28, "Фаркоп (ТСУ) крупным планом", PHOTO_TYPE.PHOTO_TYPE_2),
         Photo(29, "Заводская маркировка Фаркопа (ТСУ) крупный план", PHOTO_TYPE.PHOTO_TYPE_2),
-        Photo(30, "Паспорт на Фаркопа (ТСУ)", PHOTO_TYPE.PHOTO_TYPE_1),
+        Photo(30, "Паспорт на Фаркоп (ТСУ)", PHOTO_TYPE.PHOTO_TYPE_1),
         Photo(31, "Наружный блок холодильной установки", PHOTO_TYPE.PHOTO_TYPE_2),
         Photo(32, "Внутренний блок холодильной установки", PHOTO_TYPE.PHOTO_TYPE_2),
         Photo(33, "Крупный план заводской маркировки холодильной установки", PHOTO_TYPE.PHOTO_TYPE_2),

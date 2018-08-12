@@ -39,7 +39,6 @@ class AddPartnerFragment : Fragment(), IAddPartnerView {
 
             tvName.text = LoginController.user?.name ?: ""
             tvTown.text = LoginController.user?.town ?: ""
-
         }
 
         tvName.text = LoginController.user?.name ?: ""

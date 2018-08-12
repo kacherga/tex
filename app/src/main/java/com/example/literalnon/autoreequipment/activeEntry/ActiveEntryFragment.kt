@@ -37,6 +37,7 @@ import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
 import io.realm.RealmResults
 import kotlinx.android.synthetic.main.fragment_active_entry.*
+import kotlinx.android.synthetic.main.item_active_entry.*
 import org.apache.commons.net.ftp.FTP
 import org.apache.commons.net.ftp.FTPClient
 import services.mobiledev.ru.cheap.data.LoginController
@@ -69,7 +70,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
 
         presenter.attachView(this)
 
-        adapter.manager?.addDelegate(ActiveEntryDelegate(checkedEntries) { entry ->
+        adapter.manager?.addDelegate(ActiveEntryDelegate(checkedEntries, { entry ->
             EnterNameFragment.name = entry.name ?: ""
 
             AddEntryFragment.choiceTypes = ArrayList<EntryType>().apply {
@@ -91,7 +92,21 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                 }
             }
             presenter.openEdit()
-        })
+        }, { entry, position ->
+
+            realm?.beginTransaction()
+
+            realm?.where(Entry::class.java)?.`in`("name", arrayOf(entry.name
+                    ?: ""))?.findAll()?.deleteAllFromRealm()
+
+            realm?.commitTransaction()
+
+            realm?.executeTransaction({ bgRealm ->
+
+            })
+
+            adapter.remove(position)
+        }))
 
         rvActiveEntry.layoutManager = LinearLayoutManager(context)
         rvActiveEntry.addItemDecoration(SpaceItemDecoration(context))
@@ -109,68 +124,69 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
         btnNext.setOnClickListener {
             Log.e("makeDirectory", "onClick")
 
-            checkedEntries.forEach { (key, value) ->
-                Log.e("makeDirectory", value.name.toString())
+            if (adapter.itemCount > 0) {
+                checkedEntries.forEach { (key, value) ->
+                    Log.e("makeDirectory", value.name.toString())
 
-                listEntry.add(
-                        EntryObject(
-                                value.name,
-                                value.workTypes?.map {
-                                    Log.e("makeDirectory", it.name.toString())
-                                    WorkTypeObject(
-                                            it.name,
-                                            it.photos?.map {
-                                                Log.e("makeDirectory", it.name.toString())
-                                                PhotoObject(
-                                                        it.name,
-                                                        it.photo,
-                                                        it.type
-                                                )
-                                            }
-                                    )
-                                }
-                        )
-                )
-            }
+                    listEntry.add(
+                            EntryObject(
+                                    value.name,
+                                    value.workTypes?.map {
+                                        Log.e("makeDirectory", it.name.toString())
+                                        WorkTypeObject(
+                                                it.name,
+                                                it.photos?.map {
+                                                    Log.e("makeDirectory", it.name.toString())
+                                                    PhotoObject(
+                                                            it.name,
+                                                            it.photo,
+                                                            it.type
+                                                    )
+                                                }
+                                        )
+                                    }
+                            )
+                    )
+                }
 
-            showLoading()
+                showLoading()
 
-            Observable.create<Unit> {
-                Log.e("makeDirectory", "realm = Realm.getDefaultInstance() size : ${listEntry.size} : ${checkedEntries.size}")
-                it.onNext(addFiles(listEntry))
+                Observable.create<Unit> {
+                    Log.e("makeDirectory", "realm = Realm.getDefaultInstance() size : ${listEntry.size} : ${checkedEntries.size}")
+                    it.onNext(addFiles(listEntry))
 
-                it.onComplete()
-            }
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doAfterTerminate {
-                        dismissLoading()
-                    }
-                    .subscribe({
-                        realm?.beginTransaction()
+                    it.onComplete()
+                }
+                        .subscribeOn(Schedulers.computation())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doAfterTerminate {
+                            dismissLoading()
+                        }
+                        .subscribe({
+                            /*realm?.beginTransaction()
 
-                        realm?.where(Entry::class.java)?.`in`("name", listEntry.map {
-                            it.name ?: ""
-                        }.toTypedArray())?.findAll()?.deleteAllFromRealm()
+                            realm?.where(Entry::class.java)?.`in`("name", listEntry.map {
+                                it.name ?: ""
+                            }.toTypedArray())?.findAll()?.deleteAllFromRealm()
 
-                        checkedEntries.clear()
+                            checkedEntries.clear()
 
-                        realm?.commitTransaction()
+                            realm?.commitTransaction()
 
-                        realm?.executeTransaction({ bgRealm ->
+                            realm?.executeTransaction({ bgRealm ->
 
+                            })
+
+                            entries = realm?.where(Entry::class.java)?.findAll()
+                            adapter.replaceAll(entries?.toList())*/
+
+                            Toast.makeText(context, "все ок", Toast.LENGTH_SHORT).show()
+                        }, {
+                            Toast.makeText(context, "Не удалось загрузить данные", Toast.LENGTH_SHORT).show()
+                            it.printStackTrace()
                         })
-
-                        entries = realm?.where(Entry::class.java)?.findAll()
-                        adapter.replaceAll(entries?.toList())
-
-                        Toast.makeText(context, "все ок", Toast.LENGTH_LONG).show()
-                    }, {
-                        Toast.makeText(context, "пизда пришла", Toast.LENGTH_LONG).show()
-                        it.printStackTrace()
-                    })
+            }
         }
-
     }
 
     private fun addFiles(entries: List<EntryObject>?) {
@@ -178,40 +194,45 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
         val ftpClient = FTPClient()
         ftpClient.controlEncoding = "UTF-8"
 
-        ftpClient.connect("tex-expert.ru")
+        ftpClient.connect(getString(R.string.ftp_client))
 
         Log.e("makeDirectory", "login")
 
-        if (ftpClient.login("admin_android", "mWg2zP27NT")) {
+        if (ftpClient.login(getString(R.string.ftp_login), getString(R.string.ftp_password))) {
             ftpClient.enterLocalPassiveMode()
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE)
 
-            val companyName = (LoginController.user?.name ?: "Тестовая компания") +
-                    if (!LoginController.user?.town.isNullOrEmpty()) {
-                        "(${LoginController.user!!.town})"
-                    } else {
-                        ""
-                    }
+            val companyName = "${LoginController.user?.town ?: "Без города"}/${LoginController.user?.name?.lines()?.fold("") { acc, s ->
+                "$acc $s"
+            }?.trim() ?: "Тестовая компания"}"
 
             Log.e("makeDirectory", companyName + " : " + ftpClient.controlEncoding)
 
-            ftpClient.makeDirectory(companyName)
+            //ftpClient.makeDirectory((LoginController.user?.town ?: "Без города"))
+            //ftpClient.makeDirectory(companyName)
 
             entries?.forEach {
-                val path = "$companyName/${it.name}"
-                ftpClient.makeDirectory(path)
+                val path = "$companyName/${it.name?.lines()?.fold("") { acc, s ->
+                    "$acc $s"
+                }?.trim()}"
+                //ftpClient.makeDirectory(path)
                 Log.e("makeDirectory", "${path}")
                 it.workTypes?.forEach {
                     val workTypePath = path + "/" + it.name
-                    ftpClient.makeDirectory(workTypePath)
+                    //ftpClient.makeDirectory(workTypePath)
                     Log.e("makeDirectory", "${workTypePath}")
                     it.photos?.forEach {
-                        ftpClient.makeDirectory(workTypePath + "/" + it.type)
+                        //ftpClient.makeDirectory(workTypePath + "/" + it.type)
                         Log.e("appendFile", "${workTypePath + "/" + it.type + "/" + it.name} ${it.photo}")
                         if (it.photo != null)
                             try {
+                                ftpClient.makeDirectory((LoginController.user?.town ?: "Без города"))
+                                ftpClient.makeDirectory(companyName)
+                                ftpClient.makeDirectory(path)
+                                ftpClient.makeDirectory(workTypePath)
+                                ftpClient.makeDirectory(workTypePath + "/" + it.type)
                                 ftpClient.appendFile(workTypePath + "/" + it.type + "/" + (it.name
-                                        ?: "photo"), File(it.photo).inputStream())
+                                        ?: "photo") + ".jpg", File(it.photo).inputStream())
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }

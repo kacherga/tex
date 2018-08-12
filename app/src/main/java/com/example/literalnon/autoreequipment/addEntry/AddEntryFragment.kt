@@ -22,6 +22,7 @@ import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.util.Log
+import android.widget.CheckBox
 import com.example.literalnon.autoreequipment.EntryType
 import com.example.literalnon.autoreequipment.MainEntryType
 import com.example.literalnon.autoreequipment.R
@@ -57,58 +58,31 @@ class AddEntryFragment : Fragment(), IAddEntryView {
 
         choiceTypes.clear()
 
-        chbInstallGbo.isChecked = choiceTypes.contains(MainEntryType.TYPE_1)
-        chbInstallFarcop.isChecked = choiceTypes.contains(MainEntryType.TYPE_2)
-        chbInstallDvig.isChecked = choiceTypes.contains(MainEntryType.TYPE_3)
-        chbInstallRefresh.isChecked = choiceTypes.contains(MainEntryType.TYPE_4)
-        chbInstallStrongBamp.isChecked = choiceTypes.contains(MainEntryType.TYPE_5)
-        chbOther.isChecked = choiceTypes.contains(MainEntryType.TYPE_6)
+        val checkBoxMap = hashMapOf<CheckBox, EntryType>(
+                Pair(chbInstallGbo, MainEntryType.TYPE_1),
+                Pair(chbInstallFarcop, MainEntryType.TYPE_2),
+                Pair(chbInstallDvig, MainEntryType.TYPE_3),
+                Pair(chbInstallRefresh, MainEntryType.TYPE_4),
+                Pair(chbInstallStrongBamp, MainEntryType.TYPE_5),
+                Pair(chbOther, MainEntryType.TYPE_6)
+        )
 
-        chbInstallGbo.text = MainEntryType.TYPE_1.title
-        chbInstallFarcop.text = MainEntryType.TYPE_2.title
-        chbInstallDvig.text = MainEntryType.TYPE_3.title
-        chbInstallRefresh.text = MainEntryType.TYPE_4.title
-        chbInstallStrongBamp.text = MainEntryType.TYPE_5.title
-        chbOther.text = MainEntryType.TYPE_6.title
-
-        chbInstallGbo.setOnClickListener {
-            if (!choiceTypes.contains(MainEntryType.TYPE_1)) {
-                choiceTypes.add(MainEntryType.TYPE_1)
-            }
-        }
-
-        chbInstallFarcop.setOnClickListener {
-            if (!choiceTypes.contains(MainEntryType.TYPE_2)) {
-                choiceTypes.add(MainEntryType.TYPE_2)
-            }
-        }
-
-        chbInstallDvig.setOnClickListener {
-            if (!choiceTypes.contains(MainEntryType.TYPE_3)) {
-                choiceTypes.add(MainEntryType.TYPE_3)
-            }
-        }
-
-        chbInstallRefresh.setOnClickListener {
-            if (!choiceTypes.contains(MainEntryType.TYPE_4)) {
-                choiceTypes.add(MainEntryType.TYPE_4)
-            }
-        }
-
-        chbInstallStrongBamp.setOnClickListener {
-            if (!choiceTypes.contains(MainEntryType.TYPE_5)) {
-                choiceTypes.add(MainEntryType.TYPE_5)
-            }
-        }
-
-        chbOther.setOnClickListener {
-            if (!choiceTypes.contains(MainEntryType.TYPE_6)) {
-                choiceTypes.add(MainEntryType.TYPE_6)
+        checkBoxMap.forEach { (view, type) ->
+            view.isChecked = choiceTypes.contains(type)
+            view.text = type.title
+            view.setOnClickListener {
+                if (!choiceTypes.contains(type)) {
+                    choiceTypes.add(type)
+                } else {
+                    choiceTypes.remove(type)
+                }
             }
         }
 
         btnNext.setOnClickListener {
-            presenter.next()
+            if (choiceTypes.isNotEmpty()) {
+                presenter.next()
+            }
         }
     }
 
