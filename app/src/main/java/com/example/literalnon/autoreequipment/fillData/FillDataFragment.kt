@@ -332,7 +332,7 @@ class FillDataFragment : Fragment(), IFillDataView,
 
         realm.close()
 
-        Toast.makeText(context, "Созранено", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, "Сохранено", Toast.LENGTH_LONG).show()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

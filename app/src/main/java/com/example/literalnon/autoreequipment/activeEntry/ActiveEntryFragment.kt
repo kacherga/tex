@@ -23,6 +23,7 @@ import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.util.Log
+import com.betcityru.dyadichko_da.betcityru.ui.createService
 import com.example.literalnon.autoreequipment.*
 import com.example.literalnon.autoreequipment.activeEntry.ActiveEntryDelegate
 import com.example.literalnon.autoreequipment.activeEntry.CheckCallback
@@ -30,9 +31,11 @@ import com.example.literalnon.autoreequipment.activeEntry.SpaceItemDecoration
 import com.example.literalnon.autoreequipment.adapters.DelegationAdapter
 import com.example.literalnon.autoreequipment.data.*
 import com.example.literalnon.autoreequipment.fillData.MainEntryTypeDelegate
+import com.example.literalnon.autoreequipment.network.NotificateService
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
 import io.realm.RealmResults
@@ -60,6 +63,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
 
     private var realm: Realm? = null
     private val checkedEntries = CheckCallback()
+    val subscriptions = CompositeDisposable()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
@@ -180,7 +184,26 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                             entries = realm?.where(Entry::class.java)?.findAll()
                             adapter.replaceAll(entries?.toList())*/
 
-                            Toast.makeText(context, "все ок", Toast.LENGTH_SHORT).show()
+                            val service = createService(NotificateService::class.java)
+
+                            listEntry.forEach {
+                                subscriptions.add(service
+                                        .notificate(LoginController.user?.town ?: "",
+                                                LoginController.user?.name ?: "",
+                                                it.name ?: "",
+                                                it.workTypes?.fold("") { acc, workTypeObject ->
+                                                    "$acc+${workTypeObject.name}"
+                                                } ?: "")
+                                        .subscribeOn(Schedulers.newThread())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe({
+                                            Toast.makeText(context, "все ок", Toast.LENGTH_SHORT).show()
+                                        }, {
+                                            Toast.makeText(context, "Не удалось загрузить данные", Toast.LENGTH_SHORT).show()
+                                        })
+                                )
+                            }
+
                         }, {
                             Toast.makeText(context, "Не удалось загрузить данные", Toast.LENGTH_SHORT).show()
                             it.printStackTrace()
@@ -202,7 +225,8 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
             ftpClient.enterLocalPassiveMode()
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE)
 
-            val companyName = "${LoginController.user?.town ?: "Без города"}/${LoginController.user?.name?.lines()?.fold("") { acc, s ->
+            val companyName = "${LoginController.user?.town
+                    ?: "Без города"}/${LoginController.user?.name?.lines()?.fold("") { acc, s ->
                 "$acc $s"
             }?.trim() ?: "Тестовая компания"}"
 
@@ -226,7 +250,8 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                         Log.e("appendFile", "${workTypePath + "/" + it.type + "/" + it.name} ${it.photo}")
                         if (it.photo != null)
                             try {
-                                ftpClient.makeDirectory((LoginController.user?.town ?: "Без города"))
+                                ftpClient.makeDirectory((LoginController.user?.town
+                                        ?: "Без города"))
                                 ftpClient.makeDirectory(companyName)
                                 ftpClient.makeDirectory(path)
                                 ftpClient.makeDirectory(workTypePath)
@@ -265,6 +290,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
     override fun onDestroyView() {
         super.onDestroyView()
         realm?.close()
+        subscriptions.clear()
     }
 }
 

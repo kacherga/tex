@@ -6,11 +6,14 @@ import android.content.res.Resources
 import android.graphics.BitmapFactory
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.RecyclerView
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.example.literalnon.autoreequipment.MainEntryType
+import com.example.literalnon.autoreequipment.PHOTO_TYPE
 import com.example.literalnon.autoreequipment.Photo
 import com.example.literalnon.autoreequipment.R
 import com.example.literalnon.autoreequipment.adapters.AbstractAdapterDelegate
@@ -24,6 +27,7 @@ import javax.security.auth.callback.Callback
  * Created by bloold on 16.12.17.
  */
 typealias CheckCallback = HashMap<Int, Entry>
+
 typealias EditCallback = (Entry) -> Unit
 typealias RemoveCallback = (Entry, Int) -> Unit
 
@@ -47,7 +51,11 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
 
         with(holder) {
             tvTitle.text = item.name + item.workTypes?.fold("\n") { s: String, type: WorkType ->
-                "$s${type.name}\n"
+                "$s${if (!TextUtils.equals(type.name, PHOTO_TYPE.PHOTO_TYPE_4.title)) {
+                    type.name + "\n"
+                } else {
+                    ""
+                }}"
             }
 
             setChecked(holder, item, position, true)

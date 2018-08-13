@@ -47,7 +47,11 @@ class SpaceItemDecoration(private val context: Context?) : RecyclerView.ItemDeco
             outRect.right = distance
             outRect.left = distance
             outRect.top = distance * (verticalDelimiterCount - collumn) / count
-            outRect.bottom = distance * collumn / count
+            if (count == 1) {
+                outRect.bottom = distance
+            } else {
+                outRect.bottom = distance * collumn / count
+            }
         }
     }
 
