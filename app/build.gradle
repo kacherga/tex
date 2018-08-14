@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'realm-android'
+apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 26
@@ -68,7 +69,14 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation "com.squareup.okhttp3:logging-interceptor:$httpLoggingInterceptorVersion"
     implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
+
+    //Crashlitics
+    compile('com.crashlytics.sdk.android:crashlytics:2.9.4@aar') {
+        transitive = true;
+    }
 }
+
 repositories {
     mavenCentral()
+    maven { url 'https://maven.fabric.io/public' }
 }

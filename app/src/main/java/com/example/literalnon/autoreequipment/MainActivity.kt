@@ -6,7 +6,9 @@ import android.view.Menu
 import android.view.MenuItem
 import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.module.AppGlideModule
+import com.crashlytics.android.Crashlytics
 import com.example.literalnon.autoreequipment.utils.NavigationMainItems
+import io.fabric.sdk.android.Fabric
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
 import services.mobiledev.ru.cheap.navigation.AddBackStackStrategy
@@ -21,7 +23,7 @@ class MainActivity : AppCompatActivity(), INavigationParent {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        Fabric.with(this, Crashlytics())
         Realm.init(this)
 
         navigator = Navigator.Builder()
