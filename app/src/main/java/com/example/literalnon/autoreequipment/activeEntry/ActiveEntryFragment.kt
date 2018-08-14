@@ -192,7 +192,22 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                                                 LoginController.user?.name ?: "",
                                                 it.name ?: "",
                                                 it.workTypes?.fold("") { acc, workTypeObject ->
-                                                    "$acc+${workTypeObject.name}"
+                                                    "$acc${
+                                                    if (TextUtils.equals(workTypeObject.name, PHOTO_TYPE.PHOTO_TYPE_4.title)) {
+                                                        if (workTypeObject.photos != null && workTypeObject.photos!!.isNotEmpty()) {
+                                                            workTypeObject.name
+                                                        } else {
+                                                            ""
+                                                        }
+                                                    } else {
+                                                        workTypeObject.name
+                                                    }
+                                                    }${if (it.workTypes?.indexOf(workTypeObject) != (it.workTypes?.size ?: 0) - 1) {
+                                                        "+"
+                                                    } else {
+                                                        ""
+                                                    }
+                                                    }"
                                                 } ?: "")
                                         .subscribeOn(Schedulers.newThread())
                                         .observeOn(AndroidSchedulers.mainThread())
