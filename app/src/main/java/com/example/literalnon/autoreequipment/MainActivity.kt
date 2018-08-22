@@ -2,6 +2,7 @@ package com.example.literalnon.autoreequipment
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.bumptech.glide.annotation.GlideModule
@@ -15,6 +16,7 @@ import services.mobiledev.ru.cheap.navigation.AddBackStackStrategy
 import services.mobiledev.ru.cheap.navigation.INavigationParent
 import services.mobiledev.ru.cheap.navigation.Navigator
 import services.mobiledev.ru.cheap.navigation.ReplaceStrategy
+import java.math.BigInteger
 
 class MainActivity : AppCompatActivity(), INavigationParent {
 
@@ -41,6 +43,16 @@ class MainActivity : AppCompatActivity(), INavigationParent {
         ivAddEntry.setOnClickListener {
             navigator?.pushFragment(NavigationMainItems.ADD_ENTRY_SCREEN)
         }
+
+        var n = BigInteger.ONE
+        var fact = BigInteger.ONE
+
+        while (!fact.toString().contains("2013")) {
+            ++n
+            fact *= n
+        }
+
+        Log.e("tag", "n: ${n} : ${fact}")
     }
 
     override fun onBackPressed() {
