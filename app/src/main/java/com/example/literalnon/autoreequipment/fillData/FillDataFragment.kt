@@ -119,6 +119,8 @@ class FillDataFragment : Fragment(), IFillDataView,
         mainEntryTypeAdapter.manager?.addDelegate(MainEntryTaskDelegate { photo, pos ->
             currentPhoto = Pair(pos, photo)
 
+            Log.e("photo", "delegateCall")
+
             dialogFilePicker()
         })
 
@@ -221,27 +223,33 @@ class FillDataFragment : Fragment(), IFillDataView,
         AlertDialog.Builder(activity)
                 .setTitle(getString(R.string.profile_edit_dialog_title_profile_pick_photo))
                 .setItems(choose) { dialog, which ->*/
-                    /*if (which == 0) {
-                        if (ContextCompat.checkSelfPermission(activity!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                            requestStoragePermission(REQUEST_STORAGE_PERMISSION)
-                        } else {
-                            filePicker.requestGalleryIntent()
-                        }
-                    } else if (which == 1) {*/
-                        if (ContextCompat.checkSelfPermission(activity!!, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                            if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                                requestCameraAndStoragePermission()
-                            } else {
-                                requestCameraPermission()
-                            }
-                        } else if (ContextCompat.checkSelfPermission(activity!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                            requestStoragePermission(REQUEST_CAMERA_PERMISSION)
-                        } else {
-                            filePicker.requestCameraIntent()
-                        }
-                    //}
-              /*  }
-                .show()*/
+        /*if (which == 0) {
+            if (ContextCompat.checkSelfPermission(activity!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestStoragePermission(REQUEST_STORAGE_PERMISSION)
+            } else {
+                filePicker.requestGalleryIntent()
+            }
+        } else if (which == 1) {*/
+        if (ContextCompat.checkSelfPermission(activity!!, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                Log.e("photo", "delegateCall 1")
+
+                requestCameraAndStoragePermission()
+            } else {
+                Log.e("photo", "delegateCall 2")
+                requestCameraPermission()
+            }
+        } else if (ContextCompat.checkSelfPermission(activity!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            Log.e("photo", "delegateCall 3")
+            requestStoragePermission(REQUEST_CAMERA_PERMISSION)
+        } else {
+            Log.e("photo", "delegateCall 4")
+            filePicker.requestCameraIntent()
+        }
+        Log.e("photo", "delegateCall 5")
+        //}
+        /*  }
+          .show()*/
     }
 
     private fun requestCameraPermission() {
@@ -274,6 +282,11 @@ class FillDataFragment : Fragment(), IFillDataView,
         }
 
         super.onDestroyView()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBundle(MediaFilePicker.EXTRA_CUR_FILE_PATH, filePicker.saveState())
+        super.onSaveInstanceState(outState)
     }
 
     private fun sendData() {

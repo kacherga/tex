@@ -1,5 +1,6 @@
 package com.example.literalnon.autoreequipment
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -25,6 +26,8 @@ class MainActivity : AppCompatActivity(), INavigationParent {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
         Fabric.with(this, Crashlytics())
         Realm.init(this)
 
