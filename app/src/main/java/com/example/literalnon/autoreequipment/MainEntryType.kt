@@ -65,7 +65,7 @@ class Photo(
 )
 
 val photos = arrayListOf<Photo>(
-        Photo(0, "Хуйня на постном масле", PHOTO_TYPE.PHOTO_TYPE_1),
+        Photo(0, "Неизвестный тип", PHOTO_TYPE.PHOTO_TYPE_1),
         Photo(1, "Общий вид автомобиля спереди с Гос. Знаком", PHOTO_TYPE.PHOTO_TYPE_2),
         Photo(2, "Общий вид сбоку", PHOTO_TYPE.PHOTO_TYPE_2),
         Photo(3, "Общий вид автомобиля сзади с Гос. знаком", PHOTO_TYPE.PHOTO_TYPE_2),

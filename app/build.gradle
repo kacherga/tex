@@ -6,7 +6,7 @@ apply plugin: 'realm-android'
 apply plugin: 'io.fabric'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     defaultConfig {
         applicationId "com.example.literalnon.autoreequipment"
         minSdkVersion 19

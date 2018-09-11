@@ -50,6 +50,7 @@ import services.mobiledev.ru.cheap.ui.main.comments.mvp.IActiveEntryPresenter
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.IActiveEntryView
 import java.io.File
 import java.io.FileInputStream
+import java.util.*
 
 
 class ActiveEntryFragment : Fragment(), IActiveEntryView {
@@ -128,7 +129,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
         btnNext.setOnClickListener {
             Log.e("makeDirectory", "onClick")
 
-            if (adapter.itemCount > 0) {
+            if (adapter.itemCount > 0 && checkedEntries.size > 0) {
                 checkedEntries.forEach { (key, value) ->
                     Log.e("makeDirectory", value.name.toString())
 
@@ -212,17 +213,19 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                                         .subscribeOn(Schedulers.newThread())
                                         .observeOn(AndroidSchedulers.mainThread())
                                         .subscribe({
-                                            Toast.makeText(context, "все ок", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, getString(R.string.send_file_success), Toast.LENGTH_SHORT).show()
                                         }, {
-                                            Toast.makeText(context, "Не удалось загрузить данные", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
                                         })
                                 )
                             }
 
                         }, {
-                            Toast.makeText(context, "Не удалось загрузить данные", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
                             it.printStackTrace()
                         })
+            } else if (checkedEntries.size == 0) {
+                Toast.makeText(context, getString(R.string.send_file_no_checked), Toast.LENGTH_SHORT).show()
             }
         }
     }

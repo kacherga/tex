@@ -30,6 +30,9 @@
     <string name="ftp_login">admin_android</string>
     <string name="ftp_password">mWg2zP27NT</string>
 
-
+    <!--  Send -->
+    <string name="send_file_failed">Не удалось загрузить данные</string>
+    <string name="send_file_success">Данные успешно загружены</string>
+    <string name="send_file_no_checked">Не выбрано ни одного файла</string>
 
 </resources>
