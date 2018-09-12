@@ -166,6 +166,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                         .observeOn(AndroidSchedulers.mainThread())
                         .doAfterTerminate {
                             dismissLoading()
+                            listEntry.clear()
                         }
                         .subscribe({
                             /*realm?.beginTransaction()
