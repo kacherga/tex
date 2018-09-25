@@ -50,6 +50,7 @@ import services.mobiledev.ru.cheap.ui.main.comments.mvp.IActiveEntryPresenter
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.IActiveEntryView
 import java.io.File
 import java.io.FileInputStream
+import java.lang.RuntimeException
 import java.util.*
 
 
@@ -127,21 +128,21 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
         val listEntry = ArrayList<EntryObject>()
 
         btnNext.setOnClickListener {
-            Log.e("makeDirectory", "onClick")
+            //Log.e("makeDirectory", "onClick")
 
             if (adapter.itemCount > 0 && checkedEntries.size > 0) {
                 checkedEntries.forEach { (key, value) ->
-                    Log.e("makeDirectory", value.name.toString())
+                    //Log.e("makeDirectory", value.name.toString())
 
                     listEntry.add(
                             EntryObject(
                                     value.name,
                                     value.workTypes?.map {
-                                        Log.e("makeDirectory", it.name.toString())
+                                        //Log.e("makeDirectory", it.name.toString())
                                         WorkTypeObject(
                                                 it.name,
                                                 it.photos?.map {
-                                                    Log.e("makeDirectory", it.name.toString())
+                                                    //Log.e("makeDirectory", it.name.toString())
                                                     PhotoObject(
                                                             it.name,
                                                             it.photo,
@@ -157,7 +158,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                 showLoading()
 
                 Observable.create<Unit> {
-                    Log.e("makeDirectory", "realm = Realm.getDefaultInstance() size : ${listEntry.size} : ${checkedEntries.size}")
+                    ////Log.e("makeDirectory", "realm = Realm.getDefaultInstance() size : ${listEntry.size} : ${checkedEntries.size}")
                     it.onNext(addFiles(listEntry))
 
                     it.onComplete()
@@ -204,7 +205,8 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                                                     } else {
                                                         workTypeObject.name
                                                     }
-                                                    }${if (it.workTypes?.indexOf(workTypeObject) != (it.workTypes?.size ?: 0) - 1) {
+                                                    }${if (it.workTypes?.indexOf(workTypeObject) != (it.workTypes?.size
+                                                                    ?: 0) - 1) {
                                                         "+"
                                                     } else {
                                                         ""
@@ -214,9 +216,11 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                                         .subscribeOn(Schedulers.newThread())
                                         .observeOn(AndroidSchedulers.mainThread())
                                         .subscribe({
-                                            Toast.makeText(context, getString(R.string.send_file_success), Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show()
                                         }, {
-                                            Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, getString(R.string.send_file_notif_failed), Toast.LENGTH_SHORT).show()
+                                            it.printStackTrace()
+                                            //throw RuntimeException(getString(R.string.send_file_notif_failed))
                                         })
                                 )
                             }
@@ -224,6 +228,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                         }, {
                             Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
                             it.printStackTrace()
+                            //throw RuntimeException(getString(R.string.send_file_notif_failed))
                         })
             } else if (checkedEntries.size == 0) {
                 Toast.makeText(context, getString(R.string.send_file_no_checked), Toast.LENGTH_SHORT).show()
@@ -233,61 +238,66 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
 
     private fun addFiles(entries: List<EntryObject>?) {
 
-        val ftpClient = FTPClient()
-        ftpClient.controlEncoding = "UTF-8"
+        //try {
+            val ftpClient = FTPClient()
+            ftpClient.controlEncoding = "UTF-8"
 
-        ftpClient.connect(getString(R.string.ftp_client))
+            ftpClient.connect(getString(R.string.ftp_client))
 
-        Log.e("makeDirectory", "login")
+            //Log.e("makeDirectory", "login")
 
-        if (ftpClient.login(getString(R.string.ftp_login), getString(R.string.ftp_password))) {
-            ftpClient.enterLocalPassiveMode()
-            ftpClient.setFileType(FTP.BINARY_FILE_TYPE)
+            if (ftpClient.login(getString(R.string.ftp_login), getString(R.string.ftp_password))) {
+                ftpClient.enterLocalPassiveMode()
+                ftpClient.setFileType(FTP.BINARY_FILE_TYPE)
 
-            val companyName = "${LoginController.user?.town
-                    ?: "Без города"}/${LoginController.user?.name?.lines()?.fold("") { acc, s ->
-                "$acc $s"
-            }?.trim() ?: "Тестовая компания"}"
-
-            Log.e("makeDirectory", companyName + " : " + ftpClient.controlEncoding)
-
-            //ftpClient.makeDirectory((LoginController.user?.town ?: "Без города"))
-            //ftpClient.makeDirectory(companyName)
-
-            entries?.forEach {
-                val path = "$companyName/${it.name?.lines()?.fold("") { acc, s ->
+                val companyName = "${LoginController.user?.town
+                        ?: "Без города"}/${LoginController.user?.name?.lines()?.fold("") { acc, s ->
                     "$acc $s"
-                }?.trim()}"
-                //ftpClient.makeDirectory(path)
-                Log.e("makeDirectory", "${path}")
-                it.workTypes?.forEach {
-                    val workTypePath = path + "/" + it.name
-                    //ftpClient.makeDirectory(workTypePath)
-                    Log.e("makeDirectory", "${workTypePath}")
-                    it.photos?.forEach {
-                        //ftpClient.makeDirectory(workTypePath + "/" + it.type)
-                        Log.e("appendFile", "${workTypePath + "/" + it.type + "/" + it.name} ${it.photo}")
-                        if (it.photo != null)
-                            try {
-                                ftpClient.makeDirectory((LoginController.user?.town
-                                        ?: "Без города"))
-                                ftpClient.makeDirectory(companyName)
-                                ftpClient.makeDirectory(path)
-                                ftpClient.makeDirectory(workTypePath)
-                                ftpClient.makeDirectory(workTypePath + "/" + it.type)
-                                ftpClient.appendFile(workTypePath + "/" + it.type + "/" + (it.name
-                                        ?: "photo") + ".jpg", File(it.photo).inputStream())
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
+                }?.trim() ?: "Тестовая компания"}"
 
+                //Log.e("makeDirectory", companyName + " : " + ftpClient.controlEncoding)
+
+                //ftpClient.makeDirectory((LoginController.user?.town ?: "Без города"))
+                //ftpClient.makeDirectory(companyName)
+
+                entries?.forEach {
+                    val path = "$companyName/${it.name?.lines()?.fold("") { acc, s ->
+                        "$acc $s"
+                    }?.trim()}"
+                    //ftpClient.makeDirectory(path)
+                    //Log.e("makeDirectory", "${path}")
+                    it.workTypes?.forEach {
+                        val workTypePath = path + "/" + it.name
+                        //ftpClient.makeDirectory(workTypePath)
+                        //Log.e("makeDirectory", "${workTypePath}")
+                        it.photos?.forEach {
+                            //ftpClient.makeDirectory(workTypePath + "/" + it.type)
+                            //Log.e("appendFile", "${workTypePath + "/" + it.type + "/" + it.name} ${it.photo}")
+                            if (it.photo != null)
+                                try {
+                                    ftpClient.makeDirectory((LoginController.user?.town
+                                            ?: "Без города"))
+                                    ftpClient.makeDirectory(companyName)
+                                    ftpClient.makeDirectory(path)
+                                    ftpClient.makeDirectory(workTypePath)
+                                    ftpClient.makeDirectory(workTypePath + "/" + it.type)
+                                    ftpClient.appendFile(workTypePath + "/" + it.type + "/" + (it.name
+                                            ?: "photo") + ".jpg", File(it.photo).inputStream())
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+
+                        }
                     }
                 }
-            }
 
-            ftpClient.logout()
-            ftpClient.disconnect()
-        }
+
+                ftpClient.logout()
+                ftpClient.disconnect()
+            }
+        /*} catch (e: Exception) {
+            e.printStackTrace()
+        }*/
     }
 
     override fun getNavigationParent(): INavigationParent {

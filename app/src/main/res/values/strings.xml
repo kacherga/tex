@@ -32,7 +32,9 @@
 
     <!--  Send -->
     <string name="send_file_failed">Не удалось загрузить данные</string>
+    <string name="send_file_notif_failed">Не удалось отправить отчет</string>
     <string name="send_file_success">Данные успешно загружены</string>
+    <string name="send_file_notif_success">Отчет успешно отправлен</string>
     <string name="send_file_no_checked">Не выбрано ни одного файла</string>
 
 </resources>
