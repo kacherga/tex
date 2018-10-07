@@ -74,7 +74,7 @@ class FillDataFragment : Fragment(), IFillDataView,
     private lateinit var filePicker: MediaFilePicker
     private val photoAdapter = DelegationAdapter<Any>()
     private val extraPhotos = ArrayList<File>()
-    private val photoTypes = arrayListOf(PHOTO_TYPE.PHOTO_TYPE_1, PHOTO_TYPE.PHOTO_TYPE_2, PHOTO_TYPE.PHOTO_TYPE_3, PHOTO_TYPE.PHOTO_TYPE_4)
+    private val photoTypes = arrayListOf(allPhotoTypes[1], allPhotoTypes[2], allPhotoTypes[3], allPhotoTypes[4])
 
     private val mainEntryTypeAdapter = DelegationAdapter<Any>()
 
@@ -299,7 +299,7 @@ class FillDataFragment : Fragment(), IFillDataView,
         }
 
         val workType = realm.createObject(WorkType::class.java)
-        workType.name = PHOTO_TYPE.PHOTO_TYPE_4.title
+        workType.name = allPhotoTypes[4].title
 
         extraPhotos.forEach {
             val mPhoto = RealmPhoto().apply {

@@ -24,8 +24,8 @@ import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.widget.CheckBox
 import com.example.literalnon.autoreequipment.EntryType
-import com.example.literalnon.autoreequipment.MainEntryType
 import com.example.literalnon.autoreequipment.R
+import com.example.literalnon.autoreequipment.allEntryType
 import com.example.literalnon.autoreequipment.data.Extras
 import kotlinx.android.synthetic.main.fragment_add_entry.*
 import services.mobiledev.ru.cheap.data.LoginController
@@ -59,12 +59,12 @@ class AddEntryFragment : Fragment(), IAddEntryView {
         choiceTypes.clear()
 
         val checkBoxMap = hashMapOf<CheckBox, EntryType>(
-                Pair(chbInstallGbo, MainEntryType.TYPE_1),
-                Pair(chbInstallFarcop, MainEntryType.TYPE_2),
-                Pair(chbInstallDvig, MainEntryType.TYPE_3),
-                Pair(chbInstallRefresh, MainEntryType.TYPE_4),
-                Pair(chbInstallStrongBamp, MainEntryType.TYPE_5),
-                Pair(chbOther, MainEntryType.TYPE_6)
+                Pair(chbInstallGbo, allEntryType[1]),
+                Pair(chbInstallFarcop, allEntryType[2]),
+                Pair(chbInstallDvig, allEntryType[3]),
+                Pair(chbInstallRefresh, allEntryType[4]),
+                Pair(chbInstallStrongBamp, allEntryType[5]),
+                Pair(chbOther, allEntryType[6])
         )
 
         checkBoxMap.forEach { (view, type) ->

@@ -10,6 +10,7 @@ import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.module.AppGlideModule
 import com.crashlytics.android.Crashlytics
 import com.example.literalnon.autoreequipment.utils.NavigationMainItems
+import com.google.gson.Gson
 import io.fabric.sdk.android.Fabric
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
@@ -17,6 +18,7 @@ import services.mobiledev.ru.cheap.navigation.AddBackStackStrategy
 import services.mobiledev.ru.cheap.navigation.INavigationParent
 import services.mobiledev.ru.cheap.navigation.Navigator
 import services.mobiledev.ru.cheap.navigation.ReplaceStrategy
+import java.io.File
 import java.math.BigInteger
 
 class MainActivity : AppCompatActivity(), INavigationParent {
@@ -46,16 +48,6 @@ class MainActivity : AppCompatActivity(), INavigationParent {
         ivAddEntry.setOnClickListener {
             navigator?.pushFragment(NavigationMainItems.ADD_ENTRY_SCREEN)
         }
-
-        var n = BigInteger.ONE
-        var fact = BigInteger.ONE
-
-        while (!fact.toString().contains("2013")) {
-            ++n
-            fact *= n
-        }
-
-        Log.e("tag", "n: ${n} : ${fact}")
     }
 
     override fun onBackPressed() {

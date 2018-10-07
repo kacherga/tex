@@ -89,7 +89,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                         photos[it.id!!].photo = it.photo
                     }
                 }
-                val extras = entry.workTypes?.find { TextUtils.equals(it.name, PHOTO_TYPE.PHOTO_TYPE_4.title) }
+                val extras = entry.workTypes?.find { TextUtils.equals(it.name, allPhotoTypes[4].title) }
                 if (extras != null) {
                     AddEntryFragment.extras = Extras(
                             extras.photos?.firstOrNull()?.type ?: "",
@@ -196,7 +196,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                                                 it.name ?: "",
                                                 it.workTypes?.fold("") { acc, workTypeObject ->
                                                     "$acc${
-                                                    if (TextUtils.equals(workTypeObject.name, PHOTO_TYPE.PHOTO_TYPE_4.title)) {
+                                                    if (TextUtils.equals(workTypeObject.name, allPhotoTypes[4].title)) {
                                                         if (workTypeObject.photos != null && workTypeObject.photos!!.isNotEmpty()) {
                                                             workTypeObject.name
                                                         } else {

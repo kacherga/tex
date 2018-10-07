@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.example.literalnon.autoreequipment.MainEntryType
 import com.example.literalnon.autoreequipment.Photo
 import com.example.literalnon.autoreequipment.PhotoType
 import com.example.literalnon.autoreequipment.R

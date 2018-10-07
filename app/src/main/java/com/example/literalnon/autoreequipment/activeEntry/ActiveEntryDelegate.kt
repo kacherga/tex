@@ -12,11 +12,10 @@ import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.example.literalnon.autoreequipment.MainEntryType
-import com.example.literalnon.autoreequipment.PHOTO_TYPE
 import com.example.literalnon.autoreequipment.Photo
 import com.example.literalnon.autoreequipment.R
 import com.example.literalnon.autoreequipment.adapters.AbstractAdapterDelegate
+import com.example.literalnon.autoreequipment.allPhotoTypes
 import com.example.literalnon.autoreequipment.data.Entry
 import com.example.literalnon.autoreequipment.data.WorkType
 import kotlinx.android.synthetic.main.item_active_entry.view.*
@@ -51,7 +50,7 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
 
         with(holder) {
             tvTitle.text = item.name + item.workTypes?.fold("\n") { s: String, type: WorkType ->
-                "$s${if (!TextUtils.equals(type.name, PHOTO_TYPE.PHOTO_TYPE_4.title)) {
+                "$s${if (!TextUtils.equals(type.name, allPhotoTypes[4].title)) {
                     type.name + "\n"
                 } else {
                     ""
