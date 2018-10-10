@@ -1,5 +1,6 @@
 package com.example.literalnon.autoreequipment.utils
 
+import com.example.literalnon.autoreequipment.fillData.FullPhotoFragment
 import services.mobiledev.ru.cheap.navigation.IBaseItem
 import services.mobiledev.ru.cheap.ui.main.comments.*
 
@@ -60,5 +61,14 @@ enum class NavigationMainItems : IBaseItem {
         override fun getPreviousEnumObject() = LIST_ACTIVE_ENTRY_SCREEN
 
         override fun getFragment() = FillDataFragment.newInstance(true)
+    },
+    FULL_PHOTO_SCREEN {
+        override var data: Any? = null
+
+        override fun getTag() = "FULL_PHOTO_SCREEN"
+
+        override fun getPreviousEnumObject() = FILL_ENTRY_SCREEN
+
+        override fun getFragment() = FullPhotoFragment.newInstance(data as String)
     }
 }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group android:id="@+id/menuGroupId">
+
+        <item
+            android:id="@+id/bottomNavigationLine"
+            android:icon="@drawable/ic_bottom_navigation_list_active_entry"
+            android:title="@string/bottom_nav_active"
+            />
+        <item
+            android:id="@+id/bottomNavigationLive"
+            android:icon="@drawable/ic_bottom_navigation_add_entry"
+            android:title="@string/bottom_nav_new"
+            />
+        <item
+            android:id="@+id/bottomNavigationFavorite"
+            android:icon="@drawable/ic_unarchive_black_24dp"
+            android:title="@string/bottom_nav_archive"
+            />
+
+    </group>
+
+</menu>

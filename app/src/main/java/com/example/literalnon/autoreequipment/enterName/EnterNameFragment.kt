@@ -38,8 +38,8 @@ class EnterNameFragment : Fragment(), IEnterNameView {
         presenter.attachView(this)
 
         btnNext.setOnClickListener {
-            if (etTown.text.toString().isNotEmpty()) {
-                name = etTown.text.toString()
+            if (etName.text.toString().isNotEmpty()) {
+                name = etName.text.toString()
                 presenter.next()
             }
         }
@@ -59,7 +59,7 @@ class EnterNameFragment : Fragment(), IEnterNameView {
         if (requestCode == REQUEST_VOICE_SEARCH && resCode == Activity.RESULT_OK) {
             val result = data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
             val fio = result[0].toString().split(" ")
-            etTown.setText(fio.fold("", { acc, s ->
+            etName.setText(fio.fold("", { acc, s ->
                 "$acc${s.first().toUpperCase()}${s.substring(1, s.length)} "
             }))
 

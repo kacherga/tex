@@ -3,14 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
 
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/white">
+        >
 
 
         <android.support.design.widget.TextInputLayout
@@ -19,20 +20,22 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/background_gray_stroke"
-            android:padding="16dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:imeOptions="actionDone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
 
             <android.support.design.widget.TextInputEditText
-                android:id="@+id/etTown"
+                android:id="@+id/etPhone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                android:imeOptions="actionGo"
+                android:inputType="text"
                 android:background="@android:color/transparent"
-                android:hint="@string/fragment_login_town" />
+                android:hint="@string/fragment_login_phone" />
 
         </android.support.design.widget.TextInputLayout>
 
@@ -40,7 +43,7 @@
             android:id="@+id/btnNext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="56dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/background_gray_stroke"
             android:padding="16dp"
             android:text="@string/fragment_login_save"
@@ -54,12 +57,13 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="72dp"
-            android:background="@drawable/background_gray_stroke"
-            android:padding="16dp"
+            android:layout_marginTop="24dp"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            android:imeOptions="actionDone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTown">
+            app:layout_constraintTop_toBottomOf="@+id/tvPhone">
 
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/etName"
@@ -67,7 +71,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:background="@android:color/transparent"
-                android:hint="@string/fragment_login_title" />
+                android:hint="@string/fragment_login_title"
+                android:inputType="text"
+                android:imeOptions="actionGo" />
 
         </android.support.design.widget.TextInputLayout>
 
@@ -94,7 +100,7 @@
             app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
         <TextView
-            android:id="@+id/tvTown"
+            android:id="@+id/tvPhone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"

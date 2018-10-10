@@ -116,11 +116,13 @@ class FillDataFragment : Fragment(), IFillDataView,
             }
         })
 
-        mainEntryTypeAdapter.manager?.addDelegate(MainEntryTaskDelegate { photo, pos ->
+        mainEntryTypeAdapter.manager?.addDelegate(MainEntryTaskDelegate ({ photo, pos ->
             currentPhoto = Pair(pos, photo)
 
             dialogFilePicker()
-        })
+        }, {
+            presenter.openPhoto(it)
+        }))
 
         mainEntryTypeAdapter.manager?.addDelegate(MainEntryTypeDelegate())
         mainEntryTypeAdapter.manager?.addDelegate(PhotoTypeDelegate())

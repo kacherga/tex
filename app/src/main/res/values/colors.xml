@@ -2,7 +2,24 @@
 <resources>
     <color name="colorPrimary">#6FC1ED</color>
     <color name="colorPrimaryDark">#4095CB</color>
-    <color name="colorAccent">#6FC1ED</color>
+    <color name="colorAccent">#b6b6b6</color>
 
     <color name="colorSemiTransparent">#7f6FC1ED</color>
+
+    <color name="app_theme_color_black">#333333</color>
+    <color name="app_theme_color_dark_black">#32000000</color>
+    <color name="app_theme_color_alpha_dark_black">#0a000000</color>
+    <color name="app_theme_color_alpha10_dark_black">#19000000</color>
+    <color name="app_theme_color_alpha25_dark_black">#51000000</color>
+    <color name="app_theme_color_gray">#828282</color>
+    <color name="app_theme_color_gray_text">#BDBDBD</color>
+    <color name="app_theme_color_green">#3CA059</color>
+    <color name="app_theme_color_yellow">#FFDE03</color>
+    <color name="app_theme_background_color">#E5E5E5</color>
+    <color name="app_theme_champ_lite_gray">#F2F2F2</color>
+    <color name="app_theme_result_lite_gray">#F4F4F4</color>
+    <color name="app_theme_result_lite_semi_alpha_gray">#7df4f4f4</color>
+    <color name="app_theme_dark_blue">#3472A1</color>
+    <color name="app_theme_favorite_background">#EB5757</color>
+
 </resources>

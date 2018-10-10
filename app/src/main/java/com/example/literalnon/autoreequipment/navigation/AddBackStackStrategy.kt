@@ -71,7 +71,7 @@ class AddBackStackStrategy(override val fragmentManager: FragmentManager, overri
     }
 
     override fun getCurrentFragment(): Fragment {
-        return fragmentManager.findFragmentByTag(getCurrentScreen()?.getTag())
+        return fragmentManager.findFragmentByTag(getCurrentScreen()?.getTag()) ?: Fragment()
     }
 
     override fun clear() {

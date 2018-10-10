@@ -21,7 +21,10 @@ import javax.security.auth.callback.Callback
  */
 typealias AddPhotoCallback = (Photo, Int) -> Unit
 
-class MainEntryTaskDelegate(private val callback: AddPhotoCallback) : AbstractAdapterDelegate<Any, Any, MainEntryTaskDelegate.Holder>() {
+typealias OpenPhotoCallback = (Photo) -> Unit
+
+class MainEntryTaskDelegate(private val callback: AddPhotoCallback,
+                            private val openPhotoCallback: OpenPhotoCallback) : AbstractAdapterDelegate<Any, Any, MainEntryTaskDelegate.Holder>() {
 
     override fun isForViewType(item: Any, items: MutableList<Any>, position: Int): Boolean {
         return item is Photo
@@ -47,6 +50,12 @@ class MainEntryTaskDelegate(private val callback: AddPhotoCallback) : AbstractAd
 
             tvTitle.text = item.name
 
+            cardImageWorkType.setOnClickListener {
+                if (item.photo != null) {
+                    openPhotoCallback(item)
+                }
+            }
+
             typeView.setBackgroundResource(item.type.typeColor)
         }
     }
@@ -56,5 +65,6 @@ class MainEntryTaskDelegate(private val callback: AddPhotoCallback) : AbstractAd
         val tvTitle = itemView.tvTitle
         val typeView = itemView.typeView
         val ivPhoto = itemView.ivPhoto
+        val cardImageWorkType = itemView.cardImageWorkType
     }
 }

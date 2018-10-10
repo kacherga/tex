@@ -5,7 +5,7 @@ package services.mobiledev.ru.cheap.data
  */
 data class User(
         val name: String,
-        val town: String
+        val phone: String
 )
 
 object LoginController {

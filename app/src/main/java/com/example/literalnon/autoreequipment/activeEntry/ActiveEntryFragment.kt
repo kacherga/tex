@@ -191,7 +191,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
 
                             listEntry.forEach {
                                 subscriptions.add(service
-                                        .notificate(LoginController.user?.town ?: "",
+                                        .notificate(LoginController.user?.phone ?: "",
                                                 LoginController.user?.name ?: "",
                                                 it.name ?: "",
                                                 it.workTypes?.fold("") { acc, workTypeObject ->
@@ -250,7 +250,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                 ftpClient.enterLocalPassiveMode()
                 ftpClient.setFileType(FTP.BINARY_FILE_TYPE)
 
-                val companyName = "${LoginController.user?.town
+                val companyName = "${LoginController.user?.phone
                         ?: "Без города"}/${LoginController.user?.name?.lines()?.fold("") { acc, s ->
                     "$acc $s"
                 }?.trim() ?: "Тестовая компания"}"
@@ -275,7 +275,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                             //Log.e("appendFile", "${workTypePath + "/" + it.type + "/" + it.name} ${it.photo}")
                             if (it.photo != null)
                                 try {
-                                    ftpClient.makeDirectory((LoginController.user?.town
+                                    ftpClient.makeDirectory((LoginController.user?.phone
                                             ?: "Без города"))
                                     ftpClient.makeDirectory(companyName)
                                     ftpClient.makeDirectory(path)

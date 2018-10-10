@@ -76,7 +76,7 @@ class ReplaceStrategy(override val fragmentManager: FragmentManager, override va
     }
 
     override fun getCurrentFragment(): Fragment {
-        return fragmentManager.findFragmentByTag(getCurrentScreen()?.getTag())
+        return fragmentManager.findFragmentByTag(getCurrentScreen()?.getTag()) ?: Fragment()
     }
 
     override fun clear() {

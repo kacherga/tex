@@ -21,7 +21,7 @@ class SpaceItemDecoration(private val context: Context?) : RecyclerView.ItemDeco
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView,
                                 state: RecyclerView.State) {
 
-        val count = parent.adapter.itemCount
+        val count = parent.adapter?.itemCount ?: 0
 
         if (count != 0) {
             val verticalDelimiterCount = count + 1

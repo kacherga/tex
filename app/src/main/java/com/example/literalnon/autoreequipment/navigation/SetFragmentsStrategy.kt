@@ -30,20 +30,24 @@ abstract class SetFragmentsStrategy(override val fragmentManager: FragmentManage
                     .addToBackStack(enumObject.getTag())
                     .commit()
         }*/
-        if (tags.contains(enumObject)) {
-            enumObject.putAnimation(fragmentManager)
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    .hide(fragmentManager.findFragmentByTag(currentItem?.getTag()))
-                    .show(fragmentManager.findFragmentByTag(enumObject.getTag()))
-                    .commit()
-        } else {
-            tags.add(enumObject)
+        val curFragment = fragmentManager.findFragmentByTag(currentItem?.getTag())
 
-            enumObject.putAnimation(fragmentManager)
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    .add(containerId, fragment, enumObject.getTag())
-                    .hide(fragmentManager.findFragmentByTag(currentItem?.getTag()))
-                    .commit()
+        if (curFragment != null) {
+            if (tags.contains(enumObject)) {
+                enumObject.putAnimation(fragmentManager)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                        .hide(curFragment)
+                        .show(fragmentManager.findFragmentByTag(enumObject.getTag()) ?: Fragment())
+                        .commit()
+            } else {
+                tags.add(enumObject)
+
+                enumObject.putAnimation(fragmentManager)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                        .add(containerId, fragment, enumObject.getTag())
+                        .hide(curFragment)
+                        .commit()
+            }
         }
 
         currentItem = enumObject
@@ -54,7 +58,7 @@ abstract class SetFragmentsStrategy(override val fragmentManager: FragmentManage
     }
 
     override fun getCurrentFragment(): Fragment {
-        return fragmentManager.findFragmentByTag(getCurrentScreen()?.getTag())
+        return fragmentManager.findFragmentByTag(getCurrentScreen()?.getTag()) ?: Fragment()
     }
 
     override fun clear() {
@@ -89,7 +93,7 @@ abstract class SetFragmentsStrategy(override val fragmentManager: FragmentManage
 
                 currentItem!!.putAnimation(fragmentManager)
                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                        .show(fragmentManager.findFragmentByTag(currentItem?.getTag()))
+                        .show(fragmentManager.findFragmentByTag(currentItem?.getTag()) ?: Fragment())
                         .commit()
 
                 true

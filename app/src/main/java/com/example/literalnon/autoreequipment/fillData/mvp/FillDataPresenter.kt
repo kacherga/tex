@@ -1,6 +1,7 @@
 package services.mobiledev.ru.cheap.ui.main.comments.mvp
 
 import com.example.bloold.hackage.mvp.IPresenter
+import com.example.literalnon.autoreequipment.Photo
 import com.example.literalnon.autoreequipment.utils.NavigationMainItems
 import services.mobiledev.ru.cheap.navigation.Navigator
 
@@ -9,6 +10,7 @@ import services.mobiledev.ru.cheap.navigation.Navigator
  */
 interface IFillDataPresenter : IPresenter<IFillDataView, IFillDataModel> {
     fun next()
+    fun openPhoto(photo: Photo)
 }
 
 class FillDataPresenter : IFillDataPresenter {
@@ -19,6 +21,11 @@ class FillDataPresenter : IFillDataPresenter {
 
     override fun next() {
         getNavigator()?.pushFragment(NavigationMainItems.ENTER_NAME_SCREEN)
+    }
+
+    override fun openPhoto(photo: Photo) {
+        NavigationMainItems.FULL_PHOTO_SCREEN.data = photo.photo
+        getNavigator()?.pushFragment(NavigationMainItems.FULL_PHOTO_SCREEN)
     }
 
     override fun attachView(view: IFillDataView) {

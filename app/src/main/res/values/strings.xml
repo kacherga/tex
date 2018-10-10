@@ -20,7 +20,7 @@
 
     <!-- login -->
     <string name="fragment_login_title">Введите свои данные</string>
-    <string name="fragment_login_town">Введите город</string>
+    <string name="fragment_login_phone">Введите телефон</string>
     <string name="fragment_login_save">Сохранить</string>
     <string name="fragment_login_edit">Редактировать</string>
     <string name="fragment_login_remove">Удалить</string>
@@ -36,5 +36,10 @@
     <string name="send_file_success">Данные успешно загружены</string>
     <string name="send_file_notif_success">Отчет успешно отправлен</string>
     <string name="send_file_no_checked">Не выбрано ни одного файла</string>
+
+    <!-- Bottom navigation -->
+    <string name="bottom_nav_archive">Архив</string>
+    <string name="bottom_nav_active">Активные</string>
+    <string name="bottom_nav_new">Создать</string>
 
 </resources>
