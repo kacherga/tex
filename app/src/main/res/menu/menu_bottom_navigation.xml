@@ -5,17 +5,17 @@
     <group android:id="@+id/menuGroupId">
 
         <item
-            android:id="@+id/bottomNavigationLine"
+            android:id="@+id/bottomNavigationActiveList"
             android:icon="@drawable/ic_bottom_navigation_list_active_entry"
             android:title="@string/bottom_nav_active"
             />
         <item
-            android:id="@+id/bottomNavigationLive"
+            android:id="@+id/bottomNavigationAddNew"
             android:icon="@drawable/ic_bottom_navigation_add_entry"
             android:title="@string/bottom_nav_new"
             />
         <item
-            android:id="@+id/bottomNavigationFavorite"
+            android:id="@+id/bottomNavigationArchive"
             android:icon="@drawable/ic_unarchive_black_24dp"
             android:title="@string/bottom_nav_archive"
             />

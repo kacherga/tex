@@ -57,11 +57,15 @@ class MainActivity : AppCompatActivity(), INavigationParent {
 
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
             when {
-                item?.itemId == R.id.bottomNavigationLive -> {
+                item?.itemId == R.id.bottomNavigationActiveList -> {
                     navigator?.pushFragment(NavigationMainItems.LIST_ACTIVE_ENTRY_SCREEN)
                     true
                 }
-                item?.itemId == R.id.bottomNavigationFavorite -> {
+                item?.itemId == R.id.bottomNavigationAddNew -> {
+                    navigator?.pushFragment(NavigationMainItems.ADD_ENTRY_SCREEN)
+                    true
+                }
+                item?.itemId == R.id.bottomNavigationArchive -> {
                     navigator?.pushFragment(NavigationMainItems.ADD_ENTRY_SCREEN)
                     true
                 }

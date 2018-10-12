@@ -36,6 +36,7 @@
     <string name="send_file_success">Данные успешно загружены</string>
     <string name="send_file_notif_success">Отчет успешно отправлен</string>
     <string name="send_file_no_checked">Не выбрано ни одного файла</string>
+    <string name="send_file_no_phone">Вы не зарегестрированы</string>
 
     <!-- Bottom navigation -->
     <string name="bottom_nav_archive">Архив</string>

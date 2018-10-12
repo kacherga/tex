@@ -279,6 +279,7 @@ class FillDataFragment : Fragment(), IFillDataView,
         val currentEntry = realm.createObject(Entry::class.java)
 
         currentEntry.name = EnterNameFragment.name
+        currentEntry.phone = EnterNameFragment.phone
 
         choiceTypes.forEach { entryType ->
             val workType = realm.createObject(WorkType::class.java)

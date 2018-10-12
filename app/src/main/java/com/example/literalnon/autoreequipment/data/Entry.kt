@@ -5,6 +5,7 @@ import io.realm.RealmObject
 
 open class Entry : RealmObject() {
     var name: String? = null
+    var phone: String? = null
     var workTypes: RealmList<WorkType>? = null
 }
 
@@ -22,6 +23,7 @@ open class RealmPhoto : RealmObject() {
 
 open class EntryObject(
     var name: String? = null,
+    var phone: String? = null,
     var workTypes: List<WorkTypeObject>? = null
 )
 

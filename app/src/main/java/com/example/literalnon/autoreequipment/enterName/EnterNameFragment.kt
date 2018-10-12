@@ -22,6 +22,7 @@ class EnterNameFragment : Fragment(), IEnterNameView {
         private val REQUEST_VOICE_SEARCH = 7823
 
         var name = ""
+        var phone = ""
 
         fun newInstance() = EnterNameFragment()
     }
@@ -40,6 +41,7 @@ class EnterNameFragment : Fragment(), IEnterNameView {
         btnNext.setOnClickListener {
             if (etName.text.toString().isNotEmpty()) {
                 name = etName.text.toString()
+                phone = etNumber.text.toString()
                 presenter.next()
             }
         }
