@@ -42,17 +42,22 @@ class MainEntryTaskDelegate(private val callback: AddPhotoCallback,
         item as Photo
 
         with(holder) {
-            if (item.photos?.first() != null) {
+            if (item.photos?.first()?.isNotEmpty() == true) {
                 Glide.with(ivPhoto)
                         .load(item.photos?.first())
                         .into(ivPhoto)
+            } else {
+                /*Glide.with(ivPhoto)
+                        .load(R.drawable.ic_camera)
+                        .into(ivPhoto)*/
+                ivPhoto.setImageResource(R.drawable.ic_camera)
             }
 
             mainLayout.setOnClickListener {
                 callback(item, position)
             }
 
-            tvTitle.text = item.name
+            tvTitle.text = "${item.name}"
 
             cardImageWorkType.setOnClickListener {
                 if (item.photos?.first() != null) {

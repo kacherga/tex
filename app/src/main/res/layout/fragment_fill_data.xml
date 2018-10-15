@@ -10,6 +10,7 @@
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:overScrollMode="never"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -111,17 +112,22 @@
 
             </FrameLayout>
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/fragment_login_save"
-                android:layout_gravity="center"
-                android:id="@+id/btnNext"
-                android:layout_margin="16dp"
-                android:padding="16dp"
-                android:background="@drawable/background_gray_stroke"/>
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:id="@+id/btnNext"
+        android:layout_margin="16dp"
+        app:srcCompat="@drawable/ic_save_black_24dp"
+        app:fabSize="normal"
+        app:backgroundTint="@color/colorPrimaryDark"
+        app:rippleColor="@color/app_theme_color_yellow"
+        android:padding="16dp"
+        />
+    <!--android:background="@drawable/background_gray_stroke"-->
 
 </android.support.design.widget.CoordinatorLayout>

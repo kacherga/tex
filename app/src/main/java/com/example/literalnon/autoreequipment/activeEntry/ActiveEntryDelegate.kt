@@ -112,7 +112,7 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
         }
     }
 
-    fun setChecked(holder: Holder, item: Entry, position: Int, isContains: Boolean = false) {
+    private fun setChecked(holder: Holder, item: Entry, position: Int, isContains: Boolean = false) {
         if (checkCallback.containsKey(position) == isContains) {
             checkCallback[position] = item
             holder.ivCheck.visibility = View.VISIBLE

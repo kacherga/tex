@@ -32,7 +32,7 @@ class PhotoDelegate(private val callback: (File) -> Unit): AbstractAdapterDelega
         item as File
         Glide.with(holder.ivClose.context)
                 .load(item)
-                .apply(RequestOptions.circleCropTransform())
+                //.apply(RequestOptions.circleCropTransform())
                 .into(holder.ivPhoto)
 
         holder.ivClose.setOnClickListener { callback(item) }

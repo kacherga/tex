@@ -8,7 +8,7 @@
 
     <color name="app_theme_color_black">#333333</color>
     <color name="app_theme_color_dark_black">#32000000</color>
-    <color name="app_theme_color_alpha_dark_black">#0a000000</color>
+    <color name="app_theme_color_alpha_dark_black">#0a838383</color>
     <color name="app_theme_color_alpha10_dark_black">#19000000</color>
     <color name="app_theme_color_alpha25_dark_black">#51000000</color>
     <color name="app_theme_color_gray">#828282</color>
