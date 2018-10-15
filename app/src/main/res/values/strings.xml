@@ -5,7 +5,7 @@
     <string name="title_settings">Settings</string>
 
     <!-- Fill data -->
-    <string name="fragment_fill_data_extra_title">Дополнительно</string>
+    <string name="fragment_fill_data_extra_title">Примечание</string>
     <string name="fragment_request_description_hint">Опишите задачу в свободной форме</string>
     <string name="fragment_request_add_photo_hint">Добавить фото\n Макс. 20 штук</string>
     <string name="profile.edit.dialog_title_profile_pick_photo">Ваше фото</string>
@@ -20,7 +20,8 @@
 
     <!-- login -->
     <string name="fragment_login_title">Введите свои данные</string>
-    <string name="fragment_login_phone">Введите телефон</string>
+    <string name="fragment_login_phone">Телефон</string>
+    <string name="fragment_login_name">Логин</string>
     <string name="fragment_login_save">Сохранить</string>
     <string name="fragment_login_edit">Редактировать</string>
     <string name="fragment_login_remove">Удалить</string>
@@ -37,10 +38,17 @@
     <string name="send_file_notif_success">Отчет успешно отправлен</string>
     <string name="send_file_no_checked">Не выбрано ни одного файла</string>
     <string name="send_file_no_phone">Вы не зарегестрированы</string>
+    <string name="no_sended_file">Не отправлено</string>
+    <string name="no_send_title">Отправка данных</string>
+    <string name="no_resend">Вы действительно хотите повторно отправить данные?</string>
 
     <!-- Bottom navigation -->
     <string name="bottom_nav_archive">Архив</string>
     <string name="bottom_nav_active">Активные</string>
     <string name="bottom_nav_new">Создать</string>
+
+    <!-- Enter name -->
+    <string name="enter_name">Фамилия Имя Отчество</string>
+    <string name="enter_number">Номер автомобиля</string>
 
 </resources>

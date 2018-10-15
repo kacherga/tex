@@ -15,7 +15,7 @@ enum class NavigationMainItems : IBaseItem {
 
         override fun getPreviousEnumObject() = null
 
-        override fun getFragment() = ActiveEntryFragment.newInstance()
+        override fun getFragment() = ActiveEntryFragment.newInstance(data as Boolean)
     },
     PARTNER_SETTINGS_SCREEN {
         override var data: Any? = null

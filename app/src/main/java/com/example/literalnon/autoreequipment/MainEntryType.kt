@@ -37,7 +37,9 @@ data class PhotoType(
         val typeColor: Int
 )
 
-val allPhotoTypes = arrayListOf<PhotoType>(
+const val EXTRA_PHOTO_TITLE = "Доп"
+
+var allPhotoTypes = arrayListOf<PhotoType>(
         PhotoType(
                 "Fake",
                 android.R.color.holo_purple
@@ -83,11 +85,12 @@ class Photo(
         val id: Int,
         val name: String,
         val type: PhotoType,
+        var photoCount: Int? = 1,
         var workType: ArrayList<EntryType>? = null,
-        var photo: String? = null
+        var photos: ArrayList<String>? = null
 )
 
-val photos = arrayListOf<Photo>(
+var photos = arrayListOf<Photo>(
         Photo(0, "Неизвестный тип", allPhotoTypes[1]),
         Photo(1, "Общий вид автомобиля спереди с Гос. Знаком", allPhotoTypes[2]),
         Photo(2, "Общий вид сбоку", allPhotoTypes[2]),
@@ -99,7 +102,7 @@ val photos = arrayListOf<Photo>(
         Photo(8, "Газовый клапан (если есть)", allPhotoTypes[2]),
         Photo(9, "Бензиновый клапан (если есть)", allPhotoTypes[2]),
         Photo(10, "Проводка (должна быть в гофрированном кожухе)", allPhotoTypes[2]),
-        Photo(11, "Баллон (на расстоянии)", allPhotoTypes[2]),
+        Photo(11, "Баллон (на расстоянии)", allPhotoTypes[2], 8),
         Photo(12, "Бирка баллона (должен быть отчетливо виден номер)", allPhotoTypes[1]),
         Photo(13, "Вентиляция", allPhotoTypes[2]),
         Photo(14, "Мультиклапан", allPhotoTypes[2]),
@@ -130,7 +133,7 @@ val photos = arrayListOf<Photo>(
         Photo(39, "Крупный план заводского номера Двигателя", allPhotoTypes[2])
 )
 
-val allEntryType = arrayListOf<EntryType>(
+var allEntryType = arrayListOf<EntryType>(
         /*MainEntryType.TYPE_1,
         MainEntryType.TYPE_2,
         MainEntryType.TYPE_3,

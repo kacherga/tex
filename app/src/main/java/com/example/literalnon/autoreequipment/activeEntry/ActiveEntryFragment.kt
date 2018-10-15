@@ -57,12 +57,19 @@ import java.io.File
 import java.io.FileInputStream
 import java.lang.RuntimeException
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class ActiveEntryFragment : Fragment(), IActiveEntryView {
 
     companion object {
-        fun newInstance() = ActiveEntryFragment()
+        const val EXTRA_IS_ACTIVE = "is_active"
+
+        fun newInstance(isActive: Boolean) = ActiveEntryFragment().apply {
+            arguments = Bundle().apply {
+                putBoolean(EXTRA_IS_ACTIVE, isActive)
+            }
+        }
     }
 
     override var presenter: IActiveEntryPresenter = ActiveEntryPresenter()
@@ -71,6 +78,15 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
     private var realm: Realm? = null
     private val checkedEntries = CheckCallback()
     val subscriptions = CompositeDisposable()
+    private var isActive = true
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        if (arguments?.containsKey(EXTRA_IS_ACTIVE) == true) {
+            isActive = arguments?.getBoolean(EXTRA_IS_ACTIVE) ?: true
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
@@ -81,29 +97,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
 
         presenter.attachView(this)
 
-        adapter.manager?.addDelegate(ActiveEntryDelegate(checkedEntries, { entry ->
-            EnterNameFragment.name = entry.name ?: ""
-
-            AddEntryFragment.choiceTypes = ArrayList<EntryType>().apply {
-                addAll(allEntryType.filter {
-                    entry.workTypes?.find { workType -> TextUtils.equals(workType.name, it.title) } != null
-                })
-
-                entry.workTypes?.forEach {
-                    it?.photos?.forEach {
-                        photos[it.id!!].photo = it.photo
-                    }
-                }
-                val extras = entry.workTypes?.find { TextUtils.equals(it.name, allPhotoTypes[4].title) }
-                if (extras != null) {
-                    AddEntryFragment.extras = Extras(
-                            extras.photos?.firstOrNull()?.type ?: "",
-                            extras.photos?.map { it.photo ?: "" }
-                    )
-                }
-            }
-            presenter.openEdit()
-        }, { entry, position ->
+        adapter.manager?.addDelegate(ActiveEntryDelegate(checkedEntries, { entry, position ->
 
             realm?.beginTransaction()
 
@@ -117,6 +111,34 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
             })
 
             adapter.remove(position)
+        }, { entry ->
+            EnterNameFragment.name = entry.name ?: ""
+
+            AddEntryFragment.choiceTypes = ArrayList<EntryType>().apply {
+                addAll(allEntryType.filter {
+                    entry.workTypes?.find { workType -> TextUtils.equals(workType.name, it.title) } != null
+                })
+
+                entry.workTypes?.forEach {
+                    it?.photos?.forEach {
+                        if (photos[it.id!!].photos == null) {
+                            photos[it.id!!].photos = ArrayList()
+                        }
+                        if (photos[it.id!!].photos?.contains(it.photo) == false) {
+                            photos[it.id!!].photos?.add(it.photo ?: "")
+                        }
+                    }
+                }
+
+                val extras = entry.workTypes?.find { TextUtils.equals(it.name, EXTRA_PHOTO_TITLE) }
+                if (extras != null) {
+                    AddEntryFragment.extras = Extras(
+                            extras.description ?: "",
+                            extras.photos?.map { it.photo ?: "" }
+                    )
+                }
+            }
+            presenter.openEdit()
         }))
 
         rvActiveEntry.layoutManager = LinearLayoutManager(context)
@@ -127,7 +149,9 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
         realm = Realm.getDefaultInstance()
         //realm?.beginTransaction()
 
-        var entries = realm?.where(Entry::class.java)?.findAll()
+        var entries = realm?.where(Entry::class.java)?.findAll()?.filter {
+            (it.sendedAt == null) == isActive
+        }
         adapter.addAll(entries?.toList())
 
         val listEntry = ArrayList<EntryObject>()
@@ -152,11 +176,15 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                                                     PhotoObject(
                                                             it.name,
                                                             it.photo,
-                                                            it.type
+                                                            it.type,
+                                                            it.sendedAt
                                                     )
-                                                }
+                                                },
+                                                it.description,
+                                                it.sendedAt
                                         )
-                                    }
+                                    },
+                                    value.sendedAt
                             )
                     )
 

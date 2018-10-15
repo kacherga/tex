@@ -8,13 +8,19 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.Toast
 import android.widget.Toolbar
+import com.betcityru.dyadichko_da.betcityru.ui.createService
 import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.module.AppGlideModule
 import com.crashlytics.android.Crashlytics
+import com.example.literalnon.autoreequipment.network.DataService
 import com.example.literalnon.autoreequipment.utils.NavigationMainItems
 import com.google.gson.Gson
 import io.fabric.sdk.android.Fabric
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
 import services.mobiledev.ru.cheap.navigation.AddBackStackStrategy
@@ -41,7 +47,9 @@ class MainActivity : AppCompatActivity(), INavigationParent {
                 .strategy(ReplaceStrategy(supportFragmentManager, R.id.container))
                 .build()
 
-        navigator?.openFirstFragment()
+        getData()
+
+        //navigator?.openFirstFragment()
 
         /*ivActiveEntries.setOnClickListener {
             navigator?.pushFragment(NavigationMainItems.LIST_ACTIVE_ENTRY_SCREEN)
@@ -55,9 +63,12 @@ class MainActivity : AppCompatActivity(), INavigationParent {
 
         //bottomNavigationView.replaceMenu(R.menu.menu_bottom_navigation)
 
+        bottomNavigationView.selectedItemId = R.id.bottomNavigationAddNew
+
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
             when {
                 item?.itemId == R.id.bottomNavigationActiveList -> {
+                    NavigationMainItems.LIST_ACTIVE_ENTRY_SCREEN.data = true
                     navigator?.pushFragment(NavigationMainItems.LIST_ACTIVE_ENTRY_SCREEN)
                     true
                 }
@@ -66,7 +77,8 @@ class MainActivity : AppCompatActivity(), INavigationParent {
                     true
                 }
                 item?.itemId == R.id.bottomNavigationArchive -> {
-                    navigator?.pushFragment(NavigationMainItems.ADD_ENTRY_SCREEN)
+                    NavigationMainItems.LIST_ACTIVE_ENTRY_SCREEN.data = false
+                    navigator?.pushFragment(NavigationMainItems.LIST_ACTIVE_ENTRY_SCREEN)
                     true
                 }
                 else -> {
@@ -74,6 +86,40 @@ class MainActivity : AppCompatActivity(), INavigationParent {
                 }
             }
         }
+
+
+    }
+
+    private fun getData() {
+        /*val service = createService(DataService::class.java)
+
+        progressBar.visibility = View.VISIBLE
+
+        service.getEntryTypes()
+                .flatMap {
+                    allEntryType = ArrayList<EntryType>().apply {
+                        addAll(it)
+                    }
+                    service.getPhotoTypes()
+                }.flatMap {
+                    allPhotoTypes = ArrayList<PhotoType>().apply {
+                        addAll(it)
+                    }
+                    service.getPhotos()
+                }.subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    navigator?.openFirstFragment()
+                    progressBar.visibility = View.GONE
+                }, {
+                    Toast.makeText(this, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
+                    navigator?.openFirstFragment()
+                    progressBar.visibility = View.GONE
+                    it.printStackTrace()
+                })*/
+
+        navigator?.openFirstFragment()
+        progressBar.visibility = View.GONE
     }
 
     override fun onBackPressed() {

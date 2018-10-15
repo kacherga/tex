@@ -155,7 +155,7 @@ class FillDataFragment : Fragment(), IFillDataView,
                     list.addAll(it.map {
                         photos[it.key].apply {
                             if (!isEdit) {
-                                photo = null
+                                photos = null
                                 workType = it.value
                             }
                         }
@@ -174,7 +174,7 @@ class FillDataFragment : Fragment(), IFillDataView,
             isNotSave = false
         }
 
-        Log.d("tag", "isEdit : ${isEdit} : ${AddEntryFragment.extras != null}")
+        //Log.d("tag", "isEdit : ${isEdit} : ${AddEntryFragment.extras != null}")
 
         if (isEdit && AddEntryFragment.extras != null) {
             etDescriptionTask.setText(AddEntryFragment.extras!!.name)
@@ -184,6 +184,7 @@ class FillDataFragment : Fragment(), IFillDataView,
                 val photos = AddEntryFragment.extras!!.photos?.map {
                     File(it)
                 }
+
                 extraPhotos.addAll(photos ?: ArrayList())
                 photoAdapter.addAll(photos)
                 etFillPhotoHint.visibility = View.GONE
@@ -196,8 +197,14 @@ class FillDataFragment : Fragment(), IFillDataView,
     override fun onFilePicked(file: File?) {
         if (currentPhoto != null) {
             if (file != null) {
-                currentPhoto?.second?.photo = file.path
-                mainEntryTypeAdapter.notifyItemChanged(currentPhoto!!.first)
+                if ((currentPhoto?.second?.photoCount ?: 0) > (currentPhoto?.second?.photos?.size ?: 0)) {
+                    if (currentPhoto?.second?.photos == null) {
+                        currentPhoto?.second?.photos = ArrayList()
+                    }
+
+                    currentPhoto?.second?.photos?.add(file.path)
+                    mainEntryTypeAdapter.notifyItemChanged(currentPhoto!!.first)
+                }
             } else {
                 Toast.makeText(context, "file empty", Toast.LENGTH_LONG).show()
             }
@@ -287,29 +294,32 @@ class FillDataFragment : Fragment(), IFillDataView,
             workType.name = entryType.title
 
             entryType.photosId.forEach {
+                photos[it].photos?.forEach { _photo ->
 
-                val mPhoto = RealmPhoto().apply {
-                    name = photos[it].name
-                    photo = photos[it].photo
-                    type = photos[it].type.title
-                    id = it
+                    val mPhoto = RealmPhoto().apply {
+                        name = photos[it].name
+                        photo = _photo
+                        type = photos[it].type.title
+                        id = it
+                    }
+
+                    workType.photos?.add(realm.copyToRealm(mPhoto))
                 }
-
-                workType.photos?.add(realm.copyToRealm(mPhoto))
             }
 
             currentEntry.workTypes?.add(workType)
         }
 
         val workType = realm.createObject(WorkType::class.java)
-        workType.name = allPhotoTypes[4].title
+        workType.name = EXTRA_PHOTO_TITLE
+        workType.description = etDescriptionTask.text?.toString()
 
-        extraPhotos.forEach {
+        extraPhotos.forEachIndexed { index, it ->
             val mPhoto = RealmPhoto().apply {
-                name = "Доп. фото ${extraPhotos.indexOf(it)}"
+                name = "${EXTRA_PHOTO_TITLE}_$index"
                 photo = it.path
-                type = etDescriptionTask.text.toString()
-                id = 0
+                type = ""
+                id = index
             }
 
             workType.photos?.add(realm.copyToRealm(mPhoto))

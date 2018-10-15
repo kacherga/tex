@@ -3,7 +3,10 @@ package com.example.literalnon.autoreequipment.fillData
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.LinearLayoutManager.HORIZONTAL
 import android.support.v7.widget.RecyclerView
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +15,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.literalnon.autoreequipment.Photo
 import com.example.literalnon.autoreequipment.R
 import com.example.literalnon.autoreequipment.adapters.AbstractAdapterDelegate
+import com.example.literalnon.autoreequipment.adapters.DelegationAdapter
 import kotlinx.android.synthetic.main.item_create_photo.view.*
 import java.io.File
 import javax.security.auth.callback.Callback
@@ -38,9 +42,9 @@ class MainEntryTaskDelegate(private val callback: AddPhotoCallback,
         item as Photo
 
         with(holder) {
-            if (item.photo != null) {
+            if (item.photos?.first() != null) {
                 Glide.with(ivPhoto)
-                        .load(item.photo)
+                        .load(item.photos?.first())
                         .into(ivPhoto)
             }
 
@@ -51,12 +55,31 @@ class MainEntryTaskDelegate(private val callback: AddPhotoCallback,
             tvTitle.text = item.name
 
             cardImageWorkType.setOnClickListener {
-                if (item.photo != null) {
+                if (item.photos?.first() != null) {
                     openPhotoCallback(item)
                 }
             }
 
             typeView.setBackgroundResource(item.type.typeColor)
+
+            if ((item.photoCount ?: 1) > 1) {
+                rvExtraPhotos.visibility = View.VISIBLE
+                val adapter = DelegationAdapter<Any>()
+                rvExtraPhotos.adapter = adapter
+                rvExtraPhotos.layoutManager = LinearLayoutManager(rvExtraPhotos.context, HORIZONTAL, false)
+                adapter.manager.addDelegate(TaskPhotoDelegate({
+                    adapter.remove(adapter.items.indexOf(it))
+                    item.photos?.remove(item.photos?.find {path ->
+                        TextUtils.equals(path, it)
+                    })
+                }))
+
+                val items = item.photos?.subList(1, item.photos?.size ?: 1) ?: ArrayList()
+
+                adapter.addAll(items.toList())
+            } else {
+                rvExtraPhotos.visibility = View.VISIBLE
+            }
         }
     }
 
@@ -66,5 +89,6 @@ class MainEntryTaskDelegate(private val callback: AddPhotoCallback,
         val typeView = itemView.typeView
         val ivPhoto = itemView.ivPhoto
         val cardImageWorkType = itemView.cardImageWorkType
+        val rvExtraPhotos = itemView.rvExtraPhotos
     }
 }

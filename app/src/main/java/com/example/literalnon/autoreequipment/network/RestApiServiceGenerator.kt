@@ -8,7 +8,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
-private var BASE_URL = "http://app.tex-expert.ru/docs/" //TODO будет генерация url, возможно динамический url!!
+private var BASE_URL = "http://app.tex-expert.ru/"
 
 private val httpLoggingInterceptor = HttpLoggingInterceptor().apply {
     if (BuildConfig.DEBUG) {

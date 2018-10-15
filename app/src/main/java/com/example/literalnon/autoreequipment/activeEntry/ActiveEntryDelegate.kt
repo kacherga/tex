@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.example.literalnon.autoreequipment.EXTRA_PHOTO_TITLE
 import com.example.literalnon.autoreequipment.Photo
 import com.example.literalnon.autoreequipment.R
 import com.example.literalnon.autoreequipment.adapters.AbstractAdapterDelegate
@@ -20,6 +21,9 @@ import com.example.literalnon.autoreequipment.data.Entry
 import com.example.literalnon.autoreequipment.data.WorkType
 import kotlinx.android.synthetic.main.item_active_entry.view.*
 import java.io.File
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
+import java.util.*
 import javax.security.auth.callback.Callback
 
 /**
@@ -31,8 +35,9 @@ typealias EditCallback = (Entry) -> Unit
 typealias RemoveCallback = (Entry, Int) -> Unit
 
 class ActiveEntryDelegate(private val checkCallback: CheckCallback,
-                          private val editCallback: EditCallback,
-                          private val removeCallback: RemoveCallback) : AbstractAdapterDelegate<Any, Any, ActiveEntryDelegate.Holder>() {
+                          private val removeCallback: RemoveCallback,
+                          private val editCallback: EditCallback
+) : AbstractAdapterDelegate<Any, Any, ActiveEntryDelegate.Holder>() {
 
     override fun isForViewType(item: Any, items: MutableList<Any>, position: Int): Boolean {
         return item is Entry
@@ -49,8 +54,10 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
         item as Entry
 
         with(holder) {
+            val context = tvTitle.context
+
             tvTitle.text = item.name + item.workTypes?.fold("\n") { s: String, type: WorkType ->
-                "$s${if (!TextUtils.equals(type.name, allPhotoTypes[4].title)) {
+                "$s${if (!TextUtils.equals(type.name, EXTRA_PHOTO_TITLE)) {
                     type.name + "\n"
                 } else {
                     ""
@@ -60,7 +67,21 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
             setChecked(holder, item, position, true)
 
             mainLayout.setOnClickListener {
-                setChecked(holder, item, position)
+                if (item.sendedAt != null && !checkCallback.containsKey(position)) {
+                    AlertDialog.Builder(context)
+                            .setTitle(context.getString(R.string.no_send_title))
+                            .setMessage(context.getString(R.string.no_resend))
+                            .setPositiveButton("Да") { dialog, which ->
+                                setChecked(holder, item, position)
+                                dialog.dismiss()
+                            }
+                            .setNegativeButton("Нет") { dialog, which ->
+                                dialog.dismiss()
+                            }
+                            .show()
+                } else {
+                    setChecked(holder, item, position)
+                }
             }
 
             btnEdit.setOnClickListener {
@@ -68,7 +89,7 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
             }
 
             btnDelete.setOnClickListener {
-                AlertDialog.Builder(tvTitle.context)
+                AlertDialog.Builder(context)
                         .setTitle("Удаление записи")
                         .setMessage("Вы действительно хотите удалить запись?")
                         .setPositiveButton("Да") { dialog, which ->
@@ -81,6 +102,13 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
                         .show()
             }
 
+            tvSendedAt.text = if (item.sendedAt != null) {
+                val calendar = Calendar.getInstance()
+                calendar.timeInMillis = item.sendedAt!!
+                SimpleDateFormat("dd:MM hh:mm").format(calendar.time)
+            } else {
+                context?.getString(R.string.no_sended_file)
+            }
         }
     }
 
@@ -91,7 +119,7 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
             holder.checkView.visibility = View.VISIBLE
         } else {
             checkCallback.remove(position)
-            holder.ivCheck.visibility = View.GONE
+            holder.ivCheck.visibility = View.INVISIBLE
             holder.checkView.visibility = View.GONE
         }
     }
@@ -103,5 +131,6 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
         val ivCheck = itemView.ivCheck
         val btnEdit = itemView.btnEdit
         val btnDelete = itemView.btnDelete
+        val tvSendedAt = itemView.tvSendedAt
     }
 }

@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.content.Intent
 import android.speech.RecognizerIntent
 import android.support.v4.app.Fragment
+import android.view.inputmethod.EditorInfo
 import com.example.literalnon.autoreequipment.R
 import kotlinx.android.synthetic.main.fragment_enter_name.*
 import services.mobiledev.ru.cheap.navigation.INavigationParent
@@ -44,6 +45,13 @@ class EnterNameFragment : Fragment(), IEnterNameView {
                 phone = etNumber.text.toString()
                 presenter.next()
             }
+        }
+
+        etNumber.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                btnNext.performClick()
+            }
+            false
         }
 
         ivVoiceSearch.setOnClickListener {

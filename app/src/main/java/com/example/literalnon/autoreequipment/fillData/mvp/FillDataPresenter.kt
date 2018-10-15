@@ -24,7 +24,7 @@ class FillDataPresenter : IFillDataPresenter {
     }
 
     override fun openPhoto(photo: Photo) {
-        NavigationMainItems.FULL_PHOTO_SCREEN.data = photo.photo
+        NavigationMainItems.FULL_PHOTO_SCREEN.data = photo.photos?.first()
         getNavigator()?.pushFragment(NavigationMainItems.FULL_PHOTO_SCREEN)
     }
 

@@ -50,7 +50,7 @@ class AddPartnerFragment : Fragment(), IAddPartnerView {
         tvPhone.text = LoginController.user?.phone ?: ""
 
         etPhone.setOnEditorActionListener { v, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_GO) {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
                 btnNext.performClick()
             }
             false

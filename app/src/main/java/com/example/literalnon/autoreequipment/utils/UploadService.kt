@@ -17,8 +17,10 @@ import android.graphics.Color
 import android.text.TextUtils
 import android.widget.Toast
 import com.betcityru.dyadichko_da.betcityru.ui.createService
+import com.example.literalnon.autoreequipment.EXTRA_PHOTO_TITLE
 import com.example.literalnon.autoreequipment.R
 import com.example.literalnon.autoreequipment.allPhotoTypes
+import com.example.literalnon.autoreequipment.data.Entry
 import com.example.literalnon.autoreequipment.data.EntryObject
 import com.example.literalnon.autoreequipment.data.PhotoObject
 import com.example.literalnon.autoreequipment.data.WorkTypeObject
@@ -27,12 +29,14 @@ import com.google.gson.Gson
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import io.realm.Realm
 import org.apache.commons.net.ftp.FTP
 import org.apache.commons.net.ftp.FTPClient
 import services.mobiledev.ru.cheap.data.LoginController
 import services.mobiledev.ru.cheap.data.Prefs
+import services.mobiledev.ru.cheap.ui.main.comments.EnterNameFragment
 import java.io.File
-import java.util.ArrayList
+import java.util.*
 
 
 class UpdateService : Service()/*IntentService("intentServiceName")*/ {
@@ -44,6 +48,11 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
         const val IS_FROM_SERVICE = "IS_FROM_SERVICE"
         const val UPLOADING_APK_NOTIFICATION_ID = 2
         const val UPLOADING_APK_CHANNEL_ID = "UPLOADING_APK_CHANNEL_ID"
+
+        const val IMAGE_MAX_SIZE = 640
+        const val IMAGE_COMPRESS_QUALITY = 75
+        const val IMAGE_COMPRESSED_NAME = "compressedImage"
+        const val IMAGE_COMPRESSED_EXTENSION = ".jpg"
 
         const val EXTRA_JSON = "json"
 
@@ -209,7 +218,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
 
                     listEntry.forEach {
                         //subscriptions.add(
-                                service
+                        service
                                 .notificate(LoginController.user?.phone ?: "",
                                         LoginController.user?.name ?: "",
                                         it.name ?: "",
@@ -276,39 +285,79 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
             entries?.forEach {
                 val path = "$companyName/${it.name?.lines()?.fold("") { acc, s ->
                     "$acc $s"
-                }?.trim()}/${it.phone}"
+                }?.trim()}"
+
+                val entryPath = path + "/${it.phone}"
+
                 //ftpClient.makeDirectory(path)
-                Log.e("makeDirectory", "${path}")
+                //Log.e("makeDirectory", "${path}")
                 it.workTypes?.forEach {
-                    val workTypePath = path + "/" + it.name
+                    if (it.description?.isNotEmpty() == true) {
+                        Log.e("makeDirectory", "it.description : ${entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt"}")
+                        ftpClient.makeDirectory(companyName)
+                        ftpClient.makeDirectory(path)
+                        ftpClient.makeDirectory(entryPath)
+                        ftpClient.appendFile(entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt", it.description?.byteInputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
+                    }
+
                     //ftpClient.makeDirectory(workTypePath)
-                    Log.e("makeDirectory", "${workTypePath}")
-                    it.photos?.forEach {
+                    Log.e("makeDirectory", "${it.description} : ${it.name}")
+
+
+
+                    it.photos?.forEachIndexed { index, it ->
                         //ftpClient.makeDirectory(workTypePath + "/" + it.type)
-                        Log.e("appendFile", "${workTypePath} ${it.photo}")// + "/" + it.type + "/" + it.name
+                        //Log.e("appendFile", "${workTypePath} ${it.photo}")// + "/" + it.type + "/" + it.name
                         if (it.photo != null)
                             try {
                                 //ftpClient.makeDirectory((LoginController.user?.phone
-                                  //      ?: "Без имени"))
+                                //      ?: "Без имени"))
+                                val compressedFile = BitmapUtils.compressImage(this, File(it.photo), IMAGE_MAX_SIZE, IMAGE_COMPRESSED_NAME + Calendar.getInstance().timeInMillis + IMAGE_COMPRESSED_EXTENSION, IMAGE_COMPRESS_QUALITY)
                                 ftpClient.makeDirectory(companyName)
                                 ftpClient.makeDirectory(path)
-                                ftpClient.makeDirectory(workTypePath)
-                                ftpClient.makeDirectory(workTypePath + "/" + it.type)
-                                ftpClient.appendFile(workTypePath + ".jpg", File(it.photo).inputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
+                                ftpClient.makeDirectory(entryPath)
+                                //ftpClient.makeDirectory(workTypePath)
+                                //ftpClient.makeDirectory(workTypePath + "/" + it.type)
+                                ftpClient.appendFile(entryPath + "/" + "${it.type}_${it.name}_${index}" + IMAGE_COMPRESSED_EXTENSION, compressedFile?.inputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
+                                it.sendedAt = Calendar.getInstance().timeInMillis
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
 
                     }
+
+                    it.sendedAt = Calendar.getInstance().timeInMillis
                 }
+
+                it.sendedAt = Calendar.getInstance().timeInMillis
             }
 
             ftpClient.logout()
             ftpClient.disconnect()
+
+            sendData(entries)
+
         }
         /*} catch (e: Exception) {
             e.printStackTrace()
         }*/
+    }
+
+    private fun sendData(entries: Array<EntryObject>?) {
+        val realm = Realm.getDefaultInstance()
+        realm.beginTransaction()
+
+        entries?.forEach {
+            realm?.where(Entry::class.java)?.`in`("name", arrayOf(it.name))?.findFirst()?.sendedAt = it.sendedAt
+        }
+
+        realm.commitTransaction()
+
+        realm.executeTransaction({ bgRealm ->
+
+        })
+
+        realm.close()
     }
 
     fun showInstallNotification(context: Context, intent: PendingIntent) {
