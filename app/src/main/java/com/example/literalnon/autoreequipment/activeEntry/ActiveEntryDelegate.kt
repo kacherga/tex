@@ -18,13 +18,16 @@ import com.example.literalnon.autoreequipment.R
 import com.example.literalnon.autoreequipment.adapters.AbstractAdapterDelegate
 import com.example.literalnon.autoreequipment.allPhotoTypes
 import com.example.literalnon.autoreequipment.data.Entry
+import com.example.literalnon.autoreequipment.data.RealmPhoto
 import com.example.literalnon.autoreequipment.data.WorkType
+import io.realm.RealmList
 import kotlinx.android.synthetic.main.item_active_entry.view.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.security.auth.callback.Callback
+import kotlin.collections.ArrayList
 
 /**
  * Created by bloold on 16.12.17.
@@ -64,15 +67,38 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
                 }}"
             }
 
-            setChecked(holder, item, position, true)
+            setChecked(holder, item, holder.adapterPosition, true)
 
             mainLayout.setOnClickListener {
-                if (item.sendedAt != null && !checkCallback.containsKey(position)) {
+                if (item.sendedAt != null && !checkCallback.containsKey(holder.adapterPosition)) {
                     AlertDialog.Builder(context)
                             .setTitle(context.getString(R.string.no_send_title))
                             .setMessage(context.getString(R.string.no_resend))
                             .setPositiveButton("Да") { dialog, which ->
-                                setChecked(holder, item, position)
+                                val entry = Entry()
+                                entry.phone = item.phone
+                                entry.name = item.name
+                                entry.sendedAt = null
+                                entry.sendType = 0
+                                entry.workTypes = RealmList()
+                                item.workTypes?.forEach {
+                                    val workType = WorkType()
+                                    workType.description = it.description
+                                    workType.name = it.name
+                                    workType.sendedAt = null
+                                    workType.photos = RealmList()
+                                    it.photos?.forEach {
+                                        val photo = RealmPhoto()
+                                        photo.sendedAt = null
+                                        photo.id = it.id
+                                        photo.name = it.name
+                                        photo.photo = it.photo
+                                        photo.type = it.type
+                                        workType.photos?.add(photo)
+                                    }
+                                    entry.workTypes?.add(workType)
+                                }
+                                setChecked(holder, entry, holder.adapterPosition)
                                 dialog.dismiss()
                             }
                             .setNegativeButton("Нет") { dialog, which ->
@@ -80,7 +106,7 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
                             }
                             .show()
                 } else {
-                    setChecked(holder, item, position)
+                    setChecked(holder, item, holder.adapterPosition)
                 }
             }
 
@@ -93,7 +119,7 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
                         .setTitle("Удаление записи")
                         .setMessage("Вы действительно хотите удалить запись?")
                         .setPositiveButton("Да") { dialog, which ->
-                            removeCallback(item, position)
+                            removeCallback(item, holder.adapterPosition)
                             dialog.dismiss()
                         }
                         .setNegativeButton("Нет") { dialog, which ->
@@ -102,10 +128,12 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
                         .show()
             }
 
-            tvSendedAt.text = if (item.sendedAt != null) {
+            tvSendedAt.text = if (item.sendedAt != null && item.sendType == 1) {
                 val calendar = Calendar.getInstance()
                 calendar.timeInMillis = item.sendedAt!!
                 SimpleDateFormat("dd:MM hh:mm").format(calendar.time)
+            } else if (item.sendType == 2) {
+                context?.getString(R.string.no_sended_file_half)
             } else {
                 context?.getString(R.string.no_sended_file)
             }

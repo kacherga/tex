@@ -84,7 +84,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
     }
 
     init {
-        Log.e("updater", "init")
+        //Log.e("updater", "init")
     }
 
     override fun onCreate() {
@@ -134,7 +134,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
     }
 
     private fun createDownloadNotification(progress: Int? = null): Notification {
-        //Log.e("updater", "createDownloadNotification")
+        ////Log.e("updater", "createDownloadNotification")
 
         if (Build.VERSION.SDK_INT > 25) {
             createNotificationChannel(this, UPLOADING_APK_CHANNEL_ID)
@@ -157,7 +157,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
 
         notificationSystemManager?.notify(UPLOADING_APK_NOTIFICATION_ID, notification)
 
-        Log.e("updater", "createDownloadNotificationEnd")
+        //Log.e("updater", "createDownloadNotificationEnd")
         return notification
     }
 
@@ -183,7 +183,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
     private fun uploadFiles(listEntry: Array<EntryObject>, context: Context) {
 
         Observable.create<Unit> {
-            ////Log.e("makeDirectory", "realm = Realm.getDefaultInstance() size : ${listEntry.size} : ${checkedEntries.size}")
+            //////Log.e("makeDirectory", "realm = Realm.getDefaultInstance() size : ${listEntry.size} : ${checkedEntries.size}")
             it.onNext(addFiles(listEntry))
 
             it.onComplete()
@@ -268,7 +268,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
 
         ftpClient.connect(getString(R.string.ftp_client))
 
-        //Log.e("makeDirectory", "login")
+        ////Log.e("makeDirectory", "login")
 
         if (ftpClient.login(getString(R.string.ftp_login), getString(R.string.ftp_password))) {
             ftpClient.enterLocalPassiveMode()
@@ -277,59 +277,101 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
             val companyName = "${LoginController.user?.phone
                     ?: "Без имени"}"
 
-            //Log.e("makeDirectory", companyName + " : " + ftpClient.controlEncoding)
+            ////Log.e("makeDirectory", companyName + " : " + ftpClient.controlEncoding)
 
             //ftpClient.makeDirectory((LoginController.user?.town ?: "Без города"))
             //ftpClient.makeDirectory(companyName)
 
-            entries?.forEach {
-                val path = "$companyName/${it.name?.lines()?.fold("") { acc, s ->
-                    "$acc $s"
-                }?.trim()}"
+            val maxProgress = entries?.fold(0) { acc, item ->
+                acc + (item.workTypes?.fold(0) { acc, item ->
+                    acc + (item.photos?.count() ?: 0)
+                } ?: 0)
+            } ?: 0
 
-                val entryPath = path + "/${it.phone}"
+            var progress = 0
 
-                //ftpClient.makeDirectory(path)
-                //Log.e("makeDirectory", "${path}")
-                it.workTypes?.forEach {
-                    if (it.description?.isNotEmpty() == true) {
-                        Log.e("makeDirectory", "it.description : ${entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt"}")
-                        ftpClient.makeDirectory(companyName)
-                        ftpClient.makeDirectory(path)
-                        ftpClient.makeDirectory(entryPath)
-                        ftpClient.appendFile(entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt", it.description?.byteInputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
-                    }
+            entries?.forEach { entry ->
+                if (entry.sendedAt == null) {
+                    entry.sendType = 0
 
-                    //ftpClient.makeDirectory(workTypePath)
-                    Log.e("makeDirectory", "${it.description} : ${it.name}")
+                    val path = "$companyName/${entry.name?.lines()?.fold("") { acc, s ->
+                        "$acc $s"
+                    }?.trim()}"
 
+                    val entryPath = path + "/${entry.phone}"
 
-
-                    it.photos?.forEachIndexed { index, it ->
-                        //ftpClient.makeDirectory(workTypePath + "/" + it.type)
-                        //Log.e("appendFile", "${workTypePath} ${it.photo}")// + "/" + it.type + "/" + it.name
-                        if (it.photo != null)
+                    //ftpClient.makeDirectory(path)
+                    ////Log.e("makeDirectory", "${path}")
+                    entry.workTypes?.forEach {
+                        if (it.sendedAt == null) {
                             try {
-                                //ftpClient.makeDirectory((LoginController.user?.phone
-                                //      ?: "Без имени"))
-                                val compressedFile = BitmapUtils.compressImage(this, File(it.photo), IMAGE_MAX_SIZE, IMAGE_COMPRESSED_NAME + Calendar.getInstance().timeInMillis + IMAGE_COMPRESSED_EXTENSION, IMAGE_COMPRESS_QUALITY)
-                                ftpClient.makeDirectory(companyName)
-                                ftpClient.makeDirectory(path)
-                                ftpClient.makeDirectory(entryPath)
-                                //ftpClient.makeDirectory(workTypePath)
-                                //ftpClient.makeDirectory(workTypePath + "/" + it.type)
-                                ftpClient.appendFile(entryPath + "/" + "${it.type}_${it.name}_${index}" + IMAGE_COMPRESSED_EXTENSION, compressedFile?.inputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
-                                it.sendedAt = Calendar.getInstance().timeInMillis
+                                if (it.description?.isNotEmpty() == true) {
+                                    //Log.e("makeDirectory", "it.description : ${entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt"}")
+                                    ftpClient.makeDirectory(companyName)
+                                    ftpClient.makeDirectory(path)
+                                    ftpClient.makeDirectory(entryPath)
+                                    ftpClient.appendFile(entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt", it.description?.byteInputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
+                                }
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
 
+                            //ftpClient.makeDirectory(workTypePath)
+                            //Log.e("makeDirectory", "${it.description} : ${it.name}")
+
+                            it.photos?.forEachIndexed { index, it ->
+                                if (it.sendedAt == null) {
+                                    //ftpClient.makeDirectory(workTypePath + "/" + it.type)
+                                    ////Log.e("appendFile", "${workTypePath} ${it.photo}")// + "/" + it.type + "/" + it.name
+                                    if (it.photo != null) {
+                                        try {
+                                            //ftpClient.makeDirectory((LoginController.user?.phone
+                                            //      ?: "Без имени"))
+                                            val compressedFile = BitmapUtils.compressImage(this, File(it.photo), IMAGE_MAX_SIZE, IMAGE_COMPRESSED_NAME + Calendar.getInstance().timeInMillis + IMAGE_COMPRESSED_EXTENSION, IMAGE_COMPRESS_QUALITY)
+                                            if (compressedFile != null) {
+                                                ftpClient.makeDirectory(companyName)
+                                                ftpClient.makeDirectory(path)
+                                                ftpClient.makeDirectory(entryPath)
+                                                //ftpClient.makeDirectory(workTypePath)
+                                                //ftpClient.makeDirectory(workTypePath + "/" + it.type)
+                                                ftpClient.appendFile(entryPath + "/" + "${it.type}_${it.name}_${index}" + IMAGE_COMPRESSED_EXTENSION, compressedFile?.inputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
+                                                it.sendedAt = Calendar.getInstance().timeInMillis
+                                                entry.sendType = 2
+                                                saveDate(entry)
+                                            }
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                        }
+                                    }
+
+                                    progress += 1
+
+                                    notificationBuilder = NotificationCompat.Builder(this)
+                                            //.setContentIntent(getPendingIntentForLoadUpdate(context, link))//Intent(context, NavigationDrawerActivity::class.java)
+                                            .setSmallIcon(R.drawable.ic_launcher)
+                                            //.setWhen(System.currentTimeMillis())
+                                            .setChannelId(UPLOADING_APK_CHANNEL_ID)
+                                            .setDefaults(0)
+                                            .setSound(null)
+                                            .setVibrate(null)
+                                            .setContentTitle(getString(R.string.send_photos))
+                                            .setProgress(100, progress * 100 / maxProgress, progress == null)
+                                    //.build()
+                                    val notification = notificationBuilder?.build()!!
+
+                                    notification.flags = notification.flags or Notification.FLAG_AUTO_CANCEL
+
+                                    notificationSystemManager?.notify(UPLOADING_APK_NOTIFICATION_ID, notification)
+                                }
+                            }
+
+                            it.sendedAt = Calendar.getInstance().timeInMillis
+                        }
                     }
 
-                    it.sendedAt = Calendar.getInstance().timeInMillis
+                    entry.sendedAt = Calendar.getInstance().timeInMillis
+                    entry.sendType = 1
                 }
-
-                it.sendedAt = Calendar.getInstance().timeInMillis
             }
 
             ftpClient.logout()
@@ -343,12 +385,31 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
         }*/
     }
 
+    private fun saveDate(entry: EntryObject) {
+        val realm = Realm.getDefaultInstance()
+        realm.beginTransaction()
+
+        val elem = realm?.where(Entry::class.java)?.`in`("name", arrayOf(entry.name))?.findFirst()
+        elem?.sendedAt = entry.sendedAt
+        elem?.sendType = entry.sendType
+
+        realm.commitTransaction()
+
+        realm.executeTransaction({ bgRealm ->
+
+        })
+
+        realm.close()
+    }
+
     private fun sendData(entries: Array<EntryObject>?) {
         val realm = Realm.getDefaultInstance()
         realm.beginTransaction()
 
         entries?.forEach {
-            realm?.where(Entry::class.java)?.`in`("name", arrayOf(it.name))?.findFirst()?.sendedAt = it.sendedAt
+            val elem = realm?.where(Entry::class.java)?.`in`("name", arrayOf(it.name))?.findFirst()
+            elem?.sendedAt = it.sendedAt
+            elem?.sendType = it.sendType
         }
 
         realm.commitTransaction()
@@ -362,7 +423,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
 
     fun showInstallNotification(context: Context, intent: PendingIntent) {
 
-        Log.e("updater", "STart NOTIFY!!!")
+        //Log.e("updater", "STart NOTIFY!!!")
         Thread.sleep(200)
 
         notificationBuilder = NotificationCompat.Builder(this)

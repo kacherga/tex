@@ -39,6 +39,7 @@
     <string name="send_file_no_checked">Не выбрано ни одного файла</string>
     <string name="send_file_no_phone">Вы не зарегестрированы</string>
     <string name="no_sended_file">Не отправлено</string>
+    <string name="no_sended_file_half">Частично отправлен</string>
     <string name="no_send_title">Отправка данных</string>
     <string name="no_resend">Вы действительно хотите повторно отправить данные?</string>
 

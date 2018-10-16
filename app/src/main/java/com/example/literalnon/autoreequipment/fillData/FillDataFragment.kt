@@ -204,6 +204,7 @@ class FillDataFragment : Fragment(), IFillDataView,
 
                     currentPhoto?.second?.photos?.add(file.path)
                     mainEntryTypeAdapter.notifyItemChanged(currentPhoto!!.first)
+                    //Log.e("change", "currentPhoto!!.first : ${currentPhoto!!.first}")
                 }
             } else {
                 Toast.makeText(context, "file empty", Toast.LENGTH_LONG).show()

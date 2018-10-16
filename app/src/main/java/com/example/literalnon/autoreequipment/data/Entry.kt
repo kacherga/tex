@@ -7,6 +7,7 @@ open class Entry : RealmObject() {
     var name: String? = null
     var phone: String? = null
     var workTypes: RealmList<WorkType>? = null
+    var sendType: Int = 0// 0 - не отправлено, 1 - отправлено, 2 отправлено частично
     var sendedAt: Long? = null
 }
 
@@ -29,6 +30,7 @@ open class EntryObject(
     var name: String? = null,
     var phone: String? = null,
     var workTypes: List<WorkTypeObject>? = null,
+    var sendType: Int = 0,// 0 - не отправлено, 1 - отправлено, 2 отправлено частично
     var sendedAt: Long? = null
 )
 

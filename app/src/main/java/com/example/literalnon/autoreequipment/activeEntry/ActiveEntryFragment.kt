@@ -184,6 +184,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                                                 it.sendedAt
                                         )
                                     },
+                                    0,
                                     value.sendedAt
                             )
                     )

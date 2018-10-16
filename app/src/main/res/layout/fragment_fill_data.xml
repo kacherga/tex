@@ -31,7 +31,8 @@
                 android:id="@+id/rvTasks"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="8dp" />
+                android:layout_margin="8dp"
+                android:descendantFocusability="blocksDescendants" />
 
             <android.support.v7.widget.AppCompatTextView
                 fontPath="fonts/PTSans-Bold.ttf"
@@ -63,11 +64,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="16dp"
-                    android:minHeight="141dp"
-                    android:gravity="top"
                     android:background="@android:color/transparent"
+                    android:gravity="top"
                     android:hint="@string/fragment_request_description_hint"
                     android:inputType="textCapSentences|textMultiLine"
+                    android:minHeight="141dp"
                     android:textSize="16sp" />
 
             </android.support.v7.widget.CardView>
@@ -75,9 +76,9 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
                 android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp">
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp">
 
                 <android.support.v7.widget.AppCompatTextView
                     android:id="@+id/etFillPhotoHint"
@@ -96,10 +97,11 @@
                     android:layout_height="match_parent"
                     android:layout_marginBottom="28dp"
                     android:background="@drawable/background_add_photo"
-                    android:paddingBottom="48dp"
                     android:paddingLeft="16dp"
+                    android:descendantFocusability="blocksDescendants"
+                    android:paddingTop="16dp"
                     android:paddingRight="16dp"
-                    android:paddingTop="16dp" />
+                    android:paddingBottom="48dp" />
 
                 <android.support.v7.widget.AppCompatImageButton
                     android:id="@+id/ivAddPhoto"
@@ -117,17 +119,16 @@
     </android.support.v4.widget.NestedScrollView>
 
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btnNext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:id="@+id/btnNext"
         android:layout_margin="16dp"
-        app:srcCompat="@drawable/ic_save_black_24dp"
-        app:fabSize="normal"
-        app:backgroundTint="@color/colorPrimaryDark"
-        app:rippleColor="@color/app_theme_color_yellow"
         android:padding="16dp"
-        />
+        app:backgroundTint="@color/colorPrimaryDark"
+        app:fabSize="normal"
+        app:rippleColor="@color/app_theme_color_yellow"
+        app:srcCompat="@drawable/ic_save_black_24dp" />
     <!--android:background="@drawable/background_gray_stroke"-->
 
 </android.support.design.widget.CoordinatorLayout>
