@@ -7,5 +7,7 @@ import com.example.bloold.hackage.mvp.IView
  */
 
 interface IAddPartnerView : IView<IAddPartnerPresenter> {
-
+    fun partnerAddSuccess()
+    fun partnerAddFailed()
+    fun partnerNotFound()
 }

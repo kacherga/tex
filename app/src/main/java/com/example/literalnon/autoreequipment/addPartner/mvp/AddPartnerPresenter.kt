@@ -10,7 +10,7 @@ import services.mobiledev.ru.cheap.navigation.Navigator
  * Created by dmitry on 04.05.18.
  */
 interface IAddPartnerPresenter : IPresenter<IAddPartnerView, IAddPartnerModel> {
-    fun next(user: User)
+    fun next(phone: String)
 }
 
 class AddPartnerPresenter : IAddPartnerPresenter {
@@ -19,8 +19,24 @@ class AddPartnerPresenter : IAddPartnerPresenter {
 
     override var model: IAddPartnerModel = AddPartnerModel()
 
-    override fun next(user: User) {
-        LoginController.user = user
+    override fun next(phone: String) {
+        view?.showLoading()
+        LoginController.user = null
+
+        model?.registration(phone)
+                //?.doAfterTerminate { view?.dismissLoading() }
+                .subscribe({
+                    if (it.first) {
+                        LoginController.user = it.second
+                        view?.partnerAddSuccess()
+                    } else {
+                        view?.partnerNotFound()
+                    }
+                }, {
+                    it.printStackTrace()
+                    view?.partnerAddFailed()
+                })
+
     }
 
     override fun attachView(view: IAddPartnerView) {

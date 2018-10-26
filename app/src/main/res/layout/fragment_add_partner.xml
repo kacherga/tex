@@ -65,23 +65,26 @@
                     android:layout_width="0dp"
                     android:layout_height="48dp"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="32dp"
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/background_gray_stroke"
                     app:cardCornerRadius="4dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
+                    app:layout_constraintTop_toTopOf="parent">
 
-                    <android.support.v7.widget.AppCompatEditText
+                    <br.com.sapereaude.maskedEditText.MaskedEditText
                         android:id="@+id/etPhone"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
                         android:gravity="center"
-                        android:hint="@string/fragment_login_phone"
+                        android:inputType="phone"
+                        android:typeface="monospace"
+                        app:allowed_chars="1234567890"
+                        app:mask="+7(###)###-##-##"
                         android:imeOptions="actionDone"
-                        android:inputType="text" />
+                        />
 
                 </android.support.design.card.MaterialCardView>
 
@@ -90,7 +93,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="32dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="24dp"
                     android:layout_marginEnd="32dp"
                     android:layout_marginBottom="32dp"
                     android:background="@drawable/background_gray_stroke"
@@ -126,31 +129,6 @@
                         android:imeOptions="actionGo" />
 
                 </android.support.design.widget.TextInputLayout>-->
-
-                <android.support.design.card.MaterialCardView
-                    android:id="@+id/textInputLayout"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="32dp"
-                    android:layout_marginEnd="16dp"
-                    android:background="@drawable/background_gray_stroke"
-                    app:cardCornerRadius="4dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <android.support.v7.widget.AppCompatEditText
-                        android:id="@+id/etName"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@android:color/transparent"
-                        android:gravity="center"
-                        android:hint="@string/fragment_login_name"
-                        android:imeOptions="actionNext"
-                        android:inputType="text" />
-
-                </android.support.design.card.MaterialCardView>
 
             </android.support.constraint.ConstraintLayout>
 

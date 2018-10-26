@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
 import android.view.KeyEvent
 import android.widget.Toast
 import com.example.literalnon.autoreequipment.R
@@ -17,8 +18,8 @@ import services.mobiledev.ru.cheap.ui.main.comments.mvp.IAddPartnerPresenter
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.IAddPartnerView
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
-
-
+import com.example.literalnon.autoreequipment.data.Entry
+import io.realm.Realm
 
 
 class AddPartnerFragment : Fragment(), IAddPartnerView {
@@ -39,11 +40,8 @@ class AddPartnerFragment : Fragment(), IAddPartnerView {
         presenter.attachView(this)
 
         btnNext.setOnClickListener {
-            presenter.next(User(etName.text.toString(), etPhone.text.toString()))
-            Toast.makeText(context, getString(R.string.fragment_login_toast), Toast.LENGTH_SHORT).show()
-
-            tvName.text = LoginController.user?.name ?: ""
-            tvPhone.text = LoginController.user?.phone ?: ""
+            presenter.next(etPhone.rawText)
+            //Toast.makeText(context, getString(R.string.fragment_login_toast), Toast.LENGTH_SHORT).show()
         }
 
         tvName.text = LoginController.user?.name ?: ""
@@ -56,13 +54,86 @@ class AddPartnerFragment : Fragment(), IAddPartnerView {
             false
         }
 
-        etName.setOnEditorActionListener { v, actionId, event ->
+        /*etName.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_GO) {
 
             }
             false
-        }
+        }*/
 
+    }
+
+    override fun partnerAddSuccess() {
+        alertDialog?.cancel()
+
+        alertDialog = AlertDialog.Builder(context!!)
+                .setTitle(R.string.fragment_login_alert_title)
+                .setMessage(getString(R.string.fragment_login_success, LoginController.user?.name))
+                .create()
+
+        alertDialog?.show()
+
+        tvName.text = LoginController.user?.name ?: ""
+        tvPhone.text = LoginController.user?.phone ?: ""
+
+        val realm = Realm.getDefaultInstance()
+
+        realm?.beginTransaction()
+
+        realm?.where(Entry::class.java)?.findAll()?.deleteAllFromRealm()
+
+        realm?.commitTransaction()
+
+        realm?.executeTransaction({ bgRealm ->
+
+        })
+    }
+
+    private var alertDialog: AlertDialog? = null
+
+    override fun showLoading() {
+        alertDialog?.cancel()
+
+        alertDialog = AlertDialog.Builder(context!!)
+                .setTitle(R.string.fragment_login_alert_title)
+                .setMessage(R.string.fragment_login_load)
+                .create()
+
+        alertDialog?.show()
+
+    }
+
+    override fun dismissLoading() {
+        alertDialog?.cancel()
+        alertDialog = null
+    }
+
+    override fun partnerAddFailed() {
+        alertDialog?.cancel()
+
+        alertDialog = AlertDialog.Builder(context!!)
+                .setTitle(R.string.fragment_login_alert_title)
+                .setMessage(R.string.fragment_login_failed)
+                .create()
+
+        alertDialog?.show()
+
+        tvName.text = LoginController.user?.name ?: ""
+        tvPhone.text = LoginController.user?.phone ?: ""
+    }
+
+    override fun partnerNotFound() {
+        alertDialog?.cancel()
+
+        alertDialog = AlertDialog.Builder(context!!)
+                .setTitle(R.string.fragment_login_alert_title)
+                .setMessage(getString(R.string.fragment_login_not_found, etPhone.rawText))
+                .create()
+
+        alertDialog?.show()
+
+        tvName.text = LoginController.user?.name ?: ""
+        tvPhone.text = LoginController.user?.phone ?: ""
     }
 
     override fun getNavigationParent(): INavigationParent {

@@ -78,6 +78,17 @@
                 android:inputType="text"
                 android:hint="@string/enter_name" />
 
+            <ImageView
+                android:id="@+id/ivVoiceSearch"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="8dp"
+                android:layout_gravity="end"
+                app:layout_constraintBottom_toBottomOf="@+id/textInputLayout2"
+                app:layout_constraintEnd_toEndOf="@+id/textInputLayout2"
+                app:layout_constraintTop_toTopOf="@+id/textInputLayout2"
+                app:srcCompat="@drawable/ic_voice_search" />
+
         </android.support.design.card.MaterialCardView>
 
         <!--<android.support.design.widget.TextInputLayout
@@ -124,18 +135,7 @@
                 android:inputType="text"
                 android:hint="@string/enter_number" />
 
-
         </android.support.design.card.MaterialCardView>
-
-        <ImageView
-            android:id="@+id/ivVoiceSearch"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:padding="8dp"
-            app:layout_constraintBottom_toBottomOf="@+id/textInputLayout2"
-            app:layout_constraintEnd_toEndOf="@+id/textInputLayout2"
-            app:layout_constraintTop_toTopOf="@+id/textInputLayout2"
-            app:srcCompat="@drawable/ic_voice_search" />
 
     </android.support.constraint.ConstraintLayout>
 

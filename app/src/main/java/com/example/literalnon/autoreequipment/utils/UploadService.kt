@@ -277,6 +277,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
             val companyName = "${LoginController.user?.phone
                     ?: "Без имени"}"
 
+
             ////Log.e("makeDirectory", companyName + " : " + ftpClient.controlEncoding)
 
             //ftpClient.makeDirectory((LoginController.user?.town ?: "Без города"))
