@@ -1,5 +1,6 @@
 package com.example.literalnon.autoreequipment
 
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.support.design.bottomappbar.BottomAppBar
@@ -136,6 +137,8 @@ class MainActivity : AppCompatActivity(), INavigationParent {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         if (item?.itemId == R.id.navigation_settings) {
             navigator?.pushFragment(NavigationMainItems.PARTNER_SETTINGS_SCREEN)
+            //startActivity(Intent(this, RegistrationActivity::class.java))
+            //finish()
         }
 
         return super.onOptionsItemSelected(item)

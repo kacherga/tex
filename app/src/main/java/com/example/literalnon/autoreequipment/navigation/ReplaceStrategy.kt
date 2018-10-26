@@ -25,7 +25,9 @@ class ReplaceStrategy(override val fragmentManager: FragmentManager, override va
     }
 
     override fun popFragment() {
-        tags.pop()
+        if (tags.isNotEmpty()) {
+            tags.pop()
+        }
         //fragmentManager.popBackStack()
     }
 

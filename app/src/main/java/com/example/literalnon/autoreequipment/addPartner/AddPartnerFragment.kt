@@ -1,5 +1,6 @@
 package services.mobiledev.ru.cheap.ui.main.comments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +19,10 @@ import services.mobiledev.ru.cheap.ui.main.comments.mvp.IAddPartnerPresenter
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.IAddPartnerView
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
+import com.example.literalnon.autoreequipment.MainActivity
+import com.example.literalnon.autoreequipment.RegistrationActivity
 import com.example.literalnon.autoreequipment.data.Entry
+import com.example.literalnon.autoreequipment.utils.NavigationMainItems
 import io.realm.Realm
 
 
@@ -69,6 +73,14 @@ class AddPartnerFragment : Fragment(), IAddPartnerView {
         alertDialog = AlertDialog.Builder(context!!)
                 .setTitle(R.string.fragment_login_alert_title)
                 .setMessage(getString(R.string.fragment_login_success, LoginController.user?.name))
+                .setOnDismissListener {
+                    if (activity is RegistrationActivity) {
+                        context?.startActivity(Intent(context, MainActivity::class.java))
+                        activity?.finish()
+                    } else {
+                        getNavigationParent().navigator?.pushFragment(NavigationMainItems.ADD_ENTRY_SCREEN)
+                    }
+                }
                 .create()
 
         alertDialog?.show()

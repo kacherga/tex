@@ -1,5 +1,6 @@
 package services.mobiledev.ru.cheap.ui.main.comments.mvp
 
+import android.text.TextUtils
 import android.util.Log
 import com.betcityru.dyadichko_da.betcityru.ui.createService
 import com.example.bloold.hackage.mvp.IModel
@@ -24,10 +25,10 @@ class AddPartnerModel : IAddPartnerModel {
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap {
-                    Log.e("mapping", "str : ${it}")
+                    //Log.e("mapping", "str : ${it}")
                             val user = it.lines().find {
-                                Log.e("registration", "phone : ${phone} : str : ${it}")
-                                it.contains(phone)
+                                //Log.e("registration", "phone : ${phone} : str : ${it}")
+                                TextUtils.equals(it.split(";")?.first(), phone)
                             }?.let {
                                 val userLine = it.split(";")
                                 if (userLine.size > 1) {
