@@ -132,7 +132,7 @@
                 android:background="@android:color/transparent"
                 android:gravity="center"
                 android:imeOptions="actionDone"
-                android:inputType="text"
+                android:inputType="textCapCharacters"
                 android:hint="@string/enter_number" />
 
         </android.support.design.card.MaterialCardView>
