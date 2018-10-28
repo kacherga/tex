@@ -104,19 +104,21 @@ class ReplaceStrategy(override val fragmentManager: FragmentManager, override va
 
                 if (currentEnumObject?.getPreviousEnumObject() == null) {
                     clear()
-                }
+                    return false
+                } else {
 
-                /*while (!tags.empty() && tags.peek()?.getTag() != currentEnumObject?.getPreviousEnumObject()?.getTag()) {
+                    /*while (!tags.empty() && tags.peek()?.getTag() != currentEnumObject?.getPreviousEnumObject()?.getTag()) {
                     popFragment()
                 }*/
 
-                popFragment()
+                    popFragment()
 
-                if (!tags.empty()) {
-                    showFragment(tags.peek()!!)
-                    updateUi(tags.peek())
-                } else {
-                    return false
+                    //if (!tags.empty()) {
+                        showFragment(currentEnumObject.getPreviousEnumObject()!!)//tags.peek()!!
+                        updateUi(currentEnumObject.getPreviousEnumObject()!!)
+                    /*} else {
+                        return false
+                    }*/
                 }
 
                 return true

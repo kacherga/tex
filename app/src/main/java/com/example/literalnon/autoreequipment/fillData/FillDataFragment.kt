@@ -197,15 +197,18 @@ class FillDataFragment : Fragment(), IFillDataView,
     override fun onFilePicked(file: File?) {
         if (currentPhoto != null) {
             if (file != null) {
-                if ((currentPhoto?.second?.photoCount ?: 0) > (currentPhoto?.second?.photos?.size ?: 0)) {
-                    if (currentPhoto?.second?.photos == null) {
-                        currentPhoto?.second?.photos = ArrayList()
-                    }
+                if (currentPhoto?.second?.photos == null) {
+                    currentPhoto?.second?.photos = ArrayList()
+                }
+
+                if ((currentPhoto?.second?.photoCount ?: 1) > (currentPhoto?.second?.photos?.size ?: 0)) {
 
                     currentPhoto?.second?.photos?.add(file.path)
-                    mainEntryTypeAdapter.notifyItemChanged(currentPhoto!!.first)
                     //Log.e("change", "currentPhoto!!.first : ${currentPhoto!!.first}")
+                } else {
+                    currentPhoto?.second?.photos?.set(0, file.path)
                 }
+                mainEntryTypeAdapter.notifyItemChanged(currentPhoto!!.first)
             } else {
                 Toast.makeText(context, "file empty", Toast.LENGTH_LONG).show()
             }

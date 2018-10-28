@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity(), INavigationParent {
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
             when {
                 item?.itemId == R.id.bottomNavigationActiveList -> {
-                    NavigationMainItems.LIST_ACTIVE_ENTRY_SCREEN.data = true
+                    //NavigationMainItems.LIST_ACTIVE_ENTRY_SCREEN.data = true
                     navigator?.pushFragment(NavigationMainItems.LIST_ACTIVE_ENTRY_SCREEN)
                     true
                 }
@@ -78,8 +78,8 @@ class MainActivity : AppCompatActivity(), INavigationParent {
                     true
                 }
                 item?.itemId == R.id.bottomNavigationArchive -> {
-                    NavigationMainItems.LIST_ACTIVE_ENTRY_SCREEN.data = false
-                    navigator?.pushFragment(NavigationMainItems.LIST_ACTIVE_ENTRY_SCREEN)
+                    //NavigationMainItems.LIST_ACTIVE_ENTRY_SCREEN.data = false
+                    navigator?.pushFragment(NavigationMainItems.LIST_ARCHIVE_ENTRY_SCREEN)
                     true
                 }
                 else -> {
@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity(), INavigationParent {
     }
 
     private fun getData() {
-        /*val service = createService(DataService::class.java)
+        val service = createService(DataService::class.java)
 
         progressBar.visibility = View.VISIBLE
 
@@ -109,7 +109,12 @@ class MainActivity : AppCompatActivity(), INavigationParent {
                     service.getPhotos()
                 }.subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
+                .subscribe({list ->
+
+                    photos = ArrayList<Photo>().apply {
+                        addAll(list)
+                    }
+
                     navigator?.openFirstFragment()
                     progressBar.visibility = View.GONE
                 }, {
@@ -117,13 +122,14 @@ class MainActivity : AppCompatActivity(), INavigationParent {
                     navigator?.openFirstFragment()
                     progressBar.visibility = View.GONE
                     it.printStackTrace()
-                })*/
+                })
 
         navigator?.openFirstFragment()
         progressBar.visibility = View.GONE
     }
 
     override fun onBackPressed() {
+
         if (navigator?.backNavigation() != true) {
             super.onBackPressed()
         }

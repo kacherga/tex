@@ -15,7 +15,16 @@ enum class NavigationMainItems : IBaseItem {
 
         override fun getPreviousEnumObject() = null
 
-        override fun getFragment() = ActiveEntryFragment.newInstance(data as Boolean)
+        override fun getFragment() = ActiveEntryFragment.newInstance(true)
+    },
+    LIST_ARCHIVE_ENTRY_SCREEN {
+        override var data: Any? = null
+
+        override fun getTag() = "LIST_ARCHIVE_ENTRY_SCREEN"
+
+        override fun getPreviousEnumObject() = null
+
+        override fun getFragment() = ActiveEntryFragment.newInstance(false)
     },
     PARTNER_SETTINGS_SCREEN {
         override var data: Any? = null
@@ -67,7 +76,7 @@ enum class NavigationMainItems : IBaseItem {
 
         override fun getTag() = "FULL_PHOTO_SCREEN"
 
-        override fun getPreviousEnumObject() = FILL_ENTRY_SCREEN
+        override fun getPreviousEnumObject() = EDIT_ENTRY_SCREEN
 
         override fun getFragment() = FullPhotoFragment.newInstance(data as String)
     }

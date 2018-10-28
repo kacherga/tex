@@ -7,9 +7,10 @@ import retrofit2.http.Query
 
 interface NotificateService {
 
-    @GET("docs/sync.php")
-    fun notificate(@Query("city") city: String,
+    @GET("docs/sync.php")//?city=Город&partner=ООО Рога и копыта&name=Эдуард Суровый&type=Установка ГБО
+    fun notificate(@Query("phone") phone: String,
                    @Query("partner") partner: String,
+                   @Query("gosn") gosn: String,
                    @Query("name") name: String,
                    @Query("type") type: String): Observable<ResponseBody>
 }

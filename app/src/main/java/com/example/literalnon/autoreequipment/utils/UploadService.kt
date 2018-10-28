@@ -221,7 +221,8 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                         service
                                 .notificate(LoginController.user?.phone ?: "",
                                         LoginController.user?.name ?: "",
-                                        "${it.name ?: ""} ${it.phone ?: ""}",
+                                        it.phone ?: "",
+                                        it.name ?: "",
                                         it.workTypes?.fold("") { acc, workTypeObject ->
                                             "$acc${
                                             if (TextUtils.equals(workTypeObject.name, allPhotoTypes[4].title)) {

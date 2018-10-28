@@ -74,16 +74,18 @@
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
                 android:gravity="center"
+                android:hint="@string/enter_name"
                 android:imeOptions="actionNext"
                 android:inputType="text"
-                android:hint="@string/enter_name" />
+                android:paddingEnd="48dp"
+                android:paddingRight="48dp" />
 
             <ImageView
                 android:id="@+id/ivVoiceSearch"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:padding="8dp"
                 android:layout_gravity="end"
+                android:padding="8dp"
                 app:layout_constraintBottom_toBottomOf="@+id/textInputLayout2"
                 app:layout_constraintEnd_toEndOf="@+id/textInputLayout2"
                 app:layout_constraintTop_toTopOf="@+id/textInputLayout2"
@@ -131,9 +133,11 @@
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
                 android:gravity="center"
+                android:hint="@string/enter_number"
                 android:imeOptions="actionDone"
                 android:inputType="textCapCharacters"
-                android:hint="@string/enter_number" />
+                android:paddingEnd="48dp"
+                android:paddingRight="48dp" />
 
         </android.support.design.card.MaterialCardView>
 
