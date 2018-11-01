@@ -33,6 +33,7 @@ import services.mobiledev.ru.cheap.ui.main.comments.mvp.FillDataPresenter
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.IFillDataPresenter
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.IFillDataView
 import java.io.File
+import java.lang.StringBuilder
 
 
 class FillDataFragment : Fragment(), IFillDataView,
@@ -116,7 +117,7 @@ class FillDataFragment : Fragment(), IFillDataView,
             }
         })
 
-        mainEntryTypeAdapter.manager?.addDelegate(MainEntryTaskDelegate ({ photo, pos ->
+        mainEntryTypeAdapter.manager?.addDelegate(MainEntryTaskDelegate({ photo, pos ->
             currentPhoto = Pair(pos, photo)
 
             dialogFilePicker()
@@ -201,7 +202,8 @@ class FillDataFragment : Fragment(), IFillDataView,
                     currentPhoto?.second?.photos = ArrayList()
                 }
 
-                if ((currentPhoto?.second?.photoCount ?: 1) > (currentPhoto?.second?.photos?.size ?: 0)) {
+                if ((currentPhoto?.second?.photoCount ?: 1) > (currentPhoto?.second?.photos?.size
+                                ?: 0)) {
 
                     currentPhoto?.second?.photos?.add(file.path)
                     //Log.e("change", "currentPhoto!!.first : ${currentPhoto!!.first}")
@@ -316,7 +318,23 @@ class FillDataFragment : Fragment(), IFillDataView,
 
         val workType = realm.createObject(WorkType::class.java)
         workType.name = EXTRA_PHOTO_TITLE
-        workType.description = etDescriptionTask.text?.toString()
+        workType.description = StringBuilder(
+                //Примечание
+                getString(R.string.fragment_fill_data_extra_title))
+                .append("\n")
+                .append(etDescriptionTask.text?.toString())
+                .append(("\n"))
+                //Резина
+                .append(getString(R.string.fragment_fill_data_trunk))
+                .append(("\n"))
+                .append(etTrunk.text?.toString())
+                .append(("\n"))
+                //Пробег
+                .append(getString(R.string.fragment_fill_data_distance))
+                .append(("\n"))
+                .append(etDistance.text?.toString())
+                .toString()
+
 
         extraPhotos.forEachIndexed { index, it ->
             val mPhoto = RealmPhoto().apply {

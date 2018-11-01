@@ -6,6 +6,10 @@
 
     <!-- Fill data -->
     <string name="fragment_fill_data_extra_title">Примечание</string>
+    <string name="fragment_fill_data_distance">Пробег</string>
+    <string name="fragment_request_distance">Введите пробег автомобиля</string>
+    <string name="fragment_fill_data_trunk">Резина</string>
+    <string name="fragment_request_trunk">Сведения о резине автомобиля</string>
     <string name="fragment_request_description_hint">Опишите задачу в свободной форме</string>
     <string name="fragment_request_add_photo_hint">Добавить фото\n Макс. 20 штук</string>
     <string name="profile.edit.dialog_title_profile_pick_photo">Ваше фото</string>

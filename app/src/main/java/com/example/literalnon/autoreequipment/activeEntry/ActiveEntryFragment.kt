@@ -154,11 +154,13 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
         }
         adapter.addAll(entries?.toList())
 
-        val listEntry = ArrayList<EntryObject>()
+        //val listEntry = ArrayList<EntryObject>()
 
         btnNext.setOnClickListener {
             //Log.e("makeDirectory", "onClick")
 
+            val listEntry = ArrayList<EntryObject>()
+            
             if (adapter.itemCount > 0 && checkedEntries.size > 0 && LoginController.user?.phone?.isNotEmpty() == true) {
                 checkedEntries.forEach { (key, value) ->
                     //Log.e("makeDirectory", value.name.toString())

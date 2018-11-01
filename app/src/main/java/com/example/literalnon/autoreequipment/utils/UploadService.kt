@@ -122,6 +122,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
 
             if (!isDownloading) {
                 val list = Gson().fromJson(intent?.extras?.getString(EXTRA_JSON), Array<EntryObject>::class.java)
+                Log.e("UpdateService", "list : ${list.size} : ${list}")
                 uploadFiles(list, this)
             }
         }
