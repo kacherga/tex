@@ -285,14 +285,19 @@ class FillDataFragment : Fragment(), IFillDataView,
         val realm = Realm.getDefaultInstance()
         realm.beginTransaction()
 
+        val thisEntries = realm?.where(Entry::class.java)?.`in`("name", arrayOf(EnterNameFragment.name))?.findAll()
+
         if (isEdit) {
-            realm?.where(Entry::class.java)?.`in`("name", arrayOf(EnterNameFragment.name))?.findAll()?.deleteAllFromRealm()
+            thisEntries?.deleteAllFromRealm()
         }
 
-        val currentEntry = realm.createObject(Entry::class.java)
+        val currentEntry: Entry = thisEntries?.find { it.phone == EnterNameFragment.phone} ?: {
+            val entry = realm.createObject(Entry::class.java)
 
-        currentEntry.name = EnterNameFragment.name
-        currentEntry.phone = EnterNameFragment.phone
+            entry.name = EnterNameFragment.name
+            entry.phone = EnterNameFragment.phone
+            entry
+        }.invoke()
 
         choiceTypes.forEach { entryType ->
             val workType = realm.createObject(WorkType::class.java)

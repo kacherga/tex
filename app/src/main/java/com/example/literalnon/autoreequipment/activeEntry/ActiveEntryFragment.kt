@@ -27,9 +27,7 @@ import android.text.style.ForegroundColorSpan
 import android.util.Log
 import com.betcityru.dyadichko_da.betcityru.ui.createService
 import com.example.literalnon.autoreequipment.*
-import com.example.literalnon.autoreequipment.activeEntry.ActiveEntryDelegate
-import com.example.literalnon.autoreequipment.activeEntry.CheckCallback
-import com.example.literalnon.autoreequipment.activeEntry.SpaceItemDecoration
+import com.example.literalnon.autoreequipment.activeEntry.*
 import com.example.literalnon.autoreequipment.adapters.DelegationAdapter
 import com.example.literalnon.autoreequipment.data.*
 import com.example.literalnon.autoreequipment.fillData.MainEntryTypeDelegate
@@ -152,7 +150,25 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
         var entries = realm?.where(Entry::class.java)?.findAll()?.filter {
             (it.sendedAt == null) == isActive
         }
-        adapter.addAll(entries?.toList())
+
+       /* var client: Client? = Client(entries?.first()?.name)
+        val newEntries = ArrayList<Any>()
+        newEntries.add(client!!)
+
+        entries?.forEach {
+            if (client?.name == it.name) {
+                client?.entries?.add(it)
+            } else {
+                client = Client(it.name)
+                client?.entries = arrayListOf()
+                client?.entries?.add(it)
+                newEntries.add(client!!)
+            }
+
+            newEntries.add(it)
+        }*/
+
+        adapter.addAll(entries)
 
         //val listEntry = ArrayList<EntryObject>()
 
@@ -160,7 +176,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
             //Log.e("makeDirectory", "onClick")
 
             val listEntry = ArrayList<EntryObject>()
-            
+
             if (adapter.itemCount > 0 && checkedEntries.size > 0 && LoginController.user?.phone?.isNotEmpty() == true) {
                 checkedEntries.forEach { (key, value) ->
                     //Log.e("makeDirectory", value.name.toString())
