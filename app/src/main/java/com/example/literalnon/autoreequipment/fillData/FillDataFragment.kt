@@ -24,6 +24,7 @@ import com.example.literalnon.autoreequipment.fillData.MainEntryTypeDelegate
 import com.example.literalnon.autoreequipment.fillData.PhotoDelegate
 import com.example.literalnon.autoreequipment.fillData.PhotoTypeDelegate
 import com.example.literalnon.autoreequipment.utils.PermissionUtil
+import com.google.gson.Gson
 import io.realm.Realm
 import io.realm.RealmList
 import kotlinx.android.synthetic.main.fragment_fill_data.*
@@ -153,7 +154,9 @@ class FillDataFragment : Fragment(), IFillDataView,
             photoIds.filter { photos[it.key].type == photoType }.let {
                 if (it.isNotEmpty()) {
                     list.add(photoType)
+
                     list.addAll(it.map {
+                        Log.e("workTypes", "fill ${it.key} : ${photos[it.key].type} : ${photos[it.key].photos?.count()}")
                         photos[it.key].apply {
                             if (!isEdit) {
                                 photos = null
@@ -178,7 +181,12 @@ class FillDataFragment : Fragment(), IFillDataView,
         //Log.d("tag", "isEdit : ${isEdit} : ${AddEntryFragment.extras != null}")
 
         if (isEdit && AddEntryFragment.extras != null) {
-            etDescriptionTask.setText(AddEntryFragment.extras!!.name)
+            val extraMap = Gson().fromJson<Map<String, String>>(AddEntryFragment.extras!!.name, HashMap<String, String>()::class.java)
+            //etDescriptionTask.setText(AddEntryFragment.extras!!.name)
+
+            etDistance.setText(extraMap[getString(R.string.fragment_fill_data_distance)])
+            etTrunk.setText(extraMap[getString(R.string.fragment_fill_data_trunk)])
+            etDescriptionTask.setText(extraMap[getString(R.string.fragment_fill_data_extra_title)])
 
             try {
 
@@ -291,7 +299,7 @@ class FillDataFragment : Fragment(), IFillDataView,
             thisEntries?.deleteAllFromRealm()
         }
 
-        val currentEntry: Entry = thisEntries?.find { it.phone == EnterNameFragment.phone} ?: {
+        val currentEntry: Entry = thisEntries?.find { it.phone == EnterNameFragment.phone } ?: {
             val entry = realm.createObject(Entry::class.java)
 
             entry.name = EnterNameFragment.name
@@ -323,23 +331,13 @@ class FillDataFragment : Fragment(), IFillDataView,
 
         val workType = realm.createObject(WorkType::class.java)
         workType.name = EXTRA_PHOTO_TITLE
-        workType.description = StringBuilder(
-                //Примечание
-                getString(R.string.fragment_fill_data_extra_title))
-                .append("\n")
-                .append(etDescriptionTask.text?.toString())
-                .append(("\n"))
-                //Резина
-                .append(getString(R.string.fragment_fill_data_trunk))
-                .append(("\n"))
-                .append(etTrunk.text?.toString())
-                .append(("\n"))
-                //Пробег
-                .append(getString(R.string.fragment_fill_data_distance))
-                .append(("\n"))
-                .append(etDistance.text?.toString())
-                .toString()
 
+        val extraMap = HashMap<String, String>()
+        extraMap[getString(R.string.fragment_fill_data_trunk)] = etTrunk.text?.toString() ?: ""
+        extraMap[getString(R.string.fragment_fill_data_distance)] = etDistance.text?.toString() ?: ""
+        extraMap[getString(R.string.fragment_fill_data_extra_title)] = etDescriptionTask.text?.toString() ?: ""
+
+        workType.description = Gson().toJson(extraMap)
 
         extraPhotos.forEachIndexed { index, it ->
             val mPhoto = RealmPhoto().apply {

@@ -117,11 +117,17 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                     entry.workTypes?.find { workType -> TextUtils.equals(workType.name, it.title) } != null
                 })
 
+                photos.forEach {
+                    it.photos = ArrayList()
+                }
+
                 entry.workTypes?.forEach {
+                    Log.e("workTypes", it?.photos?.count()?.toString())
                     it?.photos?.forEach {
-                        if (photos[it.id!!].photos == null) {
-                            photos[it.id!!].photos = ArrayList()
-                        }
+                        //if (photos[it.id!!].photos == null) {
+                        Log.e("workTypes", "id : ${it.id}")
+
+                        //}
                         if (photos[it.id!!].photos?.contains(it.photo) == false) {
                             photos[it.id!!].photos?.add(it.photo ?: "")
                         }

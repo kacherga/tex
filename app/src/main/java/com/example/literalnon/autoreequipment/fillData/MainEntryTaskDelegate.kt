@@ -42,9 +42,9 @@ class MainEntryTaskDelegate(private val callback: AddPhotoCallback,
         item as Photo
 
         with(holder) {
-            if (item.photos?.first()?.isNotEmpty() == true) {
+            if (item.photos?.firstOrNull()?.isNotEmpty() == true) {
                 Glide.with(ivPhoto)
-                        .load(item.photos?.first())
+                        .load(item.photos?.firstOrNull())
                         .into(ivPhoto)
             } else {
                 /*Glide.with(ivPhoto)
@@ -79,9 +79,11 @@ class MainEntryTaskDelegate(private val callback: AddPhotoCallback,
                     })
                 }))
 
-                val items = item.photos?.subList(1, item.photos?.size ?: 1) ?: ArrayList()
+                if ((item.photos?.size ?: 0) > 1) {
+                    val items = item.photos?.subList(1, item.photos?.size ?: 1) ?: ArrayList()
 
-                adapter.addAll(items.toList())
+                    adapter.addAll(items.toList())
+                }
             } else {
                 rvExtraPhotos.visibility = View.VISIBLE
             }
