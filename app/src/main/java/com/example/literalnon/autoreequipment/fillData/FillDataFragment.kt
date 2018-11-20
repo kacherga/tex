@@ -138,12 +138,14 @@ class FillDataFragment : Fragment(), IFillDataView,
         val list = arrayListOf<Any>()
         list.addAll(choiceTypes)
 
-        val photoIds = choiceTypes.fold(HashMap<Int, ArrayList<EntryType>>()) { arr: HashMap<Int, ArrayList<EntryType>>, entryType: EntryType ->
-            entryType.photosId.forEach {
-                if (arr.containsKey(it)) {
-                    arr[it]?.add(entryType)
+        val photoIds = choiceTypes.fold(ArrayList<Pair<Int, ArrayList<EntryType>>>()) { arr: ArrayList<Pair<Int, ArrayList<EntryType>>>, entryType: EntryType ->
+            entryType.photosId.forEach { item ->
+                val elem = arr.find { it.first == item }
+
+                if (elem != null) {
+                    elem.second.add(entryType)
                 } else {
-                    arr[it] = arrayListOf(entryType)
+                    arr.add(Pair(item, arrayListOf(entryType)))
                 }
             }
 
@@ -151,21 +153,30 @@ class FillDataFragment : Fragment(), IFillDataView,
         }
 
         photoTypes.forEach { photoType ->
-            photoIds.filter { photos[it.key].type == photoType }.let {
-                if (it.isNotEmpty()) {
-                    list.add(photoType)
+            photoIds.filter {
+                photos.find { item -> it.first == item.id }?.type == photoType
+            }
+                    .let {
+                        if (it.isNotEmpty()) {
+                            list.add(photoType)
 
-                    list.addAll(it.map {
-                        Log.e("workTypes", "fill ${it.key} : ${photos[it.key].type} : ${photos[it.key].photos?.count()}")
-                        photos[it.key].apply {
-                            if (!isEdit) {
-                                photos = null
-                                workType = it.value
+                            it.forEach {
+                                val item = photos.find { item -> it.first == item.id }
+
+                                Log.e("workTypes", "fill ${it.first} : ${item?.type} : ${item?.photos?.count()}")
+                                item?.apply {
+                                    if (!isEdit) {
+                                        photos = null
+                                        workType = it.second
+                                    }
+                                }
+
+                                if (item != null) {
+                                    list.add(item)
+                                }
                             }
                         }
-                    })
-                }
-            }
+                    }
         }
 
         mainEntryTypeAdapter.replaceAll(list)
