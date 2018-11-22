@@ -25,6 +25,7 @@ import com.example.literalnon.autoreequipment.data.EntryObject
 import com.example.literalnon.autoreequipment.data.PhotoObject
 import com.example.literalnon.autoreequipment.data.WorkTypeObject
 import com.example.literalnon.autoreequipment.network.NotificateService
+import com.example.literalnon.autoreequipment.photos
 import com.google.gson.Gson
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -121,6 +122,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
             Log.d("updater", "onStartCommand link: ${link} : ${isDownloading}")
 
             if (!isDownloading) {
+                isDownloading = true
                 val list = Gson().fromJson(intent?.extras?.getString(EXTRA_JSON), Array<EntryObject>::class.java)
                 Log.e("UpdateService", "list : ${list.size} : ${list}")
                 uploadFiles(list, this)
@@ -330,7 +332,16 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                                         try {
                                             //ftpClient.makeDirectory((LoginController.user?.phone
                                             //      ?: "Без имени"))
-                                            val compressedFile = BitmapUtils.compressImage(this, File(it.photo), IMAGE_MAX_SIZE, IMAGE_COMPRESSED_NAME + Calendar.getInstance().timeInMillis + IMAGE_COMPRESSED_EXTENSION, IMAGE_COMPRESS_QUALITY)
+                                            val photoForCompress = photos.find { photo ->  photo.name == it.name }
+                                            val imageSize = photoForCompress?.imageMaxSize ?: IMAGE_MAX_SIZE
+                                            val compressQuality = photoForCompress?.imageCompressQuality ?: IMAGE_COMPRESS_QUALITY
+
+                                            val compressedFile = BitmapUtils.compressImage(
+                                                    this,
+                                                    File(it.photo),
+                                                    imageSize,
+                                                    IMAGE_COMPRESSED_NAME + Calendar.getInstance().timeInMillis + IMAGE_COMPRESSED_EXTENSION,
+                                                    compressQuality)
                                             if (compressedFile != null) {
                                                 ftpClient.makeDirectory(companyName)
                                                 ftpClient.makeDirectory(path)

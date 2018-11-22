@@ -1,5 +1,7 @@
 package com.example.literalnon.autoreequipment.data
 
+import com.example.literalnon.autoreequipment.utils.UpdateService.Companion.IMAGE_COMPRESS_QUALITY
+import com.example.literalnon.autoreequipment.utils.UpdateService.Companion.IMAGE_MAX_SIZE
 import io.realm.RealmList
 import io.realm.RealmObject
 

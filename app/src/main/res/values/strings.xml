@@ -50,6 +50,8 @@
     <string name="send_file_notif_success">Отчет успешно отправлен</string>
     <string name="send_file_no_checked">Не выбрано ни одного файла</string>
     <string name="send_file_no_phone">Вы не зарегестрированы</string>
+    <string name="send_file_is_downloading">Идет отправка данных, подождите...</string>
+    <string name="send_file_error">Не удалось отправить данные, попробуйте позже</string>
     <string name="no_sended_file">Не отправлено</string>
     <string name="no_sended_file_half">Частично отправлен</string>
     <string name="no_send_title">Отправка данных</string>

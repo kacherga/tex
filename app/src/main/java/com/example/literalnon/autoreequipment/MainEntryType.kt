@@ -1,5 +1,7 @@
 package com.example.literalnon.autoreequipment
 
+import com.example.literalnon.autoreequipment.utils.UpdateService
+
 data class EntryType(
         val title: String,
         val photosId: ArrayList<Int>
@@ -87,7 +89,9 @@ class Photo(
         val type: PhotoType,
         var photoCount: Int? = 1,
         var workType: ArrayList<EntryType>? = null,
-        var photos: ArrayList<String>? = null
+        var photos: ArrayList<String>? = null,
+        var imageMaxSize: Int? = null,
+        var imageCompressQuality: Int? = null
 )
 
 var photos = arrayListOf<Photo>(

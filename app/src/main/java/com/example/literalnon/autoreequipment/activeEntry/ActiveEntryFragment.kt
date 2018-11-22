@@ -34,6 +34,7 @@ import com.example.literalnon.autoreequipment.fillData.MainEntryTypeDelegate
 import com.example.literalnon.autoreequipment.network.NotificateService
 import com.example.literalnon.autoreequipment.utils.UpdateService
 import com.example.literalnon.autoreequipment.utils.UpdateService.Companion.EXTRA_JSON
+import com.example.literalnon.autoreequipment.utils.UpdateService.Companion.isDownloading
 import com.google.gson.Gson
 import io.reactivex.Observable
 import io.reactivex.Scheduler
@@ -181,52 +182,64 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
         btnNext.setOnClickListener {
             //Log.e("makeDirectory", "onClick")
 
-            val listEntry = ArrayList<EntryObject>()
+            if (!UpdateService.isDownloading) {
+                val listEntry = ArrayList<EntryObject>()
 
-            if (adapter.itemCount > 0 && checkedEntries.size > 0 && LoginController.user?.phone?.isNotEmpty() == true) {
-                checkedEntries.forEach { (key, value) ->
-                    //Log.e("makeDirectory", value.name.toString())
+                if (adapter.itemCount > 0 && checkedEntries.size > 0 && LoginController.user?.phone?.isNotEmpty() == true) {
+                    AlertDialog.Builder(context)
+                            .setTitle("Отправка")
+                            .setMessage("Данные будут отправлены на сервер, статус отправки можно посмотреть в верхнем меню.")
+                            .setNeutralButton("ok") { dialog, k ->
+                                dialog.cancel()
+                            }
+                            .show()
 
-                    listEntry.add(
-                            EntryObject(
-                                    value.name,
-                                    value.phone,
-                                    value.workTypes?.map {
-                                        //Log.e("makeDirectory", it.name.toString())
-                                        WorkTypeObject(
-                                                it.name,
-                                                it.photos?.map {
-                                                    //Log.e("makeDirectory", it.name.toString())
-                                                    PhotoObject(
-                                                            it.name,
-                                                            it.photo,
-                                                            it.type,
-                                                            it.sendedAt
-                                                    )
-                                                },
-                                                it.description,
-                                                it.sendedAt
-                                        )
-                                    },
-                                    0,
-                                    value.sendedAt
-                            )
-                    )
+                    checkedEntries.forEach { (key, value) ->
+                        //Log.e("makeDirectory", value.name.toString())
 
+                        listEntry.add(
+                                EntryObject(
+                                        value.name,
+                                        value.phone,
+                                        value.workTypes?.map {
+                                            //Log.e("makeDirectory", it.name.toString())
+                                            WorkTypeObject(
+                                                    it.name,
+                                                    it.photos?.map {
+                                                        //Log.e("makeDirectory", it.name.toString())
+                                                        PhotoObject(
+                                                                it.name,
+                                                                it.photo,
+                                                                it.type,
+                                                                it.sendedAt
+                                                        )
+                                                    },
+                                                    it.description,
+                                                    it.sendedAt
+                                            )
+                                        },
+                                        0,
+                                        value.sendedAt
+                                )
+                        )
+
+                    }
+
+                    //showLoading()
+
+                    context?.startService(getServiceIntent(context!!, Bundle().apply {
+                        putString(EXTRA_JSON, Gson().toJson(listEntry))
+                    }))
+
+                } else if (checkedEntries.size == 0) {
+                    Toast.makeText(context, getString(R.string.send_file_no_checked), Toast.LENGTH_SHORT).show()
+                } else if (!(LoginController.user?.phone?.isNotEmpty() == true)) {
+                    Toast.makeText(context, getString(R.string.send_file_no_phone), Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, getString(R.string.send_file_error), Toast.LENGTH_SHORT).show()
                 }
-
-                //showLoading()
-
-                context?.startService(getServiceIntent(context!!, Bundle().apply {
-                    putString(EXTRA_JSON, Gson().toJson(listEntry))
-                }))
-
-            } else if (checkedEntries.size == 0) {
-                Toast.makeText(context, getString(R.string.send_file_no_checked), Toast.LENGTH_SHORT).show()
-            } else if (!(LoginController.user?.phone?.isNotEmpty() == true)) {
-                Toast.makeText(context, getString(R.string.send_file_no_phone), Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context, "ne udalos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.send_file_is_downloading), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -241,7 +254,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
         return intent
     }
 
-    private fun addFiles(entries: List<EntryObject>?) {
+    /*private fun addFiles(entries: List<EntryObject>?) {
 
         //try {
         val ftpClient = FTPClient()
@@ -299,10 +312,10 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
             ftpClient.logout()
             ftpClient.disconnect()
         }
-        /*} catch (e: Exception) {
+        *//*} catch (e: Exception) {
             e.printStackTrace()
-        }*/
-    }
+        }*//*
+    }*/
 
     override fun getNavigationParent(): INavigationParent {
         return activity as INavigationParent
