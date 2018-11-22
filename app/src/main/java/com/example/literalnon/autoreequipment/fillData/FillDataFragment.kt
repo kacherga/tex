@@ -337,7 +337,15 @@ class FillDataFragment : Fragment(), IFillDataView,
                 }
             }
 
-            currentEntry.workTypes?.add(workType)
+            val curWorkType = currentEntry.workTypes?.find { workType.name == it.name }
+
+            if (curWorkType == null) {
+                currentEntry.workTypes?.add(workType)
+            } else {
+                workType.photos?.forEach {
+                    curWorkType.photos?.add(it)
+                }
+            }
         }
 
         val workType = realm.createObject(WorkType::class.java)
@@ -361,7 +369,17 @@ class FillDataFragment : Fragment(), IFillDataView,
             workType.photos?.add(realm.copyToRealm(mPhoto))
         }
 
-        currentEntry.workTypes?.add(workType)
+        val curWorkType = currentEntry.workTypes?.find { workType.name == it.name }
+
+        if (curWorkType == null) {
+            currentEntry.workTypes?.add(workType)
+        } else {
+            workType.photos?.forEach {
+                curWorkType.photos?.add(it)
+            }
+
+            curWorkType.description = workType.description
+        }
 
         realm.commitTransaction()
 
