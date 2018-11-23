@@ -37,6 +37,7 @@ import services.mobiledev.ru.cheap.data.LoginController
 import services.mobiledev.ru.cheap.data.Prefs
 import services.mobiledev.ru.cheap.ui.main.comments.EnterNameFragment
 import java.io.File
+import java.lang.RuntimeException
 import java.util.*
 
 
@@ -309,7 +310,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                     ////Log.e("makeDirectory", "${path}")
                     entry.workTypes?.forEach {
                         if (it.sendedAt == null) {
-                            try {
+                            //try {
                                 if (it.description?.isNotEmpty() == true) {
                                     //Log.e("makeDirectory", "it.description : ${entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt"}")
                                     ftpClient.makeDirectory(companyName)
@@ -317,9 +318,9 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                                     ftpClient.makeDirectory(entryPath)
                                     ftpClient.appendFile(entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt", it.description?.byteInputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
                                 }
-                            } catch (e: Exception) {
+                            /*} catch (e: Exception) {
                                 e.printStackTrace()
-                            }
+                            }*/
 
                             //ftpClient.makeDirectory(workTypePath)
                             //Log.e("makeDirectory", "${it.description} : ${it.name}")
@@ -329,7 +330,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                                     //ftpClient.makeDirectory(workTypePath + "/" + it.type)
                                     ////Log.e("appendFile", "${workTypePath} ${it.photo}")// + "/" + it.type + "/" + it.name
                                     if (it.photo != null) {
-                                        try {
+                                        //try {
                                             //ftpClient.makeDirectory((LoginController.user?.phone
                                             //      ?: "Без имени"))
                                             val photoForCompress = photos.find { photo ->  photo.name == it.name }
@@ -353,9 +354,9 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                                                 entry.sendType = 2
                                                 saveDate(entry)
                                             }
-                                        } catch (e: Exception) {
+                                        /*} catch (e: Exception) {
                                             e.printStackTrace()
-                                        }
+                                        }*/
                                     }
 
                                     progress += 1
@@ -392,7 +393,8 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
             ftpClient.disconnect()
 
             sendData(entries)
-
+        } else {
+            throw RuntimeException("не удалось отправить данные 1111")
         }
         /*} catch (e: Exception) {
             e.printStackTrace()

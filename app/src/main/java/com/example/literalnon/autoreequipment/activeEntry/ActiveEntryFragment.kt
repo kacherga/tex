@@ -155,6 +155,11 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
         //realm?.beginTransaction()
 
         var entries = realm?.where(Entry::class.java)?.findAll()?.filter {
+            if (!isActive) {
+                it.sendType == 1
+            } else {
+                true
+            } &&
             (it.sendedAt == null) == isActive
         }
 
