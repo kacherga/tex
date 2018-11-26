@@ -2,18 +2,15 @@ package com.example.literalnon.autoreequipment.utils
 
 import android.app.*
 import android.content.Intent
-import android.os.IBinder
 import android.content.Context
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Environment
 import android.support.annotation.RequiresApi
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.FileProvider
 import android.util.Log
 import android.app.NotificationManager
 import android.graphics.Color
+import android.os.*
 import android.text.TextUtils
 import android.widget.Toast
 import com.betcityru.dyadichko_da.betcityru.ui.createService
@@ -29,8 +26,10 @@ import com.example.literalnon.autoreequipment.photos
 import com.google.gson.Gson
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
+import okhttp3.ResponseBody
 import org.apache.commons.net.ftp.FTP
 import org.apache.commons.net.ftp.FTPClient
 import services.mobiledev.ru.cheap.data.LoginController
@@ -57,6 +56,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
         const val IMAGE_COMPRESSED_EXTENSION = ".jpg"
 
         const val EXTRA_JSON = "json"
+        const val RUNNABLE_DELAY = 5000L
 
         var service: Service? = null
 
@@ -69,6 +69,10 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
         const val TRY_COUNT = 20
 
         var notificationSystemManager: NotificationManager? = null
+        private val subscription = CompositeDisposable()
+
+        val tryHandler = Handler()
+        var tryRunnable = Runnable {}
 
         var isDownloading = false
             get() {
@@ -186,83 +190,115 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
 
     private fun uploadFiles(listEntry: Array<EntryObject>, context: Context) {
 
-        Observable.create<Unit> {
-            //////Log.e("makeDirectory", "realm = Realm.getDefaultInstance() size : ${listEntry.size} : ${checkedEntries.size}")
+        subscription.add(Observable.create<Unit> {
             it.onNext(addFiles(listEntry))
-
             it.onComplete()
         }
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doAfterTerminate {
-                    //dismissLoading()
-                    //listEntry.clear()
+                .subscribe({
+                    notificateEntries(context, listEntry)
                     isDownloading = false
                     stopSelf()
-                }
-                .subscribe({
-                    /*realm?.beginTransaction()
-
-                    realm?.where(Entry::class.java)?.`in`("name", listEntry.map {
-                        it.name ?: ""
-                    }.toTypedArray())?.findAll()?.deleteAllFromRealm()
-
-                    checkedEntries.clear()
-
-                    realm?.commitTransaction()
-
-                    realm?.executeTransaction({ bgRealm ->
-
-                    })
-
-                    entries = realm?.where(Entry::class.java)?.findAll()
-                    adapter.replaceAll(entries?.toList())*/
-
-                    val service = createService(NotificateService::class.java)
-
-                    listEntry.forEach {
-                        //subscriptions.add(
-                        service
-                                .notificate(LoginController.user?.phone ?: "",
-                                        LoginController.user?.name ?: "",
-                                        it.phone ?: "",
-                                        it.name ?: "",
-                                        it.workTypes?.fold("") { acc, workTypeObject ->
-                                            "$acc${
-                                            if (TextUtils.equals(workTypeObject.name, allPhotoTypes[4].title)) {
-                                                if (workTypeObject.photos != null && workTypeObject.photos!!.isNotEmpty()) {
-                                                    workTypeObject.name
-                                                } else {
-                                                    ""
-                                                }
-                                            } else {
-                                                workTypeObject.name
-                                            }
-                                            }${if (it.workTypes?.indexOf(workTypeObject) != (it.workTypes?.size
-                                                            ?: 0) - 1) {
-                                                "+"
-                                            } else {
-                                                ""
-                                            }
-                                            }"
-                                        } ?: "")
-                                .subscribeOn(Schedulers.newThread())
+                    subscription.clear()
+                }, {
+                    //Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
+                    tryRunnable = Runnable {
+                        subscription.add(Observable.create<Unit> {
+                            it.onNext(addFiles(listEntry))
+                            it.onComplete()
+                        }
+                                .subscribeOn(Schedulers.computation())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe({
-                                    Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show()
+                                    notificateEntries(context, listEntry)
+                                    isDownloading = false
+                                    stopSelf()
+                                    subscription.clear()
                                 }, {
-                                    Toast.makeText(context, getString(R.string.send_file_notif_failed), Toast.LENGTH_SHORT).show()
-                                    it.printStackTrace()
-                                    //throw RuntimeException(getString(R.string.send_file_notif_failed))
-                                })
-                        //)
+                                    //Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
+                                    tryRunnable = Runnable {
+                                        subscription.add(Observable.create<Unit> {
+                                            it.onNext(addFiles(listEntry))
+                                            it.onComplete()
+                                        }
+                                                .subscribeOn(Schedulers.computation())
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .doAfterTerminate {
+                                                    isDownloading = false
+                                                    stopSelf()
+                                                    subscription.clear()
+                                                }
+                                                .subscribe({
+                                                    notificateEntries(context, listEntry)
+                                                }, {
+                                                    Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
+                                                }))
+                                    }
+                                    tryHandler.postDelayed(tryRunnable, RUNNABLE_DELAY)
+                                }))
                     }
+                    tryHandler.postDelayed(tryRunnable, RUNNABLE_DELAY)
+                }))
+    }
 
-                }, {
-                    Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
-                    it.printStackTrace()
-                    //throw RuntimeException(getString(R.string.send_file_notif_failed))
-                })
+    private fun notificateEntries(context: Context, listEntry: Array<EntryObject>) {
+        val service = createService(NotificateService::class.java)
+
+        listEntry.forEach { entryItem ->
+            sendNotificate(service, entryItem)
+                    .subscribe({
+                        Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show()
+                    }, {
+                        tryRunnable = Runnable {
+                            sendNotificate(service, entryItem)
+                                    .subscribe({
+                                        Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show()
+                                    }, {
+                                        tryRunnable = Runnable {
+                                            sendNotificate(service, entryItem)
+                                                    .subscribe({
+                                                        Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show()
+                                                    }, {
+                                                        Toast.makeText(context, getString(R.string.send_file_notif_failed), Toast.LENGTH_SHORT).show()
+                                                        it.printStackTrace()
+                                                    })
+                                        }
+                                        tryHandler.postDelayed(tryRunnable, RUNNABLE_DELAY)
+                                    })
+                        }
+                        tryHandler.postDelayed(tryRunnable, RUNNABLE_DELAY)
+                    })
+        }
+    }
+
+    private fun sendNotificate(service: NotificateService, it: EntryObject): Observable<ResponseBody> {
+        return service
+                .notificate(LoginController.user?.phone ?: "",
+                        LoginController.user?.name ?: "",
+                        it.phone ?: "",
+                        it.name ?: "",
+                        it.workTypes?.fold("") { acc, workTypeObject ->
+                            "$acc${
+                            if (TextUtils.equals(workTypeObject.name, allPhotoTypes[4].title)) {
+                                if (workTypeObject.photos != null && workTypeObject.photos!!.isNotEmpty()) {
+                                    workTypeObject.name
+                                } else {
+                                    ""
+                                }
+                            } else {
+                                workTypeObject.name
+                            }
+                            }${if (it.workTypes?.indexOf(workTypeObject) != (it.workTypes?.size
+                                            ?: 0) - 1) {
+                                "+"
+                            } else {
+                                ""
+                            }
+                            }"
+                        } ?: "")
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
     }
 
     private fun addFiles(entries: Array<EntryObject>?) {
@@ -311,13 +347,13 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                     entry.workTypes?.forEach {
                         if (it.sendedAt == null) {
                             //try {
-                                if (it.description?.isNotEmpty() == true) {
-                                    //Log.e("makeDirectory", "it.description : ${entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt"}")
-                                    ftpClient.makeDirectory(companyName)
-                                    ftpClient.makeDirectory(path)
-                                    ftpClient.makeDirectory(entryPath)
-                                    ftpClient.appendFile(entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt", it.description?.byteInputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
-                                }
+                            if (it.description?.isNotEmpty() == true) {
+                                //Log.e("makeDirectory", "it.description : ${entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt"}")
+                                ftpClient.makeDirectory(companyName)
+                                ftpClient.makeDirectory(path)
+                                ftpClient.makeDirectory(entryPath)
+                                ftpClient.appendFile(entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt", it.description?.byteInputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
+                            }
                             /*} catch (e: Exception) {
                                 e.printStackTrace()
                             }*/
@@ -331,29 +367,31 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                                     ////Log.e("appendFile", "${workTypePath} ${it.photo}")// + "/" + it.type + "/" + it.name
                                     if (it.photo != null) {
                                         //try {
-                                            //ftpClient.makeDirectory((LoginController.user?.phone
-                                            //      ?: "Без имени"))
-                                            val photoForCompress = photos.find { photo ->  photo.name == it.name }
-                                            val imageSize = photoForCompress?.imageMaxSize ?: IMAGE_MAX_SIZE
-                                            val compressQuality = photoForCompress?.imageCompressQuality ?: IMAGE_COMPRESS_QUALITY
+                                        //ftpClient.makeDirectory((LoginController.user?.phone
+                                        //      ?: "Без имени"))
+                                        val photoForCompress = photos.find { photo -> photo.name == it.name }
+                                        val imageSize = photoForCompress?.imageMaxSize
+                                                ?: IMAGE_MAX_SIZE
+                                        val compressQuality = photoForCompress?.imageCompressQuality
+                                                ?: IMAGE_COMPRESS_QUALITY
 
-                                            val compressedFile = BitmapUtils.compressImage(
-                                                    this,
-                                                    File(it.photo),
-                                                    imageSize,
-                                                    IMAGE_COMPRESSED_NAME + Calendar.getInstance().timeInMillis + IMAGE_COMPRESSED_EXTENSION,
-                                                    compressQuality)
-                                            if (compressedFile != null) {
-                                                ftpClient.makeDirectory(companyName)
-                                                ftpClient.makeDirectory(path)
-                                                ftpClient.makeDirectory(entryPath)
-                                                //ftpClient.makeDirectory(workTypePath)
-                                                //ftpClient.makeDirectory(workTypePath + "/" + it.type)
-                                                ftpClient.appendFile(entryPath + "/" + "${it.type}_${it.name}_${index}" + IMAGE_COMPRESSED_EXTENSION, compressedFile?.inputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
-                                                it.sendedAt = Calendar.getInstance().timeInMillis
-                                                entry.sendType = 2
-                                                saveDate(entry)
-                                            }
+                                        val compressedFile = BitmapUtils.compressImage(
+                                                this,
+                                                File(it.photo),
+                                                imageSize,
+                                                IMAGE_COMPRESSED_NAME + Calendar.getInstance().timeInMillis + IMAGE_COMPRESSED_EXTENSION,
+                                                compressQuality)
+                                        if (compressedFile != null) {
+                                            ftpClient.makeDirectory(companyName)
+                                            ftpClient.makeDirectory(path)
+                                            ftpClient.makeDirectory(entryPath)
+                                            //ftpClient.makeDirectory(workTypePath)
+                                            //ftpClient.makeDirectory(workTypePath + "/" + it.type)
+                                            ftpClient.appendFile(entryPath + "/" + "${it.type}_${it.name}_${index}" + IMAGE_COMPRESSED_EXTENSION, compressedFile?.inputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
+                                            it.sendedAt = Calendar.getInstance().timeInMillis
+                                            entry.sendType = 2
+                                            saveDate(entry)
+                                        }
                                         /*} catch (e: Exception) {
                                             e.printStackTrace()
                                         }*/

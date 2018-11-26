@@ -102,7 +102,8 @@ class FillDataFragment : Fragment(), IFillDataView,
 
         ivAddPhoto.setOnClickListener {
             currentPhoto = null
-            dialogFilePicker()
+            //dialogFilePicker()
+            dialogFilePickerWithGallery()
         }
 
         photoAdapter.manager?.addDelegate(PhotoDelegate { photo ->
@@ -238,7 +239,7 @@ class FillDataFragment : Fragment(), IFillDataView,
                 extraPhotos.add(file)
                 photoAdapter.add(file)
                 etFillPhotoHint.visibility = View.GONE
-                Toast.makeText(context, "loaded", Toast.LENGTH_LONG).show()
+                //Toast.makeText(context, "loaded", Toast.LENGTH_LONG).show()
             } else {
                 Toast.makeText(context, "file empty", Toast.LENGTH_LONG).show()
             }
@@ -261,6 +262,32 @@ class FillDataFragment : Fragment(), IFillDataView,
         } else {
             filePicker.requestCameraIntent()
         }
+    }
+
+    private fun dialogFilePickerWithGallery() {
+        val choose = arrayOf("Выбрать из галереи", "Сделать")
+
+        android.support.v7.app.AlertDialog.Builder(context!!)
+                .setTitle("Фото")
+                .setItems(choose) { _, i ->
+                    if (i == 0) {
+                        if (ContextCompat.checkSelfPermission(activity!!, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            requestStoragePermission(REQUEST_CAMERA_PERMISSION)
+                        } else {
+                            filePicker.requestGalleryIntent()
+                        }
+                    } else {
+                        if (ContextCompat.checkSelfPermission(activity!!, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                                || ContextCompat.checkSelfPermission(activity!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                                || ContextCompat.checkSelfPermission(activity!!, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            requestCameraPermission()
+                        } else {
+                            filePicker.requestCameraIntent()
+                        }
+                    }
+                }
+                .show()
     }
 
     private fun requestCameraPermission() {
