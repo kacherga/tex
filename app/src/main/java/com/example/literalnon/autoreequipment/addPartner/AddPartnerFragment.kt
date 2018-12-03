@@ -2,6 +2,7 @@ package services.mobiledev.ru.cheap.ui.main.comments
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -67,8 +68,17 @@ class AddPartnerFragment : Fragment(), IAddPartnerView {
 
     }
 
+    private val handler = Handler()
+    private var runnable: Runnable = Runnable {  }
+    private val DELAYED = 1500L
+
     override fun partnerAddSuccess() {
         alertDialog?.cancel()
+
+        runnable = Runnable {
+            context?.startActivity(Intent(context, MainActivity::class.java))
+            activity?.finish()
+        }
 
         alertDialog = AlertDialog.Builder(context!!)
                 .setTitle(R.string.fragment_login_alert_title)
@@ -84,6 +94,8 @@ class AddPartnerFragment : Fragment(), IAddPartnerView {
                 .create()
 
         alertDialog?.show()
+
+        handler.postDelayed(runnable, DELAYED)
 
         tvName.text = LoginController.user?.name ?: ""
         tvPhone.text = LoginController.user?.phone ?: ""
@@ -150,6 +162,11 @@ class AddPartnerFragment : Fragment(), IAddPartnerView {
 
     override fun getNavigationParent(): INavigationParent {
         return activity as INavigationParent
+    }
+
+    override fun onDestroyView() {
+        handler.removeCallbacks(runnable)
+        super.onDestroyView()
     }
 }
 

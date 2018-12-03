@@ -65,13 +65,15 @@
                     android:layout_width="0dp"
                     android:layout_height="48dp"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="32dp"
                     android:background="@drawable/background_gray_stroke"
                     app:cardCornerRadius="4dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toBottomOf="@+id/btnNext">
 
                     <br.com.sapereaude.maskedEditText.MaskedEditText
                         android:id="@+id/etPhone"
@@ -79,12 +81,11 @@
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
                         android:gravity="center"
+                        android:imeOptions="actionDone"
                         android:inputType="phone"
                         android:typeface="monospace"
                         app:allowed_chars="1234567890"
-                        app:mask="+7(###)###-##-##"
-                        android:imeOptions="actionDone"
-                        />
+                        app:mask="+7(###)###-##-##" />
 
                 </android.support.design.card.MaterialCardView>
 
@@ -93,16 +94,14 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="32dp"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="32dp"
-                    android:layout_marginBottom="32dp"
                     android:background="@drawable/background_gray_stroke"
                     android:padding="16dp"
                     android:text="@string/fragment_login_save"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="@+id/textInputLayout2"
                     app:layout_constraintStart_toStartOf="@+id/textInputLayout2"
-                    app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <!--<android.support.design.widget.TextInputLayout
                     android:id="@+id/textInputLayout"

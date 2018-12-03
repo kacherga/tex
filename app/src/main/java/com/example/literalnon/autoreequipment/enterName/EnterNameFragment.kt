@@ -71,7 +71,7 @@ class EnterNameFragment : Fragment(), IEnterNameView {
             val fio = result[0].toString().split(" ")
             etName.setText(fio.fold("", { acc, s ->
                 "$acc${s.first().toUpperCase()}${s.substring(1, s.length)} "
-            }))
+            }).trim())
 
         }
         super.onActivityResult(requestCode, resCode, data)

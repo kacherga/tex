@@ -49,7 +49,7 @@ class ReplaceStrategy(override val fragmentManager: FragmentManager, override va
         enumObject.putAnimation(fragmentManager)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .replace(containerId, enumObject.getFragment(), enumObject.getTag())
-                .commit()
+                .commitAllowingStateLoss()
     }
 
     override fun showFragmentWithParcelable(enumObject: IBaseItem, fragment: Fragment, data: Any?) {

@@ -60,7 +60,7 @@ class MainEntryTaskDelegate(private val callback: AddPhotoCallback,
             tvTitle.text = "${item.name}"
 
             cardImageWorkType.setOnClickListener {
-                if (item.photos?.first() != null) {
+                if (item.photos?.isNotEmpty() == true && item.photos?.first() != null) {
                     openPhotoCallback(item)
                 }
             }
