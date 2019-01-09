@@ -14,15 +14,12 @@ import android.os.*
 import android.text.TextUtils
 import android.widget.Toast
 import com.betcityru.dyadichko_da.betcityru.ui.createService
-import com.example.literalnon.autoreequipment.EXTRA_PHOTO_TITLE
-import com.example.literalnon.autoreequipment.R
-import com.example.literalnon.autoreequipment.allPhotoTypes
+import com.example.literalnon.autoreequipment.*
 import com.example.literalnon.autoreequipment.data.Entry
 import com.example.literalnon.autoreequipment.data.EntryObject
 import com.example.literalnon.autoreequipment.data.PhotoObject
 import com.example.literalnon.autoreequipment.data.WorkTypeObject
 import com.example.literalnon.autoreequipment.network.NotificateService
-import com.example.literalnon.autoreequipment.photos
 import com.google.gson.Gson
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -73,6 +70,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
 
         val tryHandler = Handler()
         var tryRunnable = Runnable {}
+        var tryRunnable2 = Runnable {}
 
         var isDownloading = false
             get() {
@@ -130,7 +128,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                 isDownloading = true
                 val list = Gson().fromJson(intent?.extras?.getString(EXTRA_JSON), Array<EntryObject>::class.java)
                 Log.e("UpdateService", "list : ${list.size} : ${list}")
-                uploadFiles(list, this)
+                uploadFiles(list, MainActivity.context)
             }
         }
 
@@ -188,7 +186,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
         notificationSystemManager?.createNotificationChannel(mChannel)
     }
 
-    private fun uploadFiles(listEntry: Array<EntryObject>, context: Context) {
+    private fun uploadFiles(listEntry: Array<EntryObject>, context: Activity?) {
 
         subscription.add(Observable.create<Unit> {
             it.onNext(addFiles(listEntry))
@@ -217,7 +215,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                                     subscription.clear()
                                 }, {
                                     //Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
-                                    tryRunnable = Runnable {
+                                    tryRunnable2 = Runnable {
                                         subscription.add(Observable.create<Unit> {
                                             it.onNext(addFiles(listEntry))
                                             it.onComplete()
@@ -235,44 +233,62 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                                                     Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
                                                 }))
                                     }
-                                    tryHandler.postDelayed(tryRunnable, RUNNABLE_DELAY)
+                                    tryHandler.postDelayed(tryRunnable2, RUNNABLE_DELAY)
                                 }))
                     }
                     tryHandler.postDelayed(tryRunnable, RUNNABLE_DELAY)
                 }))
     }
 
-    private fun notificateEntries(context: Context, listEntry: Array<EntryObject>) {
+    private fun notificateEntries(context: Activity?, listEntry: Array<EntryObject>) {
         val service = createService(NotificateService::class.java)
 
         listEntry.forEach { entryItem ->
-            sendNotificate(service, entryItem)
-                    .subscribe({
-                        Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show()
-                    }, {
-                        tryRunnable = Runnable {
-                            sendNotificate(service, entryItem)
-                                    .subscribe({
-                                        Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show()
-                                    }, {
-                                        tryRunnable = Runnable {
-                                            sendNotificate(service, entryItem)
-                                                    .subscribe({
-                                                        Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show()
-                                                    }, {
-                                                        Toast.makeText(context, getString(R.string.send_file_notif_failed), Toast.LENGTH_SHORT).show()
-                                                        it.printStackTrace()
-                                                    })
-                                        }
-                                        tryHandler.postDelayed(tryRunnable, RUNNABLE_DELAY)
-                                    })
-                        }
-                        tryHandler.postDelayed(tryRunnable, RUNNABLE_DELAY)
-                    })
+            try {
+                sendNotificate(service, entryItem)
+                        ?.subscribe({
+                            context?.runOnUiThread {
+                                Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show()
+                            }
+                        }, {
+                            tryRunnable = Runnable {
+                                try {
+                                    sendNotificate(service, entryItem)
+                                            ?.subscribe({
+                                                context?.runOnUiThread { Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show() }
+                                            }, {
+                                                tryRunnable2 = Runnable {
+                                                    try {
+                                                        sendNotificate(service, entryItem)
+                                                                ?.subscribe({
+                                                                    context?.runOnUiThread {
+                                                                        Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show()
+                                                                    }
+                                                                }, {
+                                                                    context?.runOnUiThread {
+                                                                        Toast.makeText(context, getString(R.string.send_file_notif_failed), Toast.LENGTH_SHORT).show()
+                                                                    }
+                                                                    it.printStackTrace()
+                                                                })
+                                                    } catch (e: Exception) {
+                                                        e.printStackTrace()
+                                                    }
+                                                }
+                                                tryHandler.postDelayed(tryRunnable2, RUNNABLE_DELAY)
+                                            })
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+                            tryHandler.postDelayed(tryRunnable, RUNNABLE_DELAY)
+                        })
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
-    private fun sendNotificate(service: NotificateService, it: EntryObject): Observable<ResponseBody> {
+    private fun sendNotificate(service: NotificateService, it: EntryObject): Observable<ResponseBody>? {
         return service
                 .notificate(LoginController.user?.phone ?: "",
                         LoginController.user?.name ?: "",
@@ -297,8 +313,8 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                             }
                             }"
                         } ?: "")
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
     }
 
     private fun addFiles(entries: Array<EntryObject>?) {

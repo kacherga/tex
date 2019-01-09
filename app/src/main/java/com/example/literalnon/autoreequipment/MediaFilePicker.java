@@ -20,8 +20,10 @@ import java.io.InputStream;
 import java.lang.annotation.Retention;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -30,7 +32,7 @@ public class MediaFilePicker {
     private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTER = new ThreadLocal<SimpleDateFormat>() {
         @Override
         protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
+            return new SimpleDateFormat("yyyyMMdd_", Locale.getDefault());
         }
     };
 
@@ -222,11 +224,14 @@ public class MediaFilePicker {
     }
 
     private String generateFileName() {
+        Calendar date = Calendar.getInstance();
+        String formatStr = Objects.requireNonNull(DATE_FORMATTER.get()).format(date.getTime()) + date.getTime().toString();
+
         switch (mediaFileType) {
             case TYPE_VIDEO:
-                return "MP4_" + DATE_FORMATTER.get().format(new Date());
+                return "MP4_" + formatStr;
             default:
-                return "JPEG_" + DATE_FORMATTER.get().format(new Date());
+                return "JPEG_" + formatStr;
         }
     }
 

@@ -112,6 +112,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
             adapter.remove(position)
         }, { entry ->
             EnterNameFragment.name = entry.name ?: ""
+            EnterNameFragment.phone = entry.phone ?: ""
 
             AddEntryFragment.choiceTypes = ArrayList<EntryType>().apply {
                 addAll(allEntryType.filter {

@@ -164,7 +164,7 @@ class FillDataFragment : Fragment(), IFillDataView,
                             it.forEach {
                                 val item = photos.find { item -> it.first == item.id }
 
-                                Log.e("workTypes", "fill ${it.first} : ${item?.type} : ${item?.photos?.count()}")
+                                //Log.e("workTypes", "fill ${it.first} : ${item?.type} : ${item?.photos?.count()}")
                                 item?.apply {
                                     if (!isEdit) {
                                         photos = null
@@ -183,7 +183,7 @@ class FillDataFragment : Fragment(), IFillDataView,
         mainEntryTypeAdapter.replaceAll(list)
         rvTasks.isNestedScrollingEnabled = false
 
-        tvName.text = EnterNameFragment.name
+        tvName.text = EnterNameFragment.name + " " + EnterNameFragment.phone
 
         btnNext.setOnClickListener {
             sendData()
@@ -225,10 +225,12 @@ class FillDataFragment : Fragment(), IFillDataView,
                 if ((currentPhoto?.second?.photoCount ?: 1) > (currentPhoto?.second?.photos?.size
                                 ?: 0)) {
 
-                    currentPhoto?.second?.photos?.add(file.path)
+                    //currentPhoto?.second?.photos?.add(file.path)
+                    photos[currentPhoto?.second?.id ?: 0].photos?.add(file.path)
                     //Log.e("change", "currentPhoto!!.first : ${currentPhoto!!.first}")
                 } else {
-                    currentPhoto?.second?.photos?.set(0, file.path)
+                    //currentPhoto?.second?.photos?.set(0, file.path)
+                    photos[currentPhoto?.second?.id ?: 0].photos?.set(0, file.path)
                 }
                 mainEntryTypeAdapter.notifyItemChanged(currentPhoto!!.first)
             } else {
@@ -331,7 +333,7 @@ class FillDataFragment : Fragment(), IFillDataView,
         val realm = Realm.getDefaultInstance()
         realm.beginTransaction()
 
-        val thisEntries = realm?.where(Entry::class.java)?.`in`("name", arrayOf(EnterNameFragment.name))?.findAll()
+        val thisEntries = realm?.where(Entry::class.java)?.`in`("name", arrayOf(EnterNameFragment.name))?.`in`("phone", arrayOf(EnterNameFragment.phone))?.findAll()
 
         if (isEdit) {
             thisEntries?.deleteAllFromRealm()

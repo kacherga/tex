@@ -1,5 +1,7 @@
 package com.example.literalnon.autoreequipment
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
@@ -35,10 +37,16 @@ class MainActivity : AppCompatActivity(), INavigationParent {
 
     override var navigator: Navigator? = null
 
+    companion object {
+        var context: Activity? = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+        context = this
 
         Fabric.with(this, Crashlytics())
         Realm.init(this)
@@ -150,6 +158,10 @@ class MainActivity : AppCompatActivity(), INavigationParent {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onDestroy() {
+        context = null
+        super.onDestroy()
+    }
 }
 
 @GlideModule

@@ -59,7 +59,7 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
         with(holder) {
             val context = tvTitle.context
 
-            tvTitle.text = item.name + item.workTypes?.fold("\n") { s: String, type: WorkType ->
+            tvTitle.text = item.name + " " +item.phone + item.workTypes?.fold("\n") { s: String, type: WorkType ->
                 "$s${if (!TextUtils.equals(type.name, EXTRA_PHOTO_TITLE)) {
                     type.name + "\n"
                 } else {
