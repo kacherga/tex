@@ -62,9 +62,14 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
         }
 
         fun stop(){
+            //Log.e("updater", "stop 1")
             isDownloading = false
-            service?.stopSelf()
+            service?.stopForeground(true)
             subscription.clear()
+            //subscription.dispose()
+            notificationSystemManager?.cancelAll()
+            notificationSystemManager = null
+            //Log.e("updater", "stop")
         }
 
         private val EXTRA_IS_DOWNLOADING = "EXTRA_IS_DOWNLOADING"
@@ -138,7 +143,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
             }
         }
 
-        return START_REDELIVER_INTENT
+        return START_NOT_STICKY
     }
 
     override fun onBind(p0: Intent?): IBinder? {
@@ -193,17 +198,20 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
     }
 
     private fun uploadFiles(listEntry: Array<EntryObject>, context: Activity?) {
-
+        Log.e("updater", "uploadFiles 1")
         subscription.add(Observable.create<Unit> {
+            Log.e("updater", "uploadFiles 1.1")
             it.onNext(addFiles(listEntry))
             it.onComplete()
         }
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
+                    Log.e("updater", "uploadFiles 2")
                     notificateEntries(context, listEntry)
-                    stop()
+                    //stop()
                 }, {
+                    Log.e("updater", "uploadFiles 2.5")
                     //Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
                     tryRunnable = Runnable {
                         subscription.add(Observable.create<Unit> {
@@ -213,8 +221,9 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                                 .subscribeOn(Schedulers.computation())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe({
+                                    Log.e("updater", "uploadFiles 3")
                                     notificateEntries(context, listEntry)
-                                    stop()
+                                    //stop()
                                 }, {
                                     //Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
                                     tryRunnable2 = Runnable {
@@ -224,10 +233,8 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                                         }
                                                 .subscribeOn(Schedulers.computation())
                                                 .observeOn(AndroidSchedulers.mainThread())
-                                                .doAfterTerminate {
-                                                    stop()
-                                                }
                                                 .subscribe({
+                                                    Log.e("updater", "uploadFiles 4")
                                                     notificateEntries(context, listEntry)
                                                 }, {
                                                     Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
@@ -238,6 +245,8 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                     }
                     tryHandler.postDelayed(tryRunnable, RUNNABLE_DELAY)
                 }))
+
+        Log.e("updater", "uploadFiles 5")
     }
 
     private fun notificateEntries(context: Activity?, listEntry: Array<EntryObject>) {
@@ -246,6 +255,9 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
         listEntry.forEach { entryItem ->
             try {
                 sendNotificate(service, entryItem)
+                        ?.doAfterTerminate {
+                            stop()
+                        }
                         ?.subscribe({
                             context?.runOnUiThread {
                                 Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show()
@@ -254,12 +266,18 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                             tryRunnable = Runnable {
                                 try {
                                     sendNotificate(service, entryItem)
+                                            ?.doAfterTerminate {
+                                                stop()
+                                            }
                                             ?.subscribe({
                                                 context?.runOnUiThread { Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show() }
                                             }, {
                                                 tryRunnable2 = Runnable {
                                                     try {
                                                         sendNotificate(service, entryItem)
+                                                                ?.doAfterTerminate {
+                                                                    stop()
+                                                                }
                                                                 ?.subscribe({
                                                                     context?.runOnUiThread {
                                                                         Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show()
@@ -323,6 +341,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
 
     private fun addFiles(entries: Array<EntryObject>?) {
 
+        Log.e("updater", "addFiles 1")
         //try {
         val ftpClient = FTPClient()
         ftpClient.controlEncoding = "UTF-8"
@@ -332,6 +351,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
         ////Log.e("makeDirectory", "login")
 
         if (ftpClient.login(getString(R.string.ftp_login), getString(R.string.ftp_password))) {
+            Log.e("updater", "addFiles 2")
             ftpClient.enterLocalPassiveMode()
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE)
 
@@ -434,17 +454,27 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
 
                                     notification.flags = notification.flags or Notification.FLAG_AUTO_CANCEL
 
+                                    Log.e("updater", "addFiles 3")
                                     notificationSystemManager?.notify(UPLOADING_APK_NOTIFICATION_ID, notification)
                                 }
+                                Log.e("updater", "addFiles 4")
                             }
+
+                            Log.e("updater", "addFiles 5")
 
                             it.sendedAt = Calendar.getInstance().timeInMillis
                         }
+
+                        Log.e("updater", "addFiles 6")
                     }
+
+                    Log.e("updater", "addFiles 7")
 
                     entry.sendedAt = Calendar.getInstance().timeInMillis
                     entry.sendType = 1
                 }
+
+                Log.e("updater", "addFiles 8")
             }
 
             ftpClient.logout()

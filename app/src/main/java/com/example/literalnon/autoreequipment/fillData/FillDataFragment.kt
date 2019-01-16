@@ -206,8 +206,9 @@ class FillDataFragment : Fragment(), IFillDataView,
                     File(it)
                 }
 
+                extraPhotos.clear()
                 extraPhotos.addAll(photos ?: ArrayList())
-                photoAdapter.addAll(photos)
+                photoAdapter.replaceAll(photos)
                 etFillPhotoHint.visibility = View.GONE
             } catch (e: Exception) {
 
