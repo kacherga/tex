@@ -131,7 +131,7 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
             tvSendedAt.text = if (item.sendedAt != null && item.sendType == 1) {
                 val calendar = Calendar.getInstance()
                 calendar.timeInMillis = item.sendedAt!!
-                SimpleDateFormat("dd:MM HH:mm").format(calendar.time)
+                SimpleDateFormat("dd.MM.yy HH:mm").format(calendar.time)
             } else if (item.sendType == 2) {
                 context?.getString(R.string.no_sended_file_half)
             } else {

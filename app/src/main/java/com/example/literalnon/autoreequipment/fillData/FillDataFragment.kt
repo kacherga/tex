@@ -187,7 +187,7 @@ class FillDataFragment : Fragment(), IFillDataView,
 
         btnNext.setOnClickListener {
             sendData()
-            isNotSave = false
+            //isNotSave = false
         }
 
         //Log.d("tag", "isEdit : ${isEdit} : ${AddEntryFragment.extras != null}")
@@ -250,6 +250,8 @@ class FillDataFragment : Fragment(), IFillDataView,
                 ivAddPhoto.visibility = View.GONE
             }
         }
+
+        sendData()
     }
 
     private fun dialogFilePicker() {

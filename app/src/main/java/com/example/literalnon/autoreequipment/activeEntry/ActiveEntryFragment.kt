@@ -34,6 +34,7 @@ import com.example.literalnon.autoreequipment.fillData.MainEntryTypeDelegate
 import com.example.literalnon.autoreequipment.network.NotificateService
 import com.example.literalnon.autoreequipment.utils.UpdateService
 import com.example.literalnon.autoreequipment.utils.UpdateService.Companion.EXTRA_JSON
+import com.example.literalnon.autoreequipment.utils.UpdateService.Companion.UPLOADING_APK_CHANNEL_ID
 import com.example.literalnon.autoreequipment.utils.UpdateService.Companion.isDownloading
 import com.google.gson.Gson
 import io.reactivex.Observable
@@ -245,7 +246,18 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                     Toast.makeText(context, getString(R.string.send_file_error), Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Toast.makeText(context, getString(R.string.send_file_is_downloading), Toast.LENGTH_SHORT).show()
+                //Toast.makeText(context, getString(R.string.send_file_is_downloading), Toast.LENGTH_SHORT).show()
+                AlertDialog.Builder(context)
+                        .setTitle("Отправка")
+                        .setMessage(R.string.send_file_cancel)
+                        .setPositiveButton("ДА") { dialog, k ->
+                            UpdateService.stop()
+                            dialog.cancel()
+                        }
+                        .setNegativeButton("НЕТ") {dialog, k ->
+                            dialog.cancel()
+                        }
+                        .show()
             }
         }
     }

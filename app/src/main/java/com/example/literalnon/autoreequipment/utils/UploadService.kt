@@ -61,6 +61,12 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
             return service
         }
 
+        fun stop(){
+            isDownloading = false
+            service?.stopSelf()
+            subscription.clear()
+        }
+
         private val EXTRA_IS_DOWNLOADING = "EXTRA_IS_DOWNLOADING"
 
         const val TRY_COUNT = 20
@@ -196,9 +202,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     notificateEntries(context, listEntry)
-                    isDownloading = false
-                    stopSelf()
-                    subscription.clear()
+                    stop()
                 }, {
                     //Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
                     tryRunnable = Runnable {
@@ -210,9 +214,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe({
                                     notificateEntries(context, listEntry)
-                                    isDownloading = false
-                                    stopSelf()
-                                    subscription.clear()
+                                    stop()
                                 }, {
                                     //Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
                                     tryRunnable2 = Runnable {
@@ -223,9 +225,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                                                 .subscribeOn(Schedulers.computation())
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .doAfterTerminate {
-                                                    isDownloading = false
-                                                    stopSelf()
-                                                    subscription.clear()
+                                                    stop()
                                                 }
                                                 .subscribe({
                                                     notificateEntries(context, listEntry)
@@ -289,32 +289,36 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
     }
 
     private fun sendNotificate(service: NotificateService, it: EntryObject): Observable<ResponseBody>? {
-        return service
-                .notificate(LoginController.user?.phone ?: "",
-                        LoginController.user?.name ?: "",
-                        it.phone ?: "",
-                        it.name ?: "",
-                        it.workTypes?.fold("") { acc, workTypeObject ->
-                            "$acc${
-                            if (TextUtils.equals(workTypeObject.name, allPhotoTypes[4].title)) {
-                                if (workTypeObject.photos != null && workTypeObject.photos!!.isNotEmpty()) {
+        try {
+            return service
+                    .notificate(LoginController.user?.phone ?: "",
+                            LoginController.user?.name ?: "",
+                            it.phone ?: "",
+                            it.name ?: "",
+                            it.workTypes?.fold("") { acc, workTypeObject ->
+                                "$acc${
+                                if (TextUtils.equals(workTypeObject.name, allPhotoTypes[4].title)) {
+                                    if (workTypeObject.photos != null && workTypeObject.photos!!.isNotEmpty()) {
+                                        workTypeObject.name
+                                    } else {
+                                        ""
+                                    }
+                                } else {
                                     workTypeObject.name
+                                }
+                                }${if (it.workTypes?.indexOf(workTypeObject) != (it.workTypes?.size
+                                                ?: 0) - 1) {
+                                    "+"
                                 } else {
                                     ""
                                 }
-                            } else {
-                                workTypeObject.name
-                            }
-                            }${if (it.workTypes?.indexOf(workTypeObject) != (it.workTypes?.size
-                                            ?: 0) - 1) {
-                                "+"
-                            } else {
-                                ""
-                            }
-                            }"
-                        } ?: "")
-                .subscribeOn(Schedulers.computation())
-                .observeOn(Schedulers.io())
+                                }"
+                            } ?: "")
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(Schedulers.io())
+        } catch (e: java.lang.Exception) {
+            return null
+        }
     }
 
     private fun addFiles(entries: Array<EntryObject>?) {
