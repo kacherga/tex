@@ -1,5 +1,8 @@
 package com.example.literalnon.autoreequipment.utils
 
+import com.example.literalnon.autoreequipment.activeEntry.ActiveEntryFragment
+import com.example.literalnon.autoreequipment.fillData.FillDataFragment
+import com.example.literalnon.autoreequipment.fillData.FillDataItem
 import com.example.literalnon.autoreequipment.fillData.FullPhotoFragment
 import services.mobiledev.ru.cheap.navigation.IBaseItem
 import services.mobiledev.ru.cheap.ui.main.comments.*
@@ -51,7 +54,7 @@ enum class NavigationMainItems : IBaseItem {
 
         override fun getPreviousEnumObject() = ADD_ENTRY_SCREEN
 
-        override fun getFragment() = EnterNameFragment.newInstance()
+        override fun getFragment() = EnterNameFragment.newInstance(data as FillDataItem)
     },
     FILL_ENTRY_SCREEN {
         override var data: Any? = null
@@ -60,7 +63,7 @@ enum class NavigationMainItems : IBaseItem {
 
         override fun getPreviousEnumObject() = ENTER_NAME_SCREEN
 
-        override fun getFragment() = FillDataFragment.newInstance()
+        override fun getFragment() = FillDataFragment.newInstance(false, data as FillDataItem)
     },
     EDIT_ENTRY_SCREEN {
         override var data: Any? = null
@@ -69,7 +72,7 @@ enum class NavigationMainItems : IBaseItem {
 
         override fun getPreviousEnumObject() = LIST_ACTIVE_ENTRY_SCREEN
 
-        override fun getFragment() = FillDataFragment.newInstance(true)
+        override fun getFragment() = FillDataFragment.newInstance(true, data as FillDataItem)
     },
     FULL_PHOTO_SCREEN {
         override var data: Any? = null

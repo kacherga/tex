@@ -70,7 +70,7 @@ class AddPartnerFragment : Fragment(), IAddPartnerView {
 
     private val handler = Handler()
     private var runnable: Runnable = Runnable {  }
-    private val DELAYED = 1500L
+    private val DELAYED = 1000L
 
     override fun partnerAddSuccess() {
         alertDialog?.cancel()
@@ -111,6 +111,8 @@ class AddPartnerFragment : Fragment(), IAddPartnerView {
         realm?.executeTransaction({ bgRealm ->
 
         })
+
+        realm.close()
     }
 
     private var alertDialog: AlertDialog? = null

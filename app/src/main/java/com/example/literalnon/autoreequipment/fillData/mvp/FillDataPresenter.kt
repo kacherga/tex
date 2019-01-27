@@ -10,7 +10,8 @@ import services.mobiledev.ru.cheap.navigation.Navigator
  */
 interface IFillDataPresenter : IPresenter<IFillDataView, IFillDataModel> {
     fun next()
-    fun openPhoto(photo: Photo)
+    //fun openPhoto(photo: Photo)
+    fun openPhoto(photo: String)
 }
 
 class FillDataPresenter : IFillDataPresenter {
@@ -23,8 +24,13 @@ class FillDataPresenter : IFillDataPresenter {
         getNavigator()?.pushFragment(NavigationMainItems.ENTER_NAME_SCREEN)
     }
 
-    override fun openPhoto(photo: Photo) {
+    /*override fun openPhoto(photo: Photo) {
         NavigationMainItems.FULL_PHOTO_SCREEN.data = photo.photos?.first()
+        getNavigator()?.pushFragment(NavigationMainItems.FULL_PHOTO_SCREEN)
+    }*/
+
+    override fun openPhoto(photo: String) {
+        NavigationMainItems.FULL_PHOTO_SCREEN.data = photo
         getNavigator()?.pushFragment(NavigationMainItems.FULL_PHOTO_SCREEN)
     }
 

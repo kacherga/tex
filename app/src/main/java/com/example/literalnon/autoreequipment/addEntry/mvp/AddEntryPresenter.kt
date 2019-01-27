@@ -1,6 +1,7 @@
 package services.mobiledev.ru.cheap.ui.main.comments.mvp
 
 import com.example.bloold.hackage.mvp.IPresenter
+import com.example.literalnon.autoreequipment.fillData.FillDataItem
 import com.example.literalnon.autoreequipment.utils.NavigationMainItems
 import services.mobiledev.ru.cheap.navigation.Navigator
 
@@ -8,7 +9,7 @@ import services.mobiledev.ru.cheap.navigation.Navigator
  * Created by dmitry on 04.05.18.
  */
 interface IAddEntryPresenter : IPresenter<IAddEntryView, IAddEntryModel> {
-    fun next()
+    fun next(dataItem: FillDataItem)
 }
 
 class AddEntryPresenter : IAddEntryPresenter {
@@ -17,7 +18,8 @@ class AddEntryPresenter : IAddEntryPresenter {
 
     override var model: IAddEntryModel = AddEntryModel()
 
-    override fun next() {
+    override fun next(dataItem: FillDataItem) {
+        NavigationMainItems.ENTER_NAME_SCREEN.data = dataItem
         getNavigator()?.pushFragment(NavigationMainItems.ENTER_NAME_SCREEN)
     }
 

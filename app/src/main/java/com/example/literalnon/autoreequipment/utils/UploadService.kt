@@ -15,12 +15,10 @@ import android.text.TextUtils
 import android.widget.Toast
 import com.betcityru.dyadichko_da.betcityru.ui.createService
 import com.example.literalnon.autoreequipment.*
-import com.example.literalnon.autoreequipment.data.Entry
-import com.example.literalnon.autoreequipment.data.EntryObject
-import com.example.literalnon.autoreequipment.data.PhotoObject
-import com.example.literalnon.autoreequipment.data.WorkTypeObject
+import com.example.literalnon.autoreequipment.data.*
 import com.example.literalnon.autoreequipment.network.NotificateService
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -35,6 +33,7 @@ import services.mobiledev.ru.cheap.ui.main.comments.EnterNameFragment
 import java.io.File
 import java.lang.RuntimeException
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class UpdateService : Service()/*IntentService("intentServiceName")*/ {
@@ -52,7 +51,9 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
         const val IMAGE_COMPRESSED_NAME = "compressedImage"
         const val IMAGE_COMPRESSED_EXTENSION = ".jpg"
 
-        const val EXTRA_JSON = "json"
+        const val EXTRA_ENTRY_OBJECT = "json"
+        const val EXTRA_IS_RESTART = "is_restart"
+        //const val EXTRA_PHOTOS = "json"
         const val RUNNABLE_DELAY = 5000L
 
         var service: Service? = null
@@ -61,7 +62,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
             return service
         }
 
-        fun stop(){
+        fun stop() {
             //Log.e("updater", "stop 1")
             isDownloading = false
             service?.stopForeground(true)
@@ -98,13 +99,9 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
             }
     }
 
-    init {
-        //Log.e("updater", "init")
-    }
-
     override fun onCreate() {
         super.onCreate()
-        Log.d("updater", "onCreate")
+        //Log.d("updater", "onCreate")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val mIntent = Intent(this, UpdateService::class.java)
             //mIntent.action = intent?.action
@@ -124,22 +121,37 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
             //stopSelf()
             Log.d("updater", "intent?.getBooleanExtra(IS_FROM_SERVICE, false) == true")
         } else {
-
-            notificationSystemManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-            startForeground(UPLOADING_APK_NOTIFICATION_ID, createDownloadNotification())
-
-            service = this
-
-            link = intent?.action
-
-            Log.d("updater", "onStartCommand link: ${link} : ${isDownloading}")
-
             if (!isDownloading) {
+                notificationSystemManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+                startForeground(UPLOADING_APK_NOTIFICATION_ID, createDownloadNotification())
+
+                service = this
+
+                link = intent?.action
+
+                Log.d("updater", "onStartCommand link: ${link} : ${isDownloading}")
+
                 isDownloading = true
-                val list = Gson().fromJson(intent?.extras?.getString(EXTRA_JSON), Array<EntryObject>::class.java)
-                Log.e("UpdateService", "list : ${list.size} : ${list}")
-                uploadFiles(list, MainActivity.context)
+                val list = Gson().fromJson(intent?.extras?.getString(EXTRA_ENTRY_OBJECT), Array<EntryObject>::class.java)
+                val isRestart = intent?.extras?.getBoolean(EXTRA_IS_RESTART) ?: false
+                val realm = Realm.getDefaultInstance()
+                val realmList = ArrayList<EntryObject>()
+
+                list.forEach {
+                    val obj = realm?.where(Entry::class.java)?.`in`("name", arrayOf(it.name
+                            ?: ""))?.`in`("phone", arrayOf(it.phone
+                            ?: ""))?.findFirst()?.toObject()
+                    if (obj != null) {
+                        realmList.add(obj)
+                    }
+
+                }
+
+                realm.close()
+                //val currentPhotos = Gson().fromJson(intent?.extras?.getString(EXTRA_PHOTOS), object : TypeToken<ArrayList<Photo>>() {}.rawType) as ArrayList<Photo>?
+                //Log.e("UpdateService", "list : ${list.size} : ${list}")
+                uploadFiles(realmList, MainActivity.context, isRestart)
             }
         }
 
@@ -153,15 +165,17 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
     private fun createDownloadNotification(progress: Int? = null): Notification {
         ////Log.e("updater", "createDownloadNotification")
 
+        val id = UPLOADING_APK_CHANNEL_ID// + Calendar.getInstance().timeInMillis
+
         if (Build.VERSION.SDK_INT > 25) {
-            createNotificationChannel(this, UPLOADING_APK_CHANNEL_ID)
+            createNotificationChannel(this, id)
         }
 
         notificationBuilder = NotificationCompat.Builder(this)
                 //.setContentIntent(getPendingIntentForLoadUpdate(context, link))//Intent(context, NavigationDrawerActivity::class.java)
                 .setSmallIcon(R.drawable.ic_launcher)
                 //.setWhen(System.currentTimeMillis())
-                .setChannelId(UPLOADING_APK_CHANNEL_ID)
+                .setChannelId(id)
                 .setDefaults(0)
                 .setSound(null)
                 .setVibrate(null)
@@ -197,21 +211,24 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
         notificationSystemManager?.createNotificationChannel(mChannel)
     }
 
-    private fun uploadFiles(listEntry: Array<EntryObject>, context: Activity?) {
+    private fun uploadFiles(listEntry: ArrayList<EntryObject>, context: Activity?, isRestart: Boolean) {
         Log.e("updater", "uploadFiles 1")
         subscription.add(Observable.create<Unit> {
             Log.e("updater", "uploadFiles 1.1")
-            it.onNext(addFiles(listEntry))
+            it.onNext(addFiles(listEntry, isRestart))
             it.onComplete()
         }
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doAfterTerminate {
+                    stop()
+                }
                 .subscribe({
                     Log.e("updater", "uploadFiles 2")
                     notificateEntries(context, listEntry)
                     //stop()
                 }, {
-                    Log.e("updater", "uploadFiles 2.5")
+                    /*Log.e("updater", "uploadFiles 2.5")
                     //Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
                     tryRunnable = Runnable {
                         subscription.add(Observable.create<Unit> {
@@ -243,27 +260,29 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                                     tryHandler.postDelayed(tryRunnable2, RUNNABLE_DELAY)
                                 }))
                     }
-                    tryHandler.postDelayed(tryRunnable, RUNNABLE_DELAY)
+                    tryHandler.postDelayed(tryRunnable, RUNNABLE_DELAY)*/
+                    it.printStackTrace()
+                    Toast.makeText(context, getString(R.string.send_file_failed), Toast.LENGTH_SHORT).show()
                 }))
 
         Log.e("updater", "uploadFiles 5")
     }
 
-    private fun notificateEntries(context: Activity?, listEntry: Array<EntryObject>) {
+    private fun notificateEntries(context: Activity?, listEntry: ArrayList<EntryObject>) {
         val service = createService(NotificateService::class.java)
 
         listEntry.forEach { entryItem ->
             try {
                 sendNotificate(service, entryItem)
-                        ?.doAfterTerminate {
+                        /*?.doAfterTerminate {
                             stop()
-                        }
+                        }*/
                         ?.subscribe({
                             context?.runOnUiThread {
                                 Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show()
                             }
                         }, {
-                            tryRunnable = Runnable {
+                            /*tryRunnable = Runnable {
                                 try {
                                     sendNotificate(service, entryItem)
                                             ?.doAfterTerminate {
@@ -298,7 +317,10 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                                     e.printStackTrace()
                                 }
                             }
-                            tryHandler.postDelayed(tryRunnable, RUNNABLE_DELAY)
+                            tryHandler.postDelayed(tryRunnable, RUNNABLE_DELAY)*/
+                            context?.runOnUiThread {
+                                Toast.makeText(context, getString(R.string.send_file_notif_failed), Toast.LENGTH_SHORT).show()
+                            }
                         })
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -339,7 +361,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
         }
     }
 
-    private fun addFiles(entries: Array<EntryObject>?) {
+    private fun addFiles(entries: ArrayList<EntryObject>?, isRestart: Boolean) {
 
         Log.e("updater", "addFiles 1")
         //try {
@@ -373,7 +395,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
             var progress = 0
 
             entries?.forEach { entry ->
-                if (entry.sendedAt == null) {
+                if ((isRestart || entry.sendedAt == null) && isDownloading) {
                     entry.sendType = 0
 
                     val path = "$companyName/${entry.name?.lines()?.fold("") { acc, s ->
@@ -385,93 +407,97 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                     //ftpClient.makeDirectory(path)
                     ////Log.e("makeDirectory", "${path}")
                     entry.workTypes?.forEach {
-                        if (it.sendedAt == null) {
-                            //try {
-                            if (it.description?.isNotEmpty() == true) {
-                                //Log.e("makeDirectory", "it.description : ${entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt"}")
-                                ftpClient.makeDirectory(companyName)
-                                ftpClient.makeDirectory(path)
-                                ftpClient.makeDirectory(entryPath)
-                                ftpClient.appendFile(entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt", it.description?.byteInputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
-                            }
-                            /*} catch (e: Exception) {
+                        if (isDownloading) {
+                            if (isRestart || it.sendedAt == null) {
+                                //try {
+                                if (it.description?.isNotEmpty() == true) {
+                                    //Log.e("makeDirectory", "it.description : ${entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt"}")
+                                    ftpClient.makeDirectory(companyName)
+                                    ftpClient.makeDirectory(path)
+                                    ftpClient.makeDirectory(entryPath)
+                                    ftpClient.appendFile(entryPath + "/" + EXTRA_PHOTO_TITLE + ".txt", it.description?.byteInputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
+                                }
+                                /*} catch (e: Exception) {
                                 e.printStackTrace()
                             }*/
 
-                            //ftpClient.makeDirectory(workTypePath)
-                            //Log.e("makeDirectory", "${it.description} : ${it.name}")
+                                //ftpClient.makeDirectory(workTypePath)
+                                //Log.e("makeDirectory", "${it.description} : ${it.name}")
 
-                            it.photos?.forEachIndexed { index, it ->
-                                if (it.sendedAt == null) {
-                                    //ftpClient.makeDirectory(workTypePath + "/" + it.type)
-                                    ////Log.e("appendFile", "${workTypePath} ${it.photo}")// + "/" + it.type + "/" + it.name
-                                    if (it.photo != null) {
-                                        //try {
-                                        //ftpClient.makeDirectory((LoginController.user?.phone
-                                        //      ?: "Без имени"))
-                                        val photoForCompress = photos.find { photo -> photo.name == it.name }
-                                        val imageSize = photoForCompress?.imageMaxSize
-                                                ?: IMAGE_MAX_SIZE
-                                        val compressQuality = photoForCompress?.imageCompressQuality
-                                                ?: IMAGE_COMPRESS_QUALITY
-
-                                        val compressedFile = BitmapUtils.compressImage(
-                                                this,
-                                                File(it.photo),
-                                                imageSize,
-                                                IMAGE_COMPRESSED_NAME + Calendar.getInstance().timeInMillis + IMAGE_COMPRESSED_EXTENSION,
-                                                compressQuality)
-                                        if (compressedFile != null) {
-                                            ftpClient.makeDirectory(companyName)
-                                            ftpClient.makeDirectory(path)
-                                            ftpClient.makeDirectory(entryPath)
-                                            //ftpClient.makeDirectory(workTypePath)
+                                it.photos?.forEachIndexed { index, it ->
+                                    if (isDownloading) {
+                                        if (isRestart || it.sendedAt == null) {
                                             //ftpClient.makeDirectory(workTypePath + "/" + it.type)
-                                            ftpClient.appendFile(entryPath + "/" + "${it.type}_${it.name}_${index}" + IMAGE_COMPRESSED_EXTENSION, compressedFile?.inputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
-                                            it.sendedAt = Calendar.getInstance().timeInMillis
-                                            entry.sendType = 2
-                                            saveDate(entry)
-                                        }
-                                        /*} catch (e: Exception) {
+                                            ////Log.e("appendFile", "${workTypePath} ${it.photo}")// + "/" + it.type + "/" + it.name
+                                            if (it.photo != null) {
+                                                //try {
+                                                //ftpClient.makeDirectory((LoginController.user?.phone
+                                                //      ?: "Без имени"))
+                                                val photoForCompress = photos.find { photo -> TextUtils.equals(photo.name, it.name) }
+                                                val imageSize = photoForCompress?.imageMaxSize
+                                                        ?: IMAGE_MAX_SIZE
+                                                val compressQuality = photoForCompress?.imageCompressQuality
+                                                        ?: IMAGE_COMPRESS_QUALITY
+
+                                                val compressedFile = BitmapUtils.compressImage(
+                                                        this,
+                                                        File(it.photo),
+                                                        imageSize,
+                                                        IMAGE_COMPRESSED_NAME + Calendar.getInstance().timeInMillis + IMAGE_COMPRESSED_EXTENSION,
+                                                        compressQuality)
+                                                if (compressedFile != null) {
+                                                    ftpClient.makeDirectory(companyName)
+                                                    ftpClient.makeDirectory(path)
+                                                    ftpClient.makeDirectory(entryPath)
+                                                    //ftpClient.makeDirectory(workTypePath)
+                                                    //ftpClient.makeDirectory(workTypePath + "/" + it.type)
+                                                    ftpClient.appendFile(entryPath + "/" + "${it.type}_${it.name}_${index}" + IMAGE_COMPRESSED_EXTENSION, compressedFile?.inputStream())// "/" + it.type + "/" + (it.name ?: "photo") +
+                                                    it.sendedAt = Calendar.getInstance().timeInMillis
+                                                    entry.sendType = 2
+                                                    saveDate(entry)
+                                                }
+                                                /*} catch (e: Exception) {
                                             e.printStackTrace()
                                         }*/
+                                            }
+
+                                            progress += 1
+
+                                            notificationBuilder = NotificationCompat.Builder(this)
+                                                    //.setContentIntent(getPendingIntentForLoadUpdate(context, link))//Intent(context, NavigationDrawerActivity::class.java)
+                                                    .setSmallIcon(R.drawable.ic_launcher)
+                                                    //.setWhen(System.currentTimeMillis())
+                                                    .setChannelId(UPLOADING_APK_CHANNEL_ID)
+                                                    .setDefaults(0)
+                                                    .setSound(null)
+                                                    .setVibrate(null)
+                                                    .setContentTitle(getString(R.string.send_photos))
+                                                    .setProgress(100, progress * 100 / maxProgress, progress == null)
+                                            //.build()
+                                            val notification = notificationBuilder?.build()!!
+
+                                            notification.flags = notification.flags or Notification.FLAG_AUTO_CANCEL
+
+                                            Log.e("updater", "addFiles 3")
+                                            notificationSystemManager?.notify(UPLOADING_APK_NOTIFICATION_ID, notification)
+                                        }
+                                        Log.e("updater", "addFiles 4")
                                     }
 
-                                    progress += 1
+                                    Log.e("updater", "addFiles 5")
 
-                                    notificationBuilder = NotificationCompat.Builder(this)
-                                            //.setContentIntent(getPendingIntentForLoadUpdate(context, link))//Intent(context, NavigationDrawerActivity::class.java)
-                                            .setSmallIcon(R.drawable.ic_launcher)
-                                            //.setWhen(System.currentTimeMillis())
-                                            .setChannelId(UPLOADING_APK_CHANNEL_ID)
-                                            .setDefaults(0)
-                                            .setSound(null)
-                                            .setVibrate(null)
-                                            .setContentTitle(getString(R.string.send_photos))
-                                            .setProgress(100, progress * 100 / maxProgress, progress == null)
-                                    //.build()
-                                    val notification = notificationBuilder?.build()!!
-
-                                    notification.flags = notification.flags or Notification.FLAG_AUTO_CANCEL
-
-                                    Log.e("updater", "addFiles 3")
-                                    notificationSystemManager?.notify(UPLOADING_APK_NOTIFICATION_ID, notification)
+                                    it.sendedAt = Calendar.getInstance().timeInMillis
                                 }
-                                Log.e("updater", "addFiles 4")
                             }
 
-                            Log.e("updater", "addFiles 5")
-
-                            it.sendedAt = Calendar.getInstance().timeInMillis
+                            Log.e("updater", "addFiles 6")
                         }
 
-                        Log.e("updater", "addFiles 6")
+                        Log.e("updater", "addFiles 7")
+
+                        entry.sendedAt = Calendar.getInstance().timeInMillis
+                        entry.sendType = 1
                     }
-
-                    Log.e("updater", "addFiles 7")
-
-                    entry.sendedAt = Calendar.getInstance().timeInMillis
-                    entry.sendType = 1
                 }
 
                 Log.e("updater", "addFiles 8")
@@ -480,7 +506,9 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
             ftpClient.logout()
             ftpClient.disconnect()
 
-            sendData(entries)
+            if (isDownloading) {
+                sendData(entries)
+            }
         } else {
             throw RuntimeException("не удалось отправить данные 1111")
         }
@@ -493,7 +521,12 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
         val realm = Realm.getDefaultInstance()
         realm.beginTransaction()
 
-        val elem = realm?.where(Entry::class.java)?.`in`("name", arrayOf(entry.name))?.findFirst()
+        val elem = realm
+                ?.where(Entry::class.java)
+                ?.`in`("name", arrayOf(entry.name))
+                ?.`in`("phone", arrayOf(entry.phone))
+                ?.findFirst()
+
         elem?.sendedAt = entry.sendedAt
         elem?.sendType = entry.sendType
 
@@ -506,12 +539,17 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
         realm.close()
     }
 
-    private fun sendData(entries: Array<EntryObject>?) {
+    private fun sendData(entries: ArrayList<EntryObject>?) {
         val realm = Realm.getDefaultInstance()
         realm.beginTransaction()
 
         entries?.forEach {
-            val elem = realm?.where(Entry::class.java)?.`in`("name", arrayOf(it.name))?.findFirst()
+            val elem = realm
+                    ?.where(Entry::class.java)
+                    ?.`in`("name", arrayOf(it.name))
+                    ?.`in`("phone", arrayOf(it.phone))
+                    ?.findFirst()
+
             elem?.sendedAt = it.sendedAt
             elem?.sendType = it.sendType
         }
@@ -524,7 +562,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
 
         realm.close()
     }
-
+/*
     fun showInstallNotification(context: Context, intent: PendingIntent) {
 
         //Log.e("updater", "STart NOTIFY!!!")
@@ -545,7 +583,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
         notification.flags = notification.flags or Notification.FLAG_AUTO_CANCEL
 
         notificationSystemManager!!.notify(UPLOADING_APK_NOTIFICATION_ID, notification)
-    }
+    }*/
 
 
 }

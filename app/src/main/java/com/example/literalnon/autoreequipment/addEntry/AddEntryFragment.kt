@@ -27,6 +27,7 @@ import com.example.literalnon.autoreequipment.EntryType
 import com.example.literalnon.autoreequipment.R
 import com.example.literalnon.autoreequipment.allEntryType
 import com.example.literalnon.autoreequipment.data.Extras
+import com.example.literalnon.autoreequipment.fillData.FillDataItem
 import kotlinx.android.synthetic.main.fragment_add_entry.*
 import services.mobiledev.ru.cheap.data.LoginController
 import services.mobiledev.ru.cheap.navigation.INavigationParent
@@ -41,11 +42,14 @@ class AddEntryFragment : Fragment(), IAddEntryView {
     companion object {
         fun newInstance() = AddEntryFragment()
 
-        var choiceTypes = arrayListOf<EntryType>()
-        var extras: Extras? = null
+        //var choiceTypes = arrayListOf<EntryType>()
+        //var extras: Extras? = null
     }
 
     override var presenter: IAddEntryPresenter = AddEntryPresenter()
+
+    private val choiceTypes = arrayListOf<EntryType>()
+    //var extras: Extras? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
@@ -56,7 +60,7 @@ class AddEntryFragment : Fragment(), IAddEntryView {
 
         presenter.attachView(this)
 
-        choiceTypes.clear()
+        //choiceTypes.clear()
 
         val checkBoxMap = hashMapOf<CheckBox, EntryType>(
                 Pair(chbInstallGbo, allEntryType[1]),
@@ -81,7 +85,7 @@ class AddEntryFragment : Fragment(), IAddEntryView {
 
         btnNext.setOnClickListener {
             if (choiceTypes.isNotEmpty()) {
-                presenter.next()
+                presenter.next(FillDataItem("", "", choiceTypes, null))
             }
         }
     }

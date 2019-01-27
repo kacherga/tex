@@ -35,7 +35,8 @@ class TaskPhotoDelegate(private val callback: (String) -> Unit): AbstractAdapter
                 //.apply(RequestOptions.circleCropTransform())
                 .into(holder.ivPhoto)
 
-        holder.ivClose.setOnClickListener { callback(item) }
+        holder.ivClose.visibility = View.GONE
+        holder.itemView?.setOnClickListener { callback(item) }
     }
 
     class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {

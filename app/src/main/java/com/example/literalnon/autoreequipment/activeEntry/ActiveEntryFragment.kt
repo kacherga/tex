@@ -1,62 +1,36 @@
-package services.mobiledev.ru.cheap.ui.main.comments
+package com.example.literalnon.autoreequipment.activeEntry
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Context
 import android.os.Bundle
-import android.support.design.widget.AppBarLayout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import android.text.style.UnderlineSpan
 import android.content.Intent
-import android.content.res.Resources
-import android.graphics.Color
-import android.net.Uri
-import android.os.Handler
-import android.speech.RecognizerIntent
 import android.support.v4.app.Fragment
-import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.text.*
-import android.text.method.LinkMovementMethod
-import android.text.style.ClickableSpan
-import android.text.style.ForegroundColorSpan
 import android.util.Log
-import com.betcityru.dyadichko_da.betcityru.ui.createService
 import com.example.literalnon.autoreequipment.*
-import com.example.literalnon.autoreequipment.activeEntry.*
 import com.example.literalnon.autoreequipment.adapters.DelegationAdapter
 import com.example.literalnon.autoreequipment.data.*
-import com.example.literalnon.autoreequipment.fillData.MainEntryTypeDelegate
-import com.example.literalnon.autoreequipment.network.NotificateService
 import com.example.literalnon.autoreequipment.utils.UpdateService
-import com.example.literalnon.autoreequipment.utils.UpdateService.Companion.EXTRA_JSON
-import com.example.literalnon.autoreequipment.utils.UpdateService.Companion.UPLOADING_APK_CHANNEL_ID
-import com.example.literalnon.autoreequipment.utils.UpdateService.Companion.isDownloading
+import com.example.literalnon.autoreequipment.utils.UpdateService.Companion.EXTRA_ENTRY_OBJECT
+import com.example.literalnon.autoreequipment.utils.UpdateService.Companion.EXTRA_IS_RESTART
 import com.google.gson.Gson
-import io.reactivex.Observable
-import io.reactivex.Scheduler
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
+import io.realm.RealmChangeListener
+import io.realm.RealmList
 import io.realm.RealmResults
 import kotlinx.android.synthetic.main.fragment_active_entry.*
-import kotlinx.android.synthetic.main.item_active_entry.*
-import org.apache.commons.net.ftp.FTP
-import org.apache.commons.net.ftp.FTPClient
 import services.mobiledev.ru.cheap.data.LoginController
 import services.mobiledev.ru.cheap.navigation.INavigationParent
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.ActiveEntryPresenter
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.IActiveEntryPresenter
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.IActiveEntryView
-import java.io.File
-import java.io.FileInputStream
-import java.lang.RuntimeException
-import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -88,6 +62,16 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
         }
     }
 
+    private val callback = RealmChangeListener<RealmResults<Entry>> {
+        adapter.replaceAll(it.filter {
+            if (!isActive) {
+                it.sendType == 1
+            } else {
+                true
+            } && (it.sendedAt == null) == isActive
+        }.map { it.toObject() })
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.fragment_active_entry, container, false)
@@ -97,11 +81,14 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
 
         presenter.attachView(this)
 
+        realm = Realm.getDefaultInstance()
+
         adapter.manager?.addDelegate(ActiveEntryDelegate(checkedEntries, { entry, position ->
 
             realm?.beginTransaction()
 
             realm?.where(Entry::class.java)?.`in`("name", arrayOf(entry.name
+                    ?: ""))?.`in`("phone", arrayOf(entry.phone
                     ?: ""))?.findAll()?.deleteAllFromRealm()
 
             realm?.commitTransaction()
@@ -112,17 +99,18 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
 
             adapter.remove(position)
         }, { entry ->
-            EnterNameFragment.name = entry.name ?: ""
-            EnterNameFragment.phone = entry.phone ?: ""
+            /*val name = entry.name ?: ""
+            val phone = entry.phone ?: ""
+            var sendExtras: Extras? = null
 
-            AddEntryFragment.choiceTypes = ArrayList<EntryType>().apply {
+            val choiceTypes = ArrayList<EntryType>().apply {
                 addAll(allEntryType.filter {
                     entry.workTypes?.find { workType -> TextUtils.equals(workType.name, it.title) } != null
                 })
 
-                photos.forEach {
+                *//*photos.forEach {
                     it.photos = ArrayList()
-                }
+                }*//*
 
                 entry.workTypes?.forEach {
                     Log.e("workTypes", it?.photos?.count()?.toString())
@@ -131,21 +119,25 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                         Log.e("workTypes", "id : ${it.id}")
 
                         //}
-                        if (photos[it.id!!].photos?.contains(it.photo) == false) {
+                        *//*if (photos[it.id!!].photos?.contains(it.photo) == false) {
                             photos[it.id!!].photos?.add(it.photo ?: "")
-                        }
+                        }*//*
                     }
                 }
 
                 val extras = entry.workTypes?.find { TextUtils.equals(it.name, EXTRA_PHOTO_TITLE) }
-                if (extras != null) {
-                    AddEntryFragment.extras = Extras(
+                sendExtras = if (extras != null) {
+                    Extras(
                             extras.description ?: "",
                             extras.photos?.map { it.photo ?: "" }
                     )
+                } else {
+                    null
                 }
-            }
-            presenter.openEdit()
+            }*/
+
+            //нужно добавить фотографии для передачи
+            presenter.openEdit(entry)
         }))
 
         rvActiveEntry.layoutManager = LinearLayoutManager(context)
@@ -153,36 +145,28 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
 
         rvActiveEntry.adapter = adapter
 
-        realm = Realm.getDefaultInstance()
         //realm?.beginTransaction()
 
-        var entries = realm?.where(Entry::class.java)?.findAll()?.filter {
-            if (!isActive) {
-                it.sendType == 1
-            } else {
-                true
-            } &&
-            (it.sendedAt == null) == isActive
-        }
+        //val entries =
+        realm?.where(Entry::class.java)?.findAllAsync()?.addChangeListener(callback)
 
-       /* var client: Client? = Client(entries?.first()?.name)
-        val newEntries = ArrayList<Any>()
-        newEntries.add(client!!)
 
-        entries?.forEach {
-            if (client?.name == it.name) {
-                client?.entries?.add(it)
-            } else {
-                client = Client(it.name)
-                client?.entries = arrayListOf()
-                client?.entries?.add(it)
-                newEntries.add(client!!)
-            }
+        /* var client: Client? = Client(entries?.first()?.name)
+         val newEntries = ArrayList<Any>()
+         newEntries.add(client!!)
 
-            newEntries.add(it)
-        }*/
+         entries?.forEach {
+             if (client?.name == it.name) {
+                 client?.entries?.add(it)
+             } else {
+                 client = Client(it.name)
+                 client?.entries = arrayListOf()
+                 client?.entries?.add(it)
+                 newEntries.add(client!!)
+             }
 
-        adapter.addAll(entries)
+             newEntries.add(it)
+         }*/
 
         //val listEntry = ArrayList<EntryObject>()
 
@@ -215,6 +199,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                                                     it.photos?.map {
                                                         //Log.e("makeDirectory", it.name.toString())
                                                         PhotoObject(
+                                                                it.photoId,
                                                                 it.name,
                                                                 it.photo,
                                                                 it.type,
@@ -235,7 +220,11 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                     //showLoading()
 
                     context?.startService(getServiceIntent(context!!, Bundle().apply {
-                        putString(EXTRA_JSON, Gson().toJson(listEntry))
+                        putString(EXTRA_ENTRY_OBJECT, Gson().toJson(listEntry.map {
+                            EntryObject(it.name, it.phone)
+                        }))
+                        putBoolean(EXTRA_IS_RESTART, !isActive)
+                        //putString(EXTRA_PHOTOS, Gson().toJson())
                     }))
 
                 } else if (checkedEntries.size == 0) {
@@ -254,7 +243,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                             UpdateService.stop()
                             dialog.cancel()
                         }
-                        .setNegativeButton("НЕТ") {dialog, k ->
+                        .setNegativeButton("НЕТ") { dialog, k ->
                             dialog.cancel()
                         }
                         .show()

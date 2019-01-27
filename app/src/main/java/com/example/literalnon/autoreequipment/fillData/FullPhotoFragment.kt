@@ -31,7 +31,6 @@ import io.realm.RealmList
 import kotlinx.android.synthetic.main.fragment_fill_data.*
 import kotlinx.android.synthetic.main.fragment_full_photo.*
 import services.mobiledev.ru.cheap.navigation.INavigationParent
-import services.mobiledev.ru.cheap.ui.main.comments.AddEntryFragment.Companion.choiceTypes
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.FillDataPresenter
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.IFillDataPresenter
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.IFillDataView

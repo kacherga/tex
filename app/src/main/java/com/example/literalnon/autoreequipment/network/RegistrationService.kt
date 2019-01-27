@@ -8,5 +8,6 @@ import retrofit2.http.Query
 interface RegistrationService {
 
     @GET("app/partners.txt")
+    //@GET("app/_prtn.css")
     fun registration(): Observable<String>
 }

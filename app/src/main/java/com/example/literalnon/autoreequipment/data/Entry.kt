@@ -13,6 +13,16 @@ open class Entry : RealmObject() {
     var sendedAt: Long? = null
 }
 
+fun Entry.toObject(): EntryObject {
+    return EntryObject(
+            name,
+            phone,
+            workTypes?.map { it.toObject() },
+            sendType,
+            sendedAt
+    )
+}
+
 open class WorkType : RealmObject() {
     var name: String? = null
     var photos: RealmList<RealmPhoto>? = null
@@ -20,34 +30,54 @@ open class WorkType : RealmObject() {
     var sendedAt: Long? = null
 }
 
+fun WorkType.toObject(): WorkTypeObject {
+    return WorkTypeObject(
+            name,
+            photos?.map { it.toObject() },
+            description,
+            sendedAt
+    )
+}
+
 open class RealmPhoto : RealmObject() {
-    var id: Int? = null
+    var photoId: Int? = null
     var name: String? = null
     var photo: String? = null
     var type: String? = null
     var sendedAt: Long? = null
 }
 
+fun RealmPhoto.toObject(): PhotoObject {
+    return PhotoObject(
+            photoId,
+            name,
+            photo,
+            type,
+            sendedAt
+    )
+}
+
 open class EntryObject(
-    var name: String? = null,
-    var phone: String? = null,
-    var workTypes: List<WorkTypeObject>? = null,
-    var sendType: Int = 0,// 0 - не отправлено, 1 - отправлено, 2 отправлено частично
-    var sendedAt: Long? = null
+        var name: String? = null,
+        var phone: String? = null,
+        var workTypes: List<WorkTypeObject>? = null,
+        var sendType: Int = 0,// 0 - не отправлено, 1 - отправлено, 2 отправлено частично
+        var sendedAt: Long? = null
 )
 
 open class WorkTypeObject(
-    var name: String? = null,
-    var photos: List<PhotoObject>? = null,
-    var description: String? = null,
-    var sendedAt: Long? = null
+        var name: String? = null,
+        var photos: List<PhotoObject>? = null,
+        var description: String? = null,
+        var sendedAt: Long? = null
 )
 
 open class PhotoObject(
-    var name: String? = null,
-    var photo: String? = null,
-    var type: String? = null,
-    var sendedAt: Long? = null
+        var photoId: Int? = null,
+        var name: String? = null,
+        var photo: String? = null,
+        var type: String? = null,
+        var sendedAt: Long? = null
 )
 
 data class Extras(

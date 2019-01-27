@@ -17,9 +17,7 @@ import com.example.literalnon.autoreequipment.Photo
 import com.example.literalnon.autoreequipment.R
 import com.example.literalnon.autoreequipment.adapters.AbstractAdapterDelegate
 import com.example.literalnon.autoreequipment.allPhotoTypes
-import com.example.literalnon.autoreequipment.data.Entry
-import com.example.literalnon.autoreequipment.data.RealmPhoto
-import com.example.literalnon.autoreequipment.data.WorkType
+import com.example.literalnon.autoreequipment.data.*
 import io.realm.RealmList
 import kotlinx.android.synthetic.main.item_active_entry.view.*
 import java.io.File
@@ -32,10 +30,10 @@ import kotlin.collections.ArrayList
 /**
  * Created by bloold on 16.12.17.
  */
-typealias CheckCallback = HashMap<Int, Entry>
+typealias CheckCallback = HashMap<Int, EntryObject>
 
-typealias EditCallback = (Entry) -> Unit
-typealias RemoveCallback = (Entry, Int) -> Unit
+typealias EditCallback = (EntryObject) -> Unit
+typealias RemoveCallback = (EntryObject, Int) -> Unit
 
 class ActiveEntryDelegate(private val checkCallback: CheckCallback,
                           private val removeCallback: RemoveCallback,
@@ -43,7 +41,7 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
 ) : AbstractAdapterDelegate<Any, Any, ActiveEntryDelegate.Holder>() {
 
     override fun isForViewType(item: Any, items: MutableList<Any>, position: Int): Boolean {
-        return item is Entry
+        return item is EntryObject
     }
 
     override fun onCreateViewHolder(parent: ViewGroup): Holder {
@@ -54,12 +52,12 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
     }
 
     override fun onBindViewHolder(holder: Holder, item: Any) {
-        item as Entry
+        item as EntryObject
 
         with(holder) {
             val context = tvTitle.context
 
-            tvTitle.text = item.name + " " +item.phone + item.workTypes?.fold("\n") { s: String, type: WorkType ->
+            tvTitle.text = item.name + " " +item.phone + item.workTypes?.fold("\n") { s: String, type: WorkTypeObject ->
                 "$s${if (!TextUtils.equals(type.name, EXTRA_PHOTO_TITLE)) {
                     type.name + "\n"
                 } else {
@@ -75,14 +73,14 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
                             .setTitle(context.getString(R.string.no_send_title))
                             .setMessage(context.getString(R.string.no_resend))
                             .setPositiveButton("Да") { dialog, which ->
-                                val entry = Entry()
+                                /*val entry = EntryObject()
                                 entry.phone = item.phone
                                 entry.name = item.name
                                 entry.sendedAt = null
                                 entry.sendType = 0
-                                entry.workTypes = RealmList()
+                                entry.workTypes = ArrayList()
                                 item.workTypes?.forEach {
-                                    val workType = WorkType()
+                                    val workType = WorkTypeObject()
                                     workType.description = it.description
                                     workType.name = it.name
                                     workType.sendedAt = null
@@ -90,15 +88,15 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
                                     it.photos?.forEach {
                                         val photo = RealmPhoto()
                                         photo.sendedAt = null
-                                        photo.id = it.id
+                                        photo.photoId = it.photoId
                                         photo.name = it.name
                                         photo.photo = it.photo
                                         photo.type = it.type
                                         workType.photos?.add(photo)
                                     }
                                     entry.workTypes?.add(workType)
-                                }
-                                setChecked(holder, entry, holder.adapterPosition)
+                                }*/
+                                setChecked(holder, item, holder.adapterPosition)
                                 dialog.dismiss()
                             }
                             .setNegativeButton("Нет") { dialog, which ->
@@ -140,7 +138,7 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
         }
     }
 
-    private fun setChecked(holder: Holder, item: Entry, position: Int, isContains: Boolean = false) {
+    private fun setChecked(holder: Holder, item: EntryObject, position: Int, isContains: Boolean = false) {
         if (checkCallback.containsKey(position) == isContains) {
             checkCallback[position] = item
             holder.ivCheck.visibility = View.VISIBLE

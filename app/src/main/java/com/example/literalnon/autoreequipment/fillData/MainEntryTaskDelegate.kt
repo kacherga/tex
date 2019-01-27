@@ -26,9 +26,11 @@ import javax.security.auth.callback.Callback
 typealias AddPhotoCallback = (Photo, Int) -> Unit
 
 typealias OpenPhotoCallback = (Photo) -> Unit
+typealias OpenStringPhotoCallback = (String) -> Unit
 
 class MainEntryTaskDelegate(private val callback: AddPhotoCallback,
-                            private val openPhotoCallback: OpenPhotoCallback) : AbstractAdapterDelegate<Any, Any, MainEntryTaskDelegate.Holder>() {
+                            private val openPhotoCallback: OpenPhotoCallback,
+                            private val openStringPhotoCallback: OpenStringPhotoCallback) : AbstractAdapterDelegate<Any, Any, MainEntryTaskDelegate.Holder>() {
 
     override fun isForViewType(item: Any, items: MutableList<Any>, position: Int): Boolean {
         return item is Photo
@@ -72,12 +74,21 @@ class MainEntryTaskDelegate(private val callback: AddPhotoCallback,
                 val adapter = DelegationAdapter<Any>()
                 rvExtraPhotos.adapter = adapter
                 rvExtraPhotos.layoutManager = LinearLayoutManager(rvExtraPhotos.context, HORIZONTAL, false)
-                adapter.manager.addDelegate(TaskPhotoDelegate({
-                    adapter.remove(adapter.items.indexOf(it))
-                    item.photos?.remove(item.photos?.find {path ->
-                        TextUtils.equals(path, it)
-                    })
-                }))
+                adapter.manager.addDelegate(TaskPhotoDelegate {
+                    android.support.v7.app.AlertDialog.Builder(rvExtraPhotos?.context!!)
+                            .setTitle("Фото")
+                            .setItems(arrayOf("Открыть", "Удалить")) { _, i ->
+                                if (i == 0) {
+                                    openStringPhotoCallback(it)
+                                } else {
+                                    adapter.remove(adapter.items.indexOf(it))
+                                    item.photos?.remove(item.photos?.find {path ->
+                                        TextUtils.equals(path, it)
+                                    })
+                                }
+                            }
+                            .show()
+                })
 
                 if ((item.photos?.size ?: 0) > 1) {
                     val items = item.photos?.subList(1, item.photos?.size ?: 1) ?: ArrayList()

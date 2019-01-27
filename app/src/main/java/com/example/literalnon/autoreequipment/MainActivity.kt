@@ -53,13 +53,13 @@ class MainActivity : AppCompatActivity(), INavigationParent {
 
         navigator = Navigator.Builder()
                 .firstFragment(NavigationMainItems.ADD_ENTRY_SCREEN)
-                .strategy(ReplaceStrategy(supportFragmentManager, R.id.container))
+                .strategy(AddBackStackStrategy(supportFragmentManager, R.id.container))
                 .build()
 
-        getData()
+        //getData()
 
-        //navigator?.openFirstFragment()
-
+        navigator?.openFirstFragment()
+        progressBar.visibility = View.GONE
         /*ivActiveEntries.setOnClickListener {
             navigator?.pushFragment(NavigationMainItems.LIST_ACTIVE_ENTRY_SCREEN)
         }
@@ -100,6 +100,7 @@ class MainActivity : AppCompatActivity(), INavigationParent {
     }
 
     private fun getData() {
+
         val service = createService(DataService::class.java)
 
         progressBar.visibility = View.VISIBLE
@@ -117,7 +118,7 @@ class MainActivity : AppCompatActivity(), INavigationParent {
                     service.getPhotos()
                 }.subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({list ->
+                .subscribe({ list ->
 
                     photos = ArrayList<Photo>().apply {
                         addAll(list)
@@ -132,12 +133,12 @@ class MainActivity : AppCompatActivity(), INavigationParent {
                     it.printStackTrace()
                 })
 
-        navigator?.openFirstFragment()
         progressBar.visibility = View.GONE
+        navigator?.openFirstFragment()
+
     }
 
     override fun onBackPressed() {
-
         if (navigator?.backNavigation() != true) {
             super.onBackPressed()
         }

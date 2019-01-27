@@ -64,7 +64,7 @@ class AddBackStackStrategy(override val fragmentManager: FragmentManager, overri
 
             enumObject.putAnimation(fragmentManager)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    .add(containerId, fragment, enumObject.getTag())
+                    .replace(containerId, fragment, enumObject.getTag())
                     .addToBackStack(enumObject.getTag())
                     .commit()
         //}
@@ -99,9 +99,9 @@ class AddBackStackStrategy(override val fragmentManager: FragmentManager, overri
                     clear()
                 }
 
-                while (!tags.empty() && tags.peek()?.getTag() != currentEnumObject?.getPreviousEnumObject()?.getTag()) {
+                //while (!tags.empty() && tags.peek()?.getTag() != currentEnumObject?.getPreviousEnumObject()?.getTag()) {
                     popFragment()
-                }
+                //}
 
                 if (!tags.empty())
                     updateUi(tags.peek())
