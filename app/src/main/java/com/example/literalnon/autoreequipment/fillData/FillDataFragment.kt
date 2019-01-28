@@ -195,12 +195,21 @@ class FillDataFragment : Fragment(), IFillDataView,
             val realm = Realm.getDefaultInstance()
             realm.beginTransaction()
 
+            Log.e("TAG", "${Gson().toJson(realm
+                    ?.where(Entry::class.java)
+                    ?.`in`("name", arrayOf(name))
+                    ?.`in`("phone", arrayOf(phone))
+                    ?.findAll()
+                    ?.count())}")
+
             entry = realm
                     ?.where(Entry::class.java)
                     ?.`in`("name", arrayOf(name))
                     ?.`in`("phone", arrayOf(phone))
                     ?.findFirst()
                     ?.toObject()
+
+            Log.e("TAG", "${Gson().toJson(entry)}")
 
             realm.commitTransaction()
 
@@ -211,20 +220,20 @@ class FillDataFragment : Fragment(), IFillDataView,
             realm.close()
 
             if (entry != null) {
-                entry?.workTypes?.forEach {
-                    if (TextUtils.equals(it.name, EXTRA_PHOTO_TITLE)) {
-                        extraPhotos.addAll(it.photos?.map { File(it.photo) } ?: arrayListOf())
+                entry?.photos?.forEach {
+                    if (it.photoId == EXTRA_PHOTO_ID) {
+                        extraPhotos.add(File(it.photo))
                     } else {
-                        it.photos?.forEach {
-                            if (it.photo != null) {
-                                if (currentPhotos[it.photoId ?: 0].photos == null) {
-                                    currentPhotos[it.photoId ?: 0].photos = arrayListOf()
-                                }
-                                currentPhotos[it.photoId ?: 0].photos?.add(it.photo!!)
-
+                        if (it.photo != null) {
+                            if (currentPhotos[it.photoId ?: 0].photos == null) {
+                                currentPhotos[it.photoId ?: 0].photos = arrayListOf()
                             }
+                            currentPhotos[it.photoId ?: 0].photos?.add(it.photo!!)
                         }
                     }
+                }
+
+                entry?.workTypes?.forEach {
                     if (!TextUtils.equals(it.name, EXTRA_PHOTO_TITLE)) {
                         val findEntryType = allEntryType.find { entryType -> TextUtils.equals(it.name, entryType.title) }
                         if (findEntryType != null) {
@@ -291,6 +300,7 @@ class FillDataFragment : Fragment(), IFillDataView,
                             if ((currentPhotos[it.id].photos?.count() ?: 0) > 0) {
                                 currentPhotos[it.id].photos?.removeAt(0)
                                 mainEntryTypeAdapter.notifyDataSetChanged()
+                                sendData()
                             }
                         }
                     }
@@ -469,7 +479,7 @@ class FillDataFragment : Fragment(), IFillDataView,
     override fun onDestroyView() {
         Log.e("tag", "onDestroyView")
         if (isNotSave) {
-            sendData()
+            //sendData()
         }
 
         super.onDestroyView()
@@ -506,12 +516,26 @@ class FillDataFragment : Fragment(), IFillDataView,
         currentEntry.name = name
         currentEntry.phone = phone
 
+        currentPhotos.forEach {
+            it.photos?.forEach { _photo ->
+                val realmPhoto = realm.createObject(RealmPhoto::class.java)
+
+                realmPhoto.name = currentPhotos[it.id].name
+                realmPhoto.photo = _photo
+                realmPhoto.type = currentPhotos[it.id].type.title
+                realmPhoto.photoId = it.id
+
+                currentEntry.photos!!.add(realmPhoto)
+            }
+        }
+
         choiceTypes.forEach { entryType ->
             val workType = realm.createObject(WorkType::class.java)
 
             workType.name = entryType.title
-
-            entryType.photosId.forEach {
+            workType.photosId!!.clear()
+            workType.photosId!!.addAll(entryType.photosId)
+            /*entryType.photosId.forEach {
                 currentPhotos[it].photos?.forEach { _photo ->
                     val realmPhoto = realm.createObject(RealmPhoto::class.java)
 
@@ -520,14 +544,14 @@ class FillDataFragment : Fragment(), IFillDataView,
                     realmPhoto.type = currentPhotos[it].type.title
                     realmPhoto.photoId = it
 
-                    workType.photos?.add(realm.copyToRealm(realmPhoto))
+                    workType.photos!!.add(realmPhoto)
                 }
-            }
+            }*/
 
             //val curWorkType = currentEntry.workTypes?.find { TextUtils.equals(workType.name, it.name) }
 
             //if (curWorkType == null) {
-            currentEntry.workTypes?.add(workType)
+            currentEntry.workTypes!!.add(workType)
             /*} else {
                 workType.photos?.forEach {
                     curWorkType.photos?.add(it)
@@ -544,6 +568,7 @@ class FillDataFragment : Fragment(), IFillDataView,
         extraMap[getString(R.string.fragment_fill_data_extra_title)] = etDescriptionTask.text?.toString() ?: ""
 
         workType.description = Gson().toJson(extraMap)
+        workType.photosId!!.add(EXTRA_PHOTO_ID)
 
         extraPhotos.forEachIndexed { index, it ->
             val mPhoto = realm.createObject(RealmPhoto::class.java)
@@ -551,15 +576,15 @@ class FillDataFragment : Fragment(), IFillDataView,
             mPhoto.name = "${EXTRA_PHOTO_TITLE}_$index"
             mPhoto.photo = it.path
             mPhoto.type = ""
-            mPhoto.photoId = currentPhotos.count() + 10
+            mPhoto.photoId = EXTRA_PHOTO_ID
 
-            workType.photos?.add(realm.copyToRealm(mPhoto))
+            currentEntry.photos!!.add(mPhoto)
         }
 
         //val curWorkType = currentEntry.workTypes?.find { workType.name == it.name }
 
         //if (curWorkType == null) {
-        currentEntry.workTypes?.add(workType)
+        currentEntry.workTypes!!.add(workType)
         /*} else {
             */
         /**  удаление елементов из предыдущего примечания **//*
@@ -573,11 +598,14 @@ class FillDataFragment : Fragment(), IFillDataView,
             curWorkType.description = workType.description
         }*/
 
+        Log.e("TAG", "2: ${Gson().toJson(currentEntry.toObject())}")
+
         realm.commitTransaction()
 
         realm.executeTransaction({ bgRealm ->
 
         })
+
 
         realm.close()
 

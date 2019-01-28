@@ -40,6 +40,7 @@ data class PhotoType(
 )
 
 const val EXTRA_PHOTO_TITLE = "Доп"
+const val EXTRA_PHOTO_ID = -1
 
 var allPhotoTypes = arrayListOf<PhotoType>(
         PhotoType(
@@ -89,7 +90,7 @@ class Photo(
         val type: PhotoType,
         var photoCount: Int? = 1,
         var workType: ArrayList<EntryType>? = null,
-        var photos: ArrayList<String>? = null,
+        var photos: ArrayList<String>? = arrayListOf(),
         var imageMaxSize: Int? = null,
         var imageCompressQuality: Int? = null
 )

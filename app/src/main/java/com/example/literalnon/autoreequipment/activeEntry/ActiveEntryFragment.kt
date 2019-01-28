@@ -196,22 +196,23 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                                             //Log.e("makeDirectory", it.name.toString())
                                             WorkTypeObject(
                                                     it.name,
-                                                    it.photos?.map {
-                                                        //Log.e("makeDirectory", it.name.toString())
-                                                        PhotoObject(
-                                                                it.photoId,
-                                                                it.name,
-                                                                it.photo,
-                                                                it.type,
-                                                                it.sendedAt
-                                                        )
-                                                    },
                                                     it.description,
-                                                    it.sendedAt
+                                                    it.sendedAt,
+                                                    it.photosId
                                             )
                                         },
                                         0,
-                                        value.sendedAt
+                                        value.sendedAt,
+                                        value.photos?.map {
+                                            //Log.e("makeDirectory", it.name.toString())
+                                            PhotoObject(
+                                                    it.photoId,
+                                                    it.name,
+                                                    it.photo,
+                                                    it.type,
+                                                    it.sendedAt
+                                            )
+                                        }
                                 )
                         )
 

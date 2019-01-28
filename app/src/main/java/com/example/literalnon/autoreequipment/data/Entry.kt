@@ -11,6 +11,7 @@ open class Entry : RealmObject() {
     var workTypes: RealmList<WorkType>? = null
     var sendType: Int = 0// 0 - не отправлено, 1 - отправлено, 2 отправлено частично
     var sendedAt: Long? = null
+    var photos: RealmList<RealmPhoto>? = null
 }
 
 fun Entry.toObject(): EntryObject {
@@ -19,23 +20,25 @@ fun Entry.toObject(): EntryObject {
             phone,
             workTypes?.map { it.toObject() },
             sendType,
-            sendedAt
+            sendedAt,
+            photos?.map { it.toObject() }
     )
 }
 
 open class WorkType : RealmObject() {
     var name: String? = null
-    var photos: RealmList<RealmPhoto>? = null
     var description: String? = null
     var sendedAt: Long? = null
+    var photosId: RealmList<Int>? = null
 }
 
 fun WorkType.toObject(): WorkTypeObject {
     return WorkTypeObject(
             name,
-            photos?.map { it.toObject() },
+            //photos?.map { it.toObject() },
             description,
-            sendedAt
+            sendedAt,
+            photosId?.toList()
     )
 }
 
@@ -62,14 +65,15 @@ open class EntryObject(
         var phone: String? = null,
         var workTypes: List<WorkTypeObject>? = null,
         var sendType: Int = 0,// 0 - не отправлено, 1 - отправлено, 2 отправлено частично
-        var sendedAt: Long? = null
+        var sendedAt: Long? = null,
+        var photos: List<PhotoObject>? = null
 )
 
 open class WorkTypeObject(
         var name: String? = null,
-        var photos: List<PhotoObject>? = null,
         var description: String? = null,
-        var sendedAt: Long? = null
+        var sendedAt: Long? = null,
+        var photosId: List<Int>? = null
 )
 
 open class PhotoObject(
