@@ -108,9 +108,9 @@ class AddPartnerFragment : Fragment(), IAddPartnerView {
 
         realm?.commitTransaction()
 
-        realm?.executeTransaction({ bgRealm ->
+        /*realm?.executeTransaction({ bgRealm ->
 
-        })
+        })*/
 
         realm.close()
     }

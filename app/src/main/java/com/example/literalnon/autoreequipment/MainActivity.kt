@@ -18,6 +18,8 @@ import com.betcityru.dyadichko_da.betcityru.ui.createService
 import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.module.AppGlideModule
 import com.crashlytics.android.Crashlytics
+import com.example.literalnon.autoreequipment.activeEntry.ActiveEntryFragment
+import com.example.literalnon.autoreequipment.data.EntryObject
 import com.example.literalnon.autoreequipment.network.DataService
 import com.example.literalnon.autoreequipment.utils.NavigationMainItems
 import com.google.gson.Gson
@@ -38,7 +40,7 @@ class MainActivity : AppCompatActivity(), INavigationParent {
     override var navigator: Navigator? = null
 
     companion object {
-        var context: Activity? = null
+        var context: MainActivity? = null
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -138,9 +140,17 @@ class MainActivity : AppCompatActivity(), INavigationParent {
 
     }
 
+    fun sendNotificate(listEntry: ArrayList<EntryObject>) {
+        if (navigator?.getCurrentScreen() == NavigationMainItems.LIST_ACTIVE_ENTRY_SCREEN ||
+                navigator?.getCurrentScreen() == NavigationMainItems.LIST_ARCHIVE_ENTRY_SCREEN) {
+            (navigator?.getCurrentScreen()?.getFragment() as ActiveEntryFragment).update(listEntry)
+        }
+    }
+
     override fun onBackPressed() {
         if (navigator?.backNavigation() != true) {
-            super.onBackPressed()
+            //super.onBackPressed()
+            finish()
         }
     }
 

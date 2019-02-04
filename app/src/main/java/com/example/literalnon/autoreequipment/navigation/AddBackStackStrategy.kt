@@ -25,8 +25,10 @@ class AddBackStackStrategy(override val fragmentManager: FragmentManager, overri
     }
 
     override fun popFragment() {
-        tags.pop()
-        fragmentManager.popBackStack()
+        if (!tags.empty()) {
+            tags.pop()
+            fragmentManager.popBackStack()
+        }
     }
 
     override fun showFragment(enumObject: IBaseItem, data: Any?) {
@@ -52,14 +54,16 @@ class AddBackStackStrategy(override val fragmentManager: FragmentManager, overri
 
     override fun showFragmentWithParcelable(enumObject: IBaseItem, fragment: Fragment, data: Any?) {
 
-        if (tags.contains(enumObject)) {
+        /*if (enumObject.getPreviousEnumObject() == null) {
+
+        } else if (tags.contains(enumObject)) {
             while (!tags.empty() && tags.peek() != enumObject) {
                 popFragment()
             }
             if (tags.peek() == enumObject) {
                 popFragment()
             }
-        } /*else {*/
+        } *//*else {*//*
             tags.push(enumObject)
 
             enumObject.putAnimation(fragmentManager)
@@ -67,6 +71,22 @@ class AddBackStackStrategy(override val fragmentManager: FragmentManager, overri
                     .replace(containerId, fragment, enumObject.getTag())
                     .addToBackStack(enumObject.getTag())
                     .commit()
+        //}*/
+        if (enumObject.getPreviousEnumObject() == null) {
+            clear()
+        } else if (tags.contains(enumObject)) {
+            while (!tags.empty() && tags.peek() != enumObject) {
+                tags.pop()
+                fragmentManager.popBackStack()
+            }
+        } //else {
+            tags.push(enumObject)
+
+            enumObject.putAnimation(fragmentManager)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    .replace(containerId, fragment, enumObject.getTag())
+                    .addToBackStack(enumObject.getTag())
+                    .commitAllowingStateLoss()
         //}
     }
 
@@ -84,6 +104,9 @@ class AddBackStackStrategy(override val fragmentManager: FragmentManager, overri
 
     override fun backNavigation(): Boolean {
         when {
+            getCurrentScreen()?.getPreviousEnumObject() == null -> {
+                return false
+            }
             tags.empty() -> {
                 return false
             }
@@ -97,10 +120,12 @@ class AddBackStackStrategy(override val fragmentManager: FragmentManager, overri
 
                 if (currentEnumObject?.getPreviousEnumObject() == null) {
                     clear()
-                }
-
-                //while (!tags.empty() && tags.peek()?.getTag() != currentEnumObject?.getPreviousEnumObject()?.getTag()) {
+                    return false
+                } else {
                     popFragment()
+                }
+                //while (!tags.empty() && tags.peek()?.getTag() != currentEnumObject?.getPreviousEnumObject()?.getTag()) {
+
                 //}
 
                 if (!tags.empty())

@@ -14,6 +14,7 @@
     <string name="fragment_request_add_photo_hint">Добавить фото\n Макс. 20 штук</string>
     <string name="profile.edit.dialog_title_profile_pick_photo">Ваше фото</string>
     <string name="send_photos">Отправить на сервер</string>
+    <string name="fragment_request_save">Сохранено</string>
     <string name="next">Продолжить</string>
 
     <string-array name="choose_image_dialog">

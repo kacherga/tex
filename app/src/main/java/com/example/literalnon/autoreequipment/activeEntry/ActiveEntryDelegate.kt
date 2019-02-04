@@ -57,7 +57,10 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
         with(holder) {
             val context = tvTitle.context
 
-            tvTitle.text = item.name + " " +item.phone + item.workTypes?.fold("\n") { s: String, type: WorkTypeObject ->
+            val calendarCreated = Calendar.getInstance()
+            calendarCreated.timeInMillis = item.createdAt!!
+
+            tvTitle.text = "Cоздан: ${SimpleDateFormat("dd.MM.yy HH:mm").format(calendarCreated.time)}\n" + item.name + " " + item.phone + item.workTypes?.fold("\n") { s: String, type: WorkTypeObject ->
                 "$s${if (!TextUtils.equals(type.name, EXTRA_PHOTO_TITLE)) {
                     type.name + "\n"
                 } else {
@@ -129,12 +132,13 @@ class ActiveEntryDelegate(private val checkCallback: CheckCallback,
             tvSendedAt.text = if (item.sendedAt != null && item.sendType == 1) {
                 val calendar = Calendar.getInstance()
                 calendar.timeInMillis = item.sendedAt!!
-                SimpleDateFormat("dd.MM.yy HH:mm").format(calendar.time)
+
+                "Доставлено\n${SimpleDateFormat("dd.MM.yy HH:mm").format(calendar.time)}"
             } else if (item.sendType == 2) {
                 context?.getString(R.string.no_sended_file_half)
             } else {
                 context?.getString(R.string.no_sended_file)
-            }
+            } //+ "\nCоздан\n${SimpleDateFormat("dd.MM.yy HH:mm").format(calendarCreated.time)}"
         }
     }
 

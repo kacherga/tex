@@ -35,6 +35,8 @@ import services.mobiledev.ru.cheap.ui.main.comments.mvp.IFillDataPresenter
 import services.mobiledev.ru.cheap.ui.main.comments.mvp.IFillDataView
 import java.io.File
 import java.lang.StringBuilder
+import java.time.ZonedDateTime
+import java.util.*
 
 data class FillDataItem(
         val name: String,
@@ -107,14 +109,14 @@ class FillDataFragment : Fragment(), IFillDataView,
             Photo(14, "Мультиклапан", allPhotoTypes[3]),
             Photo(15, "ВЗУ", allPhotoTypes[3]),
             Photo(16, "Паспорт баллона", allPhotoTypes[2], 8),
-            Photo(17, "Паспорт собственника первая страница", allPhotoTypes[1]),
-            Photo(18, "Прописка собственника", allPhotoTypes[1]),
-            Photo(19, "Паспорт представителя первая страница", allPhotoTypes[1]),
-            Photo(20, "Прописка представителя", allPhotoTypes[1]),
-            Photo(21, "Свидетельство регистрации автомобиля лицевая сторона", allPhotoTypes[1]),
-            Photo(22, "Свидетельство регистрации автомобиля обратная сторона", allPhotoTypes[1]),
-            Photo(23, "ПТС лицевая сторона", allPhotoTypes[1]),
-            Photo(24, "ПТС обратная сторона", allPhotoTypes[1]),
+            Photo(17, "ПТС лицевая сторона", allPhotoTypes[1]),
+            Photo(18, "ПТС обратная сторона", allPhotoTypes[1]),
+            Photo(19, "Свидетельство регистрации автомобиля лицевая сторона", allPhotoTypes[1]),
+            Photo(20, "Свидетельство регистрации автомобиля обратная сторона", allPhotoTypes[1]),
+            Photo(21, "Паспорт собственника первая страница", allPhotoTypes[1]),
+            Photo(22, "Прописка собственника", allPhotoTypes[1]),
+            Photo(23, "Паспорт представителя первая страница", allPhotoTypes[1]),
+            Photo(24, "Прописка представителя", allPhotoTypes[1]),
             Photo(25, "Крупный план силового бампера", allPhotoTypes[3]),
             Photo(26, "Сертификат на силовой бампер", allPhotoTypes[2]),
             Photo(27, "Приложение к сертификату с указанием конкретной модели авто.", allPhotoTypes[2]),
@@ -127,7 +129,7 @@ class FillDataFragment : Fragment(), IFillDataView,
             Photo(34, "Общий вид внутреннего пространства кузова с местом расположения внутреннего блока", allPhotoTypes[3]),
             Photo(35, "Крупный план компрессора холодильной установки", allPhotoTypes[3]),
             Photo(36, "Паспорт на холодильную установку", allPhotoTypes[2]),
-            Photo(37, "Сертификат на автомобильную установку", allPhotoTypes[2]),
+            Photo(37, "Сертификат на холодильную установку", allPhotoTypes[2]),
             Photo(38, "Элементы крепления Двигателя в подкапотном пространстве", allPhotoTypes[3]),
             Photo(39, "Крупный план заводского номера Двигателя", allPhotoTypes[3]),
             Photo(40, "Фото розетки (электрики)", allPhotoTypes[3]),
@@ -145,7 +147,7 @@ class FillDataFragment : Fragment(), IFillDataView,
         return activity as INavigationParent
     }
 
-    private lateinit var filePicker: MediaFilePicker
+    private var filePicker: MediaFilePicker? = null
     private val photoAdapter = DelegationAdapter<Any>()
     private var extraPhotos = ArrayList<File>()
     private var photoTypes = arrayListOf(allPhotoTypes[1], allPhotoTypes[2], allPhotoTypes[3], allPhotoTypes[4])
@@ -195,12 +197,12 @@ class FillDataFragment : Fragment(), IFillDataView,
             val realm = Realm.getDefaultInstance()
             realm.beginTransaction()
 
-            Log.e("TAG", "${Gson().toJson(realm
+            /*Log.e("TAG", "${Gson().toJson(realm
                     ?.where(Entry::class.java)
                     ?.`in`("name", arrayOf(name))
                     ?.`in`("phone", arrayOf(phone))
                     ?.findAll()
-                    ?.count())}")
+                    ?.count())}")*/
 
             entry = realm
                     ?.where(Entry::class.java)
@@ -209,13 +211,13 @@ class FillDataFragment : Fragment(), IFillDataView,
                     ?.findFirst()
                     ?.toObject()
 
-            Log.e("TAG", "${Gson().toJson(entry)}")
+            //Log.e("TAG", "${Gson().toJson(entry)}")
 
             realm.commitTransaction()
 
-            realm.executeTransaction({ bgRealm ->
+            /*realm.executeTransaction({ bgRealm ->
 
-            })
+            })*/
 
             realm.close()
 
@@ -422,7 +424,7 @@ class FillDataFragment : Fragment(), IFillDataView,
         } else if (ContextCompat.checkSelfPermission(activity!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestStoragePermission(REQUEST_CAMERA_PERMISSION)
         } else {
-            filePicker.requestCameraIntent()
+            filePicker?.requestCameraIntent()
         }
     }
 
@@ -437,7 +439,7 @@ class FillDataFragment : Fragment(), IFillDataView,
                                 != PackageManager.PERMISSION_GRANTED) {
                             requestStoragePermission(REQUEST_CAMERA_PERMISSION)
                         } else {
-                            filePicker.requestGalleryIntent()
+                            filePicker?.requestGalleryIntent()
                         }
                     } else {
                         if (ContextCompat.checkSelfPermission(activity!!, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
@@ -445,7 +447,7 @@ class FillDataFragment : Fragment(), IFillDataView,
                                 || ContextCompat.checkSelfPermission(activity!!, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                             requestCameraPermission()
                         } else {
-                            filePicker.requestCameraIntent()
+                            filePicker?.requestCameraIntent()
                         }
                     }
                 }
@@ -472,12 +474,13 @@ class FillDataFragment : Fragment(), IFillDataView,
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        filePicker.onActivityResult(requestCode, resultCode, data)
+        filePicker?.onActivityResult(requestCode, resultCode, data)
         super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun onDestroyView() {
         Log.e("tag", "onDestroyView")
+        //filePicker = null
         if (isNotSave) {
             //sendData()
         }
@@ -486,7 +489,7 @@ class FillDataFragment : Fragment(), IFillDataView,
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putBundle(MediaFilePicker.EXTRA_CUR_FILE_PATH, filePicker.saveState())
+        outState.putBundle(MediaFilePicker.EXTRA_CUR_FILE_PATH, filePicker?.saveState())
         super.onSaveInstanceState(outState)
     }
 
@@ -505,13 +508,16 @@ class FillDataFragment : Fragment(), IFillDataView,
 
         realm.commitTransaction()
 
-        realm.executeTransaction({ bgRealm ->
+        /*realm.executeTransaction({ bgRealm ->
 
-        })
+        })*/
+
         realm.beginTransaction()
         //}
 
         val currentEntry: Entry = realm.createObject(Entry::class.java)
+
+        currentEntry.createdAt = entry?.createdAt ?: Calendar.getInstance().timeInMillis
 
         currentEntry.name = name
         currentEntry.phone = phone
@@ -587,7 +593,7 @@ class FillDataFragment : Fragment(), IFillDataView,
         currentEntry.workTypes!!.add(workType)
         /*} else {
             */
-        /**  удаление елементов из предыдущего примечания **//*
+        /**  удаление элементов из предыдущего примечания **//*
             curWorkType.photos?.clear()
 
             workType.photos?.forEach {
@@ -602,26 +608,26 @@ class FillDataFragment : Fragment(), IFillDataView,
 
         realm.commitTransaction()
 
-        realm.executeTransaction({ bgRealm ->
+        /*realm.executeTransaction({ bgRealm ->
 
-        })
+        })*/
 
 
         realm.close()
 
-        Toast.makeText(context, "Сохранено", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, getString(R.string.fragment_request_save), Toast.LENGTH_LONG).show()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (requestCode == REQUEST_STORAGE_PERMISSION) {
             if (PermissionUtil.verifyPermissions(grantResults)) {
-                filePicker.requestGalleryIntent()
+                filePicker?.requestGalleryIntent()
             } else {
 
             }
         } else if (requestCode == REQUEST_CAMERA_PERMISSION) {
             if (PermissionUtil.verifyPermissions(grantResults)) {
-                filePicker.requestCameraIntent()
+                filePicker?.requestCameraIntent()
             } else {
 
             }

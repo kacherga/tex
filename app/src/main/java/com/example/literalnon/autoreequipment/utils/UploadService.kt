@@ -279,6 +279,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
                         ?.subscribe({
                             context?.runOnUiThread {
                                 Toast.makeText(context, getString(R.string.send_file_notif_success), Toast.LENGTH_SHORT).show()
+                                MainActivity.context?.sendNotificate(listEntry)
                             }
                         }, {
                             /*tryRunnable = Runnable {
@@ -376,7 +377,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
             ftpClient.enterLocalPassiveMode()
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE)
 
-            val companyName = "${LoginController.user?.phone
+            val companyName = "${LoginController.user?.phone?.replace("/", "_")
                     ?: "Без имени"}"
 
             ////Log.e("makeDirectory", companyName + " : " + ftpClient.controlEncoding)
@@ -386,7 +387,7 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
 
             val maxProgress = entries?.fold(0) { acc, entryItem ->
                 //acc + (entryItem.workTypes?.fold(0) { acc, item ->
-                    acc + (entryItem.photos?.count() ?: 0)
+                acc + (entryItem.photos?.count() ?: 0)
                 //} ?: 0)
             } ?: 0
 
@@ -401,9 +402,9 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
 
                     val path = "$companyName/${entry.name?.lines()?.fold("") { acc, s ->
                         "$acc $s"
-                    }?.trim()}"
+                    }?.trim()?.replace("/", "_")}"
 
-                    val entryPath = path + "/${entry.phone}"
+                    val entryPath = path + "/${entry.phone?.replace("/", "_")}"
 
                     //ftpClient.makeDirectory(path)
                     ////Log.e("makeDirectory", "${path}")
@@ -541,9 +542,11 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
 
         realm.commitTransaction()
 
-        realm.executeTransaction({ bgRealm ->
+        /*realm.executeTransaction({ bgRealm ->
 
-        })
+        })*/
+
+        realm.refresh()
 
         realm.close()
     }
@@ -565,10 +568,10 @@ class UpdateService : Service()/*IntentService("intentServiceName")*/ {
 
         realm.commitTransaction()
 
-        realm.executeTransaction({ bgRealm ->
+        /*realm.executeTransaction({ bgRealm ->
 
-        })
-
+        })*/
+        realm.refresh()
         realm.close()
     }
 /*

@@ -14,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.text.*
 import android.util.Log
 import com.example.literalnon.autoreequipment.*
+import com.example.literalnon.autoreequipment.R
 import com.example.literalnon.autoreequipment.adapters.DelegationAdapter
 import com.example.literalnon.autoreequipment.data.*
 import com.example.literalnon.autoreequipment.utils.UpdateService
@@ -21,10 +22,7 @@ import com.example.literalnon.autoreequipment.utils.UpdateService.Companion.EXTR
 import com.example.literalnon.autoreequipment.utils.UpdateService.Companion.EXTRA_IS_RESTART
 import com.google.gson.Gson
 import io.reactivex.disposables.CompositeDisposable
-import io.realm.Realm
-import io.realm.RealmChangeListener
-import io.realm.RealmList
-import io.realm.RealmResults
+import io.realm.*
 import kotlinx.android.synthetic.main.fragment_active_entry.*
 import services.mobiledev.ru.cheap.data.LoginController
 import services.mobiledev.ru.cheap.navigation.INavigationParent
@@ -62,8 +60,11 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
         }
     }
 
-    private val callback = RealmChangeListener<RealmResults<Entry>> {
-        adapter.replaceAll(it.filter {
+    private var entries: RealmResults<Entry>? = null
+    private val callback = OrderedRealmCollectionChangeListener<RealmResults<Entry>> { results: RealmResults<Entry>, change: OrderedCollectionChangeSet ->
+        Log.e("ACTIVE", "callback : ${results.count()} change: ${change.deletions}")
+        // adapter.clear()
+        adapter.replaceAll(results.filter {
             if (!isActive) {
                 it.sendType == 1
             } else {
@@ -93,9 +94,9 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
 
             realm?.commitTransaction()
 
-            realm?.executeTransaction({ bgRealm ->
+            /*realm?.executeTransaction({ bgRealm ->
 
-            })
+            })*/
 
             adapter.remove(position)
         }, { entry ->
@@ -147,8 +148,15 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
 
         //realm?.beginTransaction()
 
-        //val entries =
-        realm?.where(Entry::class.java)?.findAllAsync()?.addChangeListener(callback)
+        entries = realm?.where(Entry::class.java)?.findAllAsync()
+        entries?.addChangeListener(callback)
+        /*adapter.replaceAll(res?.filter {
+            if (!isActive) {
+                it.sendType == 1
+            } else {
+                true
+            } && (it.sendedAt == null) == isActive
+        }?.map { it.toObject() })*/
 
 
         /* var client: Client? = Client(entries?.first()?.name)
@@ -203,6 +211,7 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                                         },
                                         0,
                                         value.sendedAt,
+                                        value.createdAt,
                                         value.photos?.map {
                                             //Log.e("makeDirectory", it.name.toString())
                                             PhotoObject(
@@ -250,6 +259,18 @@ class ActiveEntryFragment : Fragment(), IActiveEntryView {
                         .show()
             }
         }
+    }
+
+    fun update(listEntry: ArrayList<EntryObject>) {
+        listEntry.forEach { entry ->
+            adapter.items.remove(adapter.items.find {
+                it is EntryObject
+                        && TextUtils.equals(it.name, entry.name)
+                        && TextUtils.equals(it.phone, entry.phone)
+            })
+        }
+
+        adapter.notifyDataSetChanged()
     }
 
     private fun getServiceIntent(context: Context, extra: Bundle?): Intent {
